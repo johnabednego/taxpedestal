@@ -5,7 +5,7 @@ import express, { Express } from 'express'
 import helmet from 'helmet'
 import hpp from 'hpp'
 import { corsOrigins, env, isProduction, paymentCapabilities } from './config/env'
-import { databaseState } from './config/db'
+import { databaseState, waitForDatabase } from './config/db'
 import { logger } from './core/logger'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler'
 import { globalLimiter } from './middleware/rateLimit'
@@ -150,7 +150,11 @@ export function configureApp(app: Express): Express {
   })
 
   // Readiness: can we actually serve traffic?
-  app.get('/ready', (_req, res) => {
+  app.get('/ready', async (_req, res) => {
+    // Waits briefly rather than sampling: on a cold serverless instance the
+    // connection is still opening when the probe arrives, and reporting the
+    // instant it lands would fail a healthy deployment.
+    await waitForDatabase()
     const db = databaseState()
     const ready = db === 'connected'
     res.status(ready ? 200 : 503).json({

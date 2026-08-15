@@ -72,6 +72,43 @@ export async function connectDatabase(uri = env.MONGODB_URI): Promise<typeof mon
   return connection
 }
 
+/**
+ * Wait for the connection to be usable, up to `ms`.
+ *
+ * Readiness is a question about whether traffic can be served, and on
+ * serverless the honest answer during a cold start is "yes, shortly" rather
+ * than "no". Sampling `readyState` the instant a request arrives reported
+ * `connecting` on every cold instance, so `/ready` returned 503 continuously
+ * even while ordinary requests succeeded: Mongoose buffers queries until the
+ * connection opens, so the login endpoint simply waited where the health check
+ * did not.
+ *
+ * Bounded so a genuinely unreachable database still fails fast and visibly
+ * rather than hanging until the platform's own invocation timeout.
+ */
+export async function waitForDatabase(ms = 4_000): Promise<void> {
+  if (mongoose.connection.readyState === 1) return
+
+  let timer: NodeJS.Timeout | undefined
+  const deadline = new Promise<void>((resolve) => {
+    timer = setTimeout(resolve, ms)
+  })
+
+  try {
+    await Promise.race([
+      // A failed connection resolves rather than rejects: the caller reports
+      // the resulting state, it does not handle the error.
+      connectDatabase().then(
+        () => undefined,
+        () => undefined,
+      ),
+      deadline,
+    ])
+  } finally {
+    if (timer) clearTimeout(timer)
+  }
+}
+
 export async function disconnectDatabase(): Promise<void> {
   connectionPromise = null
   await mongoose.disconnect()
