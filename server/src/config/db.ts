@@ -89,6 +89,17 @@ export async function connectDatabase(uri = env.MONGODB_URI): Promise<typeof mon
 export async function waitForDatabase(ms = 4_000): Promise<void> {
   if (mongoose.connection.readyState === 1) return
 
+  /*
+   * Waits on an attempt ALREADY in flight; it never starts one.
+   *
+   * A readiness probe that opens its own connection would report "connecting"
+   * on a deployment that has no database configured at all, turning a clear
+   * "disconnected" into something more ambiguous. The entry point begins the
+   * connection during module startup, so on a real instance there is always an
+   * attempt to wait for.
+   */
+  if (!connectionPromise) return
+
   let timer: NodeJS.Timeout | undefined
   const deadline = new Promise<void>((resolve) => {
     timer = setTimeout(resolve, ms)
@@ -98,7 +109,7 @@ export async function waitForDatabase(ms = 4_000): Promise<void> {
     await Promise.race([
       // A failed connection resolves rather than rejects: the caller reports
       // the resulting state, it does not handle the error.
-      connectDatabase().then(
+      connectionPromise.then(
         () => undefined,
         () => undefined,
       ),
