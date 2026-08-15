@@ -11,3 +11,6 @@ coverage/
 .idea/
 *.tsbuildinfo
 .vercel
+
+# Examination submission artefacts, built from the repo and delivered separately
+submission/

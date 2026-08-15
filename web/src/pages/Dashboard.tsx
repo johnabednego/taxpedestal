@@ -159,7 +159,10 @@ export default function Dashboard() {
             />
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -16, bottom: 0 }}>
+                {/* A negative left margin clipped the currency off the axis labels
+                    ("HS 60k" instead of "GHS 60k"); the ticks carry a currency
+                    code, so the axis needs real width. */}
+                <AreaChart data={chartData} margin={{ top: 4, right: 8, left: 12, bottom: 0 }}>
                   <defs>
                     <linearGradient id="invoiced" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#2B59FF" stopOpacity={0.22} />
@@ -181,6 +184,7 @@ export default function Dashboard() {
                     tick={{ fontSize: 12, fill: '#8494BA' }}
                     axisLine={false}
                     tickLine={false}
+                    width={72}
                     tickFormatter={(v: number) => formatCompact(v * 100, data.currency)}
                   />
                   <Tooltip

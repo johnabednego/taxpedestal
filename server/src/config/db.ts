@@ -45,14 +45,39 @@ export async function connectDatabase(uri = env.MONGODB_URI): Promise<typeof mon
     maxPoolSize: isServerless ? 3 : isProduction ? 10 : 5,
     minPoolSize: 0,
     /**
-     * Must stay well inside the function's invocation timeout, or a cold start
-     * against an unreachable database burns the whole budget and the caller
-     * gets a platform timeout instead of the API's own 503.
+     * Generous enough for a COLD connection, bounded enough to fail visibly.
+     *
+     * This was briefly set to 5s on serverless on the theory that a health
+     * probe should fail fast. That was wrong twice over: the platform allows
+     * far longer per invocation, and a cold instance opening DNS, TLS and SCRAM
+     * auth against Atlas can legitimately exceed five seconds. When it did, the
+     * connection failed and every query on that instance then died at
+     * Mongoose's 10s buffer timeout instead.
      */
-    serverSelectionTimeoutMS: isServerless ? 5_000 : 10_000,
+    serverSelectionTimeoutMS: 15_000,
     socketTimeoutMS: 45_000,
     // Retry a transient write once before surfacing an error.
     retryWrites: true,
+  })
+
+  /**
+   * A FAILED attempt must not be cached.
+   *
+   * `connectionPromise` exists so concurrent callers share one connect. If the
+   * attempt rejects and the rejected promise stays cached, every later request
+   * on that instance receives the same rejection and the instance is poisoned
+   * for its whole lifetime. On a long-lived server that was survivable, because
+   * a boot failure is visible and the process is restarted. On serverless it
+   * is not: one transient network blip during a cold start leaves that instance
+   * returning 500 for every request until the platform recycles it, while
+   * neighbouring instances serve normally. That is exactly the intermittent
+   * failure this deployment showed.
+   *
+   * Clearing the handle on rejection lets the next request start a fresh
+   * attempt.
+   */
+  connectionPromise.catch(() => {
+    connectionPromise = null
   })
 
   mongoose.connection.on('error', (err) => {

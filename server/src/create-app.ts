@@ -5,7 +5,7 @@ import express, { Express } from 'express'
 import helmet from 'helmet'
 import hpp from 'hpp'
 import { corsOrigins, env, isProduction, paymentCapabilities } from './config/env'
-import { databaseState, waitForDatabase } from './config/db'
+import { connectDatabase, databaseState, waitForDatabase } from './config/db'
 import { logger } from './core/logger'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler'
 import { globalLimiter } from './middleware/rateLimit'
@@ -141,6 +141,24 @@ export function configureApp(app: Express): Express {
   app.use(hpp())
 
   app.use('/api/v1', globalLimiter)
+
+  /**
+   * Make sure a connection attempt is in flight for every API request.
+   *
+   * Deliberately NOT awaited. When the connection is already open this costs
+   * nothing, and when it is not, Mongoose buffers the query until it opens, so
+   * the request waits exactly as long as it needs to and no longer.
+   *
+   * Its real purpose is recovery. The entry point starts the connection once at
+   * module startup; if that attempt fails, nothing else would ever retry, and a
+   * serverless instance would keep serving errors until the platform recycled
+   * it. Touching the connector on each request means the instance heals itself
+   * on the next call instead.
+   */
+  app.use('/api/v1', (_req, _res, next) => {
+    void connectDatabase().catch(() => undefined)
+    next()
+  })
 
   /* --- Health ------------------------------------------------------------ */
   // Liveness: is the process up? Must not touch the database, or a brief DB
