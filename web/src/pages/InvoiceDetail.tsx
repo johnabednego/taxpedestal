@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   ArrowLeft,
   Ban,
   BellRing,
   Check,
+  Clock,
   Copy,
   Download,
   Loader2,
+  Pencil,
   Send,
   Smartphone,
+  Trash2,
   Wallet,
 } from 'lucide-react'
 import { ApiError, api, apiUrl, getAccessToken, newIdempotencyKey } from '../lib/api'
@@ -93,6 +96,7 @@ interface InvoiceDetailData {
 export function InvoiceDetail() {
   const { id } = useParams<{ id: string }>()
   const { t, tOr, locale, formatDate } = useI18n()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const toast = useToast()
   const canEdit = useCan('MEMBER')
@@ -100,6 +104,9 @@ export function InvoiceDetail() {
   const [payOpen, setPayOpen] = useState(false)
   const [voidOpen, setVoidOpen] = useState(false)
   const [copied, setCopied] = useState(false)
+  /** Payment id awaiting a rejection reason, or null. */
+  const [rejecting, setRejecting] = useState<string | null>(null)
+  const [rejectReason, setRejectReason] = useState('')
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['invoice', id],
@@ -127,12 +134,67 @@ export function InvoiceDetail() {
     onError: (e) => toast.push(e instanceof ApiError ? e.message : t('inv.couldNotRemind'), 'danger'),
   })
 
+  const remove = useMutation({
+    mutationFn: () => api(`/api/v1/invoices/${id}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      toast.push(t('inv.deleted'), 'success')
+      void queryClient.invalidateQueries({ queryKey: ['invoices'] })
+      navigate('/app/invoices')
+    },
+    onError: (e) => toast.push(e instanceof ApiError ? e.message : t('inv.deleteFailed'), 'danger'),
+  })
+
+  /**
+   * Resolve a bank transfer the customer declared on the public page.
+   *
+   * This closes a loop that was previously open at the supplier's end: the
+   * payment page could create a PENDING manual payment, and the confirm and
+   * reject endpoints existed, but nothing in the interface listed a pending
+   * payment or called them. A customer could say "I've paid" and the invoice
+   * would stay unpaid with no way to act on it.
+   *
+   * Confirming is what credits the invoice — deliberately a human decision,
+   * because an unauthenticated web page must never be able to clear a debt.
+   */
+  const confirmPayment = useMutation({
+    mutationFn: (paymentId: string) =>
+      api(`/api/v1/invoices/${id}/payments/${paymentId}/confirm`, {
+        method: 'POST',
+        idempotencyKey: newIdempotencyKey(),
+        body: {},
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['invoice', id] })
+      toast.push(t('pay.confirmed'), 'success')
+    },
+    onError: (e) => toast.push(e instanceof ApiError ? e.message : t('pay.confirmFailed'), 'danger'),
+  })
+
+  const rejectPayment = useMutation({
+    mutationFn: ({ paymentId, reason }: { paymentId: string; reason: string }) =>
+      api(`/api/v1/invoices/${id}/payments/${paymentId}/reject`, {
+        method: 'POST',
+        body: { reason: reason || undefined },
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['invoice', id] })
+      toast.push(t('pay.rejected'), 'success')
+    },
+    onError: (e) => toast.push(e instanceof ApiError ? e.message : t('error.generic'), 'danger'),
+  })
+
   if (isLoading) return <Skeleton className="h-96" />
   if (error || !data) return <ErrorNotice message={t('inv.loadFailed')} />
 
   const { invoice } = data
   const isDraft = invoice.status === 'DRAFT'
   const isOpen = !['PAID', 'VOID', 'DRAFT'].includes(invoice.status)
+
+  // Only manual payments can be confirmed by hand; gateway payments settle
+  // through their webhook, and the server rejects confirming those.
+  const pendingPayments = data.payments.filter(
+    (payment) => payment.status === 'PENDING' && payment.provider === 'MANUAL',
+  )
 
   /**
    * Download the PDF.
@@ -206,8 +268,32 @@ export function InvoiceDetail() {
             </>
           )}
           {isDraft && canEdit && (
-            <Button size="sm" loading={send.isPending} icon={<Send className="h-3.5 w-3.5" />} onClick={() => send.mutate()}>
-              {t('action.send')}
+            <>
+              <Link to={`/app/invoices/${id}/edit`}>
+                <Button variant="secondary" size="sm" icon={<Pencil className="h-3.5 w-3.5" />}>
+                  {t('inv.edit')}
+                </Button>
+              </Link>
+              <Button size="sm" loading={send.isPending} icon={<Send className="h-3.5 w-3.5" />} onClick={() => send.mutate()}>
+                {t('action.send')}
+              </Button>
+            </>
+          )}
+          {/* Deleting is confined to drafts by the server; an issued invoice is
+              voided so the record survives. ADMIN-only, matching the API. */}
+          {isDraft && canAdmin && (
+            <Button
+              variant="ghost"
+              size="sm"
+              loading={remove.isPending}
+              icon={<Trash2 className="h-3.5 w-3.5" />}
+              onClick={() => {
+                if (window.confirm(t('inv.deleteConfirm', { number: invoice.number }))) {
+                  remove.mutate()
+                }
+              }}
+            >
+              {t('inv.delete')}
             </Button>
           )}
           {isOpen && canEdit && (
@@ -303,6 +389,62 @@ export function InvoiceDetail() {
 
         {/* Ledger and compliance */}
         <div className="space-y-5">
+          {/* Declared transfers, first: this is the one thing on the page that
+              is waiting on the user rather than reporting to them. */}
+          {pendingPayments.length > 0 && canEdit && (
+            <Card>
+              <div className="mb-3 flex items-center gap-2">
+                <Clock className="h-4 w-4 text-amber" />
+                <h2 className="text-base font-semibold text-ink-900">{t('pay.pendingTitle')}</h2>
+              </div>
+              <p className="mb-4 text-sm leading-relaxed text-ink-600">{t('pay.pendingHelp')}</p>
+
+              <ul className="space-y-3">
+                {pendingPayments.map((payment) => (
+                  <li
+                    key={payment._id}
+                    className="rounded-lg border border-amber-100 bg-amber-50 px-3 py-2.5"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="money text-sm font-semibold text-ink-900">
+                          {formatMoney(payment.amountMinor, payment.currency)}
+                        </p>
+                        <p className="text-xs text-ink-500">
+                          {payment.channelDetail ??
+                            tOr(`method.${payment.method}`, payment.method)}
+                          {payment.paidAt
+                            ? ` · ${t('pay.declaredOn', {
+                                date: formatDate(payment.paidAt, 'medium'),
+                              })}`
+                            : ''}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setRejecting(payment._id)}
+                        >
+                          {t('pay.reject')}
+                        </Button>
+                        <Button
+                          size="sm"
+                          loading={
+                            confirmPayment.isPending && confirmPayment.variables === payment._id
+                          }
+                          onClick={() => confirmPayment.mutate(payment._id)}
+                        >
+                          {t('pay.confirmReceipt')}
+                        </Button>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          )}
+
           <ComplianceNotice compliance={data.compliance} />
           <Card>
             <SectionHeading
@@ -388,10 +530,58 @@ export function InvoiceDetail() {
         invoiceId={invoice._id}
         onDone={() => {
           void queryClient.invalidateQueries({ queryKey: ['invoice', id] })
-          toast.push('Invoice voided', 'success')
+          toast.push(t('inv.voided'), 'success')
           setVoidOpen(false)
         }}
       />
+
+      <Modal
+        open={rejecting !== null}
+        onClose={() => {
+          setRejecting(null)
+          setRejectReason('')
+        }}
+        title={t('pay.rejectTitle')}
+        description={t('pay.rejectDescription')}
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setRejecting(null)
+                setRejectReason('')
+              }}
+            >
+              {t('action.cancel')}
+            </Button>
+            <Button
+              variant="danger"
+              loading={rejectPayment.isPending}
+              onClick={() => {
+                if (!rejecting) return
+                rejectPayment.mutate(
+                  { paymentId: rejecting, reason: rejectReason },
+                  {
+                    onSettled: () => {
+                      setRejecting(null)
+                      setRejectReason('')
+                    },
+                  },
+                )
+              }}
+            >
+              {t('pay.reject')}
+            </Button>
+          </>
+        }
+      >
+        <Input
+          label={t('pay.rejectReason')}
+          value={rejectReason}
+          hint={t('pay.rejectReasonHint')}
+          onChange={(e) => setRejectReason(e.target.value)}
+        />
+      </Modal>
     </div>
   )
 }

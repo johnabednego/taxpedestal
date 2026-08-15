@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Loader2, Plus, ScrollText, Trash2 } from 'lucide-react'
 import dayjs from 'dayjs'
 import { ApiError, api, newIdempotencyKey } from '../lib/api'
 import { useAuth } from '../lib/auth'
 import { useI18n } from '../i18n'
-import { formatMoney, inputToQty, parseMoney } from '../lib/format'
+import { formatMoney, inputToQty, parseMoney, qtyToInput, toInputValue } from '../lib/format'
 import {
   Button,
   Card,
@@ -36,6 +36,25 @@ interface Preview {
   treatmentLabel: string | null
 }
 
+/** Shape of a draft being loaded back into the builder. */
+interface LoadedInvoice {
+  _id: string
+  status: string
+  currency: string
+  issueDate: string
+  dueDate: string
+  reference: string | null
+  notes: string | null
+  client: { _id: string } | null
+  lines: Array<{
+    _id: string
+    description: string
+    quantityMilli: number
+    unitAmountMinor: number
+    supplyType?: LineDraft['supplyType']
+  }>
+}
+
 interface LineDraft {
   key: string
   description: string
@@ -61,6 +80,18 @@ export default function InvoiceBuilder() {
   const navigate = useNavigate()
   const toast = useToast()
 
+  /**
+   * Doubles as the draft editor.
+   *
+   * `PATCH /invoices/:id` and the DRAFT-only guard have always existed on the
+   * server; nothing in the interface reached them, so a draft could be created
+   * and sent but never corrected. Reusing this component rather than writing a
+   * second form keeps one implementation of the line editor and the live tax
+   * preview — two places computing a total is how they end up disagreeing.
+   */
+  const { id: editingId } = useParams<{ id: string }>()
+  const isEdit = Boolean(editingId)
+
   const [clientId, setClientId] = useState('')
   const [currency, setCurrency] = useState(org?.baseCurrency ?? 'USD')
   const [issueDate, setIssueDate] = useState(dayjs().format('YYYY-MM-DD'))
@@ -82,10 +113,59 @@ export default function InvoiceBuilder() {
 
   const selectedClient = clients?.data.find((c) => c._id === clientId)
 
-  // Adopt the client's preferred currency when one is chosen.
+  /**
+   * Load the draft being edited.
+   *
+   * Only DRAFT invoices are editable — the server rejects anything else — so an
+   * issued invoice reached through a hand-typed URL is bounced back to its
+   * detail page rather than presented in a form that cannot save.
+   */
+  const { data: existing } = useQuery({
+    queryKey: ['invoice', editingId],
+    queryFn: () => api<{ invoice: LoadedInvoice }>(`/api/v1/invoices/${editingId}`),
+    enabled: isEdit,
+  })
+
+  const [hydrated, setHydrated] = useState(false)
   useEffect(() => {
+    if (!existing || hydrated) return
+    const invoice = existing.invoice
+
+    if (invoice.status !== 'DRAFT') {
+      toast.push(t('inv.onlyDraftsEditable'), 'warning')
+      navigate(`/app/invoices/${invoice._id}`, { replace: true })
+      return
+    }
+
+    setClientId(invoice.client?._id ?? '')
+    setCurrency(invoice.currency)
+    setIssueDate(dayjs(invoice.issueDate).format('YYYY-MM-DD'))
+    setDueDate(dayjs(invoice.dueDate).format('YYYY-MM-DD'))
+    setReference(invoice.reference ?? '')
+    setNotes(invoice.notes ?? '')
+    setLines(
+      invoice.lines.length > 0
+        ? invoice.lines.map((line) => ({
+            key: line._id,
+            description: line.description,
+            quantity: qtyToInput(line.quantityMilli),
+            unitAmount: toInputValue(line.unitAmountMinor, invoice.currency),
+            supplyType: line.supplyType ?? 'services',
+          }))
+        : [emptyLine()],
+    )
+    // Guards against the currency effect below clobbering the saved currency
+    // before the client list has loaded.
+    setHydrated(true)
+  }, [existing, hydrated, navigate, t, toast])
+
+  // Adopt the client's preferred currency when one is chosen. Skipped until an
+  // edited draft has been hydrated, so loading a draft does not rewrite the
+  // currency it was saved with.
+  useEffect(() => {
+    if (isEdit && !hydrated) return
     if (selectedClient) setCurrency(selectedClient.defaultCurrency)
-  }, [selectedClient])
+  }, [selectedClient, isEdit, hydrated])
 
   const payloadLines = useMemo(
     () =>
@@ -141,20 +221,30 @@ export default function InvoiceBuilder() {
     setSaving(true)
     setError('')
     try {
-      const invoice = await api<{ _id: string }>('/api/v1/invoices', {
-        method: 'POST',
-        idempotencyKey: newIdempotencyKey(),
-        body: {
-          clientId,
-          currency,
-          issueDate: dayjs(issueDate).toISOString(),
-          dueDate: dayjs(dueDate).toISOString(),
-          lines: payloadLines,
-          discountBasisPoints: Math.round((Number(discountPercent) || 0) * 100),
-          reference: reference || null,
-          notes: notes || null,
-        },
-      })
+      const body = {
+        clientId,
+        currency,
+        issueDate: dayjs(issueDate).toISOString(),
+        dueDate: dayjs(dueDate).toISOString(),
+        lines: payloadLines,
+        discountBasisPoints: Math.round((Number(discountPercent) || 0) * 100),
+        reference: reference || null,
+        notes: notes || null,
+      }
+
+      // PATCH is idempotent by nature, so it carries no idempotency key; a
+      // replayed key would make a deliberate second correction return the
+      // first one's result instead of applying.
+      const invoice = isEdit
+        ? await api<{ _id: string }>(`/api/v1/invoices/${editingId}`, {
+            method: 'PATCH',
+            body,
+          })
+        : await api<{ _id: string }>('/api/v1/invoices', {
+            method: 'POST',
+            idempotencyKey: newIdempotencyKey(),
+            body,
+          })
 
       if (send) {
         await api(`/api/v1/invoices/${invoice._id}/send`, {
@@ -164,7 +254,7 @@ export default function InvoiceBuilder() {
         })
         toast.push(t('inv.sent'), 'success')
       } else {
-        toast.push(t('inv.draftSaved'), 'success')
+        toast.push(isEdit ? t('inv.updated') : t('inv.draftSaved'), 'success')
       }
 
       navigate(`/app/invoices/${invoice._id}`)
@@ -180,7 +270,9 @@ export default function InvoiceBuilder() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-ink-900">{t('inv.builderTitle')}</h1>
+        <h1 className="text-2xl font-bold text-ink-900">
+          {isEdit ? t('inv.editTitle') : t('inv.builderTitle')}
+        </h1>
         <p className="text-sm text-ink-500">{t('inv.builderSubtitle')}</p>
       </div>
 
@@ -390,7 +482,7 @@ export default function InvoiceBuilder() {
                 disabled={!canSave}
                 onClick={() => save(false)}
               >
-                {t('inv.saveDraft')}
+                {isEdit ? t('inv.saveChanges') : t('inv.saveDraft')}
               </Button>
             </div>
           </Card>

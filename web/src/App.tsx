@@ -63,6 +63,9 @@ export default function App() {
           <Route index element={<Dashboard />} />
           <Route path="invoices" element={<Invoices />} />
           <Route path="invoices/new" element={<InvoiceBuilder />} />
+          {/* Editing reuses the builder. Declared before the detail route so
+              "edit" is not swallowed by the :id parameter. */}
+          <Route path="invoices/:id/edit" element={<InvoiceBuilder />} />
           <Route path="invoices/:id" element={<InvoiceDetail />} />
           <Route path="clients" element={<Clients />} />
           <Route path="settings" element={<Settings />} />

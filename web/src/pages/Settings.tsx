@@ -284,10 +284,124 @@ export default function Settings() {
         )}
       </form>
 
-      {/* Outside the settings <form>: inviting is its own action and must not
+      {/* Outside the settings <form>: these are their own actions and must not
           be submitted along with the workspace details. */}
       <TeamCard />
+      <AccountCard />
     </div>
+  )
+}
+
+/* -------------------------------------------------------------------------- */
+/* Account                                                                     */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The signed-in user's own credentials.
+ *
+ * `change-password` and `logout-all` existed on the server from the start with
+ * nothing calling them, so a signed-in user could only change their password by
+ * signing out and using the forgotten-password email — and had no way at all to
+ * end a session on a device they no longer control.
+ *
+ * Changing the password bumps the token version server-side, which revokes
+ * every other session as a side effect. That is stated here rather than left
+ * as a surprise.
+ */
+function AccountCard() {
+  const { t } = useI18n()
+  const { user } = useAuth()
+  const toast = useToast()
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [error, setError] = useState('')
+  const [fields, setFields] = useState<Record<string, string>>({})
+
+  const change = useMutation({
+    mutationFn: () =>
+      api('/api/v1/auth/change-password', {
+        method: 'POST',
+        body: { currentPassword, newPassword },
+      }),
+    onSuccess: () => {
+      setCurrentPassword('')
+      setNewPassword('')
+      setError('')
+      setFields({})
+      toast.push(t('account.passwordChanged'), 'success')
+    },
+    onError: (err) => {
+      if (err instanceof ApiError) {
+        setError(err.message)
+        setFields(err.fieldErrors)
+      } else setError(t('account.changeFailed'))
+    },
+  })
+
+  const signOutEverywhere = useMutation({
+    mutationFn: () => api('/api/v1/auth/logout-all', { method: 'POST' }),
+    onSuccess: () => toast.push(t('account.signedOutAll'), 'success'),
+    onError: (e) => toast.push(e instanceof ApiError ? e.message : t('error.generic'), 'danger'),
+  })
+
+  return (
+    <Card>
+      <SectionHeading title={t('account.title')} description={t('account.subtitle')} />
+
+      <p className="mb-4 text-sm text-ink-600">{user?.email}</p>
+
+      <form
+        className="space-y-3"
+        onSubmit={(event) => {
+          event.preventDefault()
+          change.mutate()
+        }}
+      >
+        {error && <ErrorNotice message={error} />}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Input
+            label={t('account.currentPassword')}
+            type="password"
+            autoComplete="current-password"
+            value={currentPassword}
+            error={fields.currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+          />
+          <Input
+            label={t('account.newPassword')}
+            type="password"
+            autoComplete="new-password"
+            value={newPassword}
+            error={fields.newPassword}
+            hint={t('auth.passwordHint')}
+            onChange={(e) => setNewPassword(e.target.value)}
+          />
+        </div>
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            loading={change.isPending}
+            disabled={!currentPassword || !newPassword}
+          >
+            {t('account.changePassword')}
+          </Button>
+        </div>
+      </form>
+
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-ink-100 pt-4">
+        <p className="text-xs text-ink-500">{t('account.signOutAllHelp')}</p>
+        <Button
+          variant="secondary"
+          size="sm"
+          loading={signOutEverywhere.isPending}
+          onClick={() => {
+            if (window.confirm(t('account.signOutAllConfirm'))) signOutEverywhere.mutate()
+          }}
+        >
+          {t('account.signOutAll')}
+        </Button>
+      </div>
+    </Card>
   )
 }
 

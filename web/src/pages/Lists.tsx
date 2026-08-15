@@ -1,7 +1,7 @@
 import { FormEvent, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Archive, FileText, Plus, Search, Users } from 'lucide-react'
+import { Archive, ArchiveRestore, FileText, Pencil, Plus, Search, Users } from 'lucide-react'
 import { ApiError, api, newIdempotencyKey } from '../lib/api'
 import { useAuth, useCan } from '../lib/auth'
 import { useI18n } from '../i18n'
@@ -231,14 +231,24 @@ export function Clients() {
   const queryClient = useQueryClient()
   const toast = useToast()
   const [open, setOpen] = useState(false)
+  const [editing, setEditing] = useState<ClientRow | null>(null)
   const [search, setSearch] = useState('')
+  /**
+   * Archived clients were previously unreachable: archiving removed a client
+   * from the only list the interface had, and the restore endpoint existed with
+   * nothing to call it. This toggle is what makes archiving reversible.
+   */
+  const [showArchived, setShowArchived] = useState(false)
 
   const { data, isLoading } = useQuery({
-    queryKey: ['clients', org?.id, search],
-    queryFn: () =>
-      api<{ data: ClientRow[] }>(
-        `/api/v1/clients${search ? `?search=${encodeURIComponent(search)}` : ''}`,
-      ),
+    queryKey: ['clients', org?.id, search, showArchived],
+    queryFn: () => {
+      const params = new URLSearchParams()
+      if (search) params.set('search', search)
+      if (showArchived) params.set('includeArchived', 'true')
+      const qs = params.toString()
+      return api<{ data: ClientRow[] }>(`/api/v1/clients${qs ? `?${qs}` : ''}`)
+    },
     enabled: Boolean(org),
   })
 
@@ -248,6 +258,15 @@ export function Clients() {
       void queryClient.invalidateQueries({ queryKey: ['clients'] })
       toast.push(t('client.archived'), 'success')
     },
+  })
+
+  const restore = useMutation({
+    mutationFn: (id: string) => api(`/api/v1/clients/${id}/restore`, { method: 'POST' }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['clients'] })
+      toast.push(t('client.restored'), 'success')
+    },
+    onError: (e) => toast.push(e instanceof ApiError ? e.message : t('error.generic'), 'danger'),
   })
 
   return (
@@ -264,15 +283,30 @@ export function Clients() {
         )}
       </div>
 
-      <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1">
+        <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={t('client.searchPlaceholder')}
-          className="h-10 w-full rounded-lg border border-ink-200 bg-white pl-9 pr-3 text-sm placeholder:text-ink-400 focus:border-cobalt focus:outline-none focus:ring-2 focus:ring-cobalt/20 sm:w-72"
+          className="h-10 w-full rounded-lg border border-ink-200 bg-white ps-9 pe-3 text-sm placeholder:text-ink-400 focus:border-cobalt focus:outline-none focus:ring-2 focus:ring-cobalt/20 sm:w-72"
         />
+        </div>
+        <label className="flex shrink-0 items-center gap-2 text-sm text-ink-600">
+          <input
+            type="checkbox"
+            checked={showArchived}
+            onChange={(e) => setShowArchived(e.target.checked)}
+            className="h-4 w-4 rounded border-ink-300 text-cobalt focus:ring-cobalt/30"
+          />
+          {t('client.showArchived')}
+        </label>
       </div>
+
+      {showArchived && (
+        <p className="text-xs text-ink-500">{t('client.archivedHelp')}</p>
+      )}
 
       <Card padded={false}>
         {isLoading ? (
@@ -300,7 +334,14 @@ export function Clients() {
                 className="flex items-center justify-between gap-3 px-4 py-3"
               >
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-ink-900">{client.name}</p>
+                  <p className="flex items-center gap-2 text-sm font-medium text-ink-900">
+                    <span className="truncate">{client.name}</span>
+                    {client.archivedAt && (
+                      <span className="shrink-0 rounded bg-ink-100 px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-ink-500">
+                        {t('client.archivedTag')}
+                      </span>
+                    )}
+                  </p>
                   <p className="truncate text-xs text-ink-500">
                     {client.email ?? t('client.noEmail')} · {client.country} ·{' '}
                     {client.isBusiness ? t('client.business') : t('client.consumer')}
@@ -309,14 +350,35 @@ export function Clients() {
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <span className="money text-xs text-ink-500">{client.defaultCurrency}</span>
-                  {canEdit && (
-                    <button
-                      onClick={() => archive.mutate(client._id)}
-                      aria-label={t('client.archiveAria', { name: client.name })}
-                      className="rounded-lg p-1.5 text-ink-400 hover:bg-ink-100 hover:text-ink-700"
+                  {canEdit && !client.archivedAt && (
+                    <>
+                      <button
+                        onClick={() => setEditing(client)}
+                        aria-label={t('client.editAria', { name: client.name })}
+                        className="rounded-lg p-1.5 text-ink-400 hover:bg-ink-100 hover:text-ink-700"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => archive.mutate(client._id)}
+                        aria-label={t('client.archiveAria', { name: client.name })}
+                        className="rounded-lg p-1.5 text-ink-400 hover:bg-ink-100 hover:text-ink-700"
+                      >
+                        <Archive className="h-4 w-4" />
+                      </button>
+                    </>
+                  )}
+                  {canEdit && client.archivedAt && (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      loading={restore.isPending && restore.variables === client._id}
+                      onClick={() => restore.mutate(client._id)}
+                      aria-label={t('client.restoreAria', { name: client.name })}
+                      icon={<ArchiveRestore className="h-3.5 w-3.5" />}
                     >
-                      <Archive className="h-4 w-4" />
-                    </button>
+                      {t('client.restore')}
+                    </Button>
                   )}
                 </div>
               </li>
@@ -326,41 +388,61 @@ export function Clients() {
       </Card>
 
       <ClientModal
-        open={open}
-        onClose={() => setOpen(false)}
-        currencies={meta?.currencies.map((c) => c.code) ?? ['USD']}
-        onCreated={() => {
-          void queryClient.invalidateQueries({ queryKey: ['clients'] })
-          toast.push(t('client.added'), 'success')
+        // Remounted per target so the form state resets between "add" and
+        // editing a different client.
+        key={editing?._id ?? 'new'}
+        open={open || editing !== null}
+        client={editing}
+        onClose={() => {
           setOpen(false)
+          setEditing(null)
+        }}
+        currencies={meta?.currencies.map((c) => c.code) ?? ['USD']}
+        onSaved={(wasEdit) => {
+          void queryClient.invalidateQueries({ queryKey: ['clients'] })
+          toast.push(wasEdit ? t('client.updated') : t('client.added'), 'success')
+          setOpen(false)
+          setEditing(null)
         }}
       />
     </div>
   )
 }
 
+/**
+ * Create or edit a client.
+ *
+ * One component for both, because the fields are identical and the tax
+ * consequences of getting `country`, `isBusiness` or `taxId` wrong are the
+ * same whether you are adding a client or correcting one. A separate edit form
+ * would be a second place for those rules to drift.
+ */
 function ClientModal({
   open,
+  client,
   onClose,
   currencies,
-  onCreated,
+  onSaved,
 }: {
   open: boolean
+  /** Null when adding. */
+  client: ClientRow | null
   onClose: () => void
   currencies: string[]
-  onCreated: () => void
+  onSaved: (wasEdit: boolean) => void
 }) {
   const { org } = useAuth()
   const { t } = useI18n()
+  const isEdit = client !== null
   const [form, setForm] = useState({
-    name: '',
-    email: '',
-    country: org?.country ?? 'GH',
+    name: client?.name ?? '',
+    email: client?.email ?? '',
+    country: client?.country ?? org?.country ?? 'GH',
     region: '',
-    isBusiness: true,
-    taxId: '',
+    isBusiness: client?.isBusiness ?? true,
+    taxId: client?.taxId ?? '',
     taxRegistered: false,
-    defaultCurrency: org?.baseCurrency ?? 'USD',
+    defaultCurrency: client?.defaultCurrency ?? org?.baseCurrency ?? 'USD',
   })
   const [error, setError] = useState('')
   const [fields, setFields] = useState<Record<string, string>>({})
@@ -375,19 +457,28 @@ function ClientModal({
     setError('')
     setFields({})
     try {
-      await api('/api/v1/clients', {
-        method: 'POST',
-        // A retried create cannot duplicate the client.
-        idempotencyKey: newIdempotencyKey(),
-        body: {
-          ...form,
-          email: form.email || null,
-          taxId: form.taxId || null,
-          region: form.region || null,
-        },
-      })
-      onCreated()
-      setForm({ ...form, name: '', email: '', taxId: '' })
+      const body = {
+        ...form,
+        email: form.email || null,
+        taxId: form.taxId || null,
+        region: form.region || null,
+      }
+
+      if (isEdit) {
+        // No idempotency key: PATCH is already idempotent, and a replayed key
+        // would make a second, deliberate correction silently return the first.
+        await api(`/api/v1/clients/${client._id}`, { method: 'PATCH', body })
+      } else {
+        await api('/api/v1/clients', {
+          method: 'POST',
+          // A retried create cannot duplicate the client.
+          idempotencyKey: newIdempotencyKey(),
+          body,
+        })
+      }
+
+      onSaved(isEdit)
+      if (!isEdit) setForm({ ...form, name: '', email: '', taxId: '' })
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message)
@@ -405,7 +496,7 @@ function ClientModal({
     <Modal
       open={open}
       onClose={onClose}
-      title={t('client.addTitle')}
+      title={isEdit ? t('client.editTitle') : t('client.addTitle')}
       description={t('client.addDescription')}
       size="lg"
       footer={
@@ -414,7 +505,7 @@ function ClientModal({
             {t('action.cancel')}
           </Button>
           <Button onClick={submit} loading={submitting}>
-            {t('client.add')}
+            {isEdit ? t('client.saveChanges') : t('client.add')}
           </Button>
         </>
       }

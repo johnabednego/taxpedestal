@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { BRAND } from '../brand'
-import { useI18n } from '../i18n'
+import { useI18n, type TranslationKey } from '../i18n'
 import { LanguageSwitcher } from '../components/LanguageSwitcher'
 import { Logo } from '../components/Logo'
 import { Link } from 'react-router-dom'
@@ -53,8 +53,6 @@ interface PreviewResponse {
 interface Scenario {
   id: string
   flag: string
-  label: string
-  sublabel: string
   currency: string
   supplierCountry: string
   supplierRegion?: string
@@ -67,8 +65,6 @@ interface Scenario {
     taxRegistered: boolean
   }
   customerName: string
-  /** What this case is meant to demonstrate. Shown under the total. */
-  teaches: string
 }
 
 /**
@@ -81,82 +77,66 @@ const SCENARIOS: Scenario[] = [
   {
     id: 'gb',
     flag: '🇬🇧',
-    label: 'United Kingdom',
-    sublabel: 'Domestic B2B',
     currency: 'GBP',
     supplierCountry: 'GB',
     supplyType: 'services',
     customerName: 'Pentland Works Ltd',
     customer: { country: 'GB', isBusiness: true, taxId: 'GB123456789', taxRegistered: true },
-    teaches: 'A single national rate — the simple case.',
   },
   {
     id: 'eu-b2b',
     flag: '🇩🇪',
-    label: 'Germany → France',
-    sublabel: 'Intra-EU B2B',
     currency: 'EUR',
     supplierCountry: 'DE',
     supplyType: 'services',
     customerName: 'Atelier Rive Gauche SARL',
     customer: { country: 'FR', isBusiness: true, taxId: 'FR12345678901', taxRegistered: true },
-    teaches: 'Liability shifts to the customer. The declaration is mandatory.',
   },
   {
     id: 'eu-b2c',
     flag: '🇭🇺',
-    label: 'Germany → Hungary',
-    sublabel: 'EU consumer, digital',
     currency: 'EUR',
     supplierCountry: 'DE',
     supplyType: 'digital_services',
     customerName: 'Zsófia Nagy',
     customer: { country: 'HU', isBusiness: false, taxRegistered: false },
-    teaches: "Taxed where the consumer is — Hungary's 27%, not Germany's 19%.",
   },
   {
     id: 'in',
     flag: '🇮🇳',
-    label: 'India',
-    sublabel: 'Inter-state supply',
     currency: 'INR',
     supplierCountry: 'IN',
     supplierRegion: 'MH',
     supplyType: 'services',
     customerName: 'Kadamba Systems Pvt Ltd',
     customer: { country: 'IN', region: 'KA', isBusiness: true, taxRegistered: true },
-    teaches: 'Crossing a state line turns CGST + SGST into a single IGST line.',
   },
   {
     id: 'us',
     flag: '🇺🇸',
-    label: 'United States',
-    sublabel: 'Goods, CA → TX',
     currency: 'USD',
     supplierCountry: 'US',
     supplierRegion: 'CA',
     supplyType: 'goods',
     customerName: 'Lone Star Supply Co',
     customer: { country: 'US', region: 'TX', isBusiness: true, taxRegistered: true },
-    teaches: "Sourced to the destination state, not the seller's.",
   },
   {
     id: 'gh',
     flag: '🇬🇭',
-    label: 'Ghana',
-    sublabel: 'Domestic B2B',
     currency: 'GHS',
     supplierCountry: 'GH',
     supplyType: 'services',
     customerName: 'Kwame Foods Ltd',
     customer: { country: 'GH', isBusiness: true, taxId: 'C0098765432', taxRegistered: true },
-    teaches: 'Three separate levies on one base — itemised, as the law requires.',
   },
 ]
 
 const LINES = [
-  { description: 'Brand identity design', quantityMilli: 1000, unitAmountMinor: 180_000 },
-  { description: 'Packaging artwork', quantityMilli: 3000, unitAmountMinor: 45_000 },
+  // Descriptions are key ids; the demo invoice is marketing copy and reads in
+  // the visitor's language like everything around it.
+  { descriptionKey: 'site.demoLine1', quantityMilli: 1000, unitAmountMinor: 180_000 },
+  { descriptionKey: 'site.demoLine2', quantityMilli: 3000, unitAmountMinor: 45_000 },
 ]
 
 export default function Landing() {
@@ -179,7 +159,11 @@ export default function Landing() {
         supplierRegion: active.supplierRegion ?? null,
         customer: active.customer,
         currency: active.currency,
-        lines: LINES.map((l) => ({ ...l, supplyType: active.supplyType })),
+        lines: LINES.map(({ descriptionKey, ...line }) => ({
+          ...line,
+          description: t(descriptionKey as TranslationKey),
+          supplyType: active.supplyType,
+        })),
       },
     })
       .then((data) => {
@@ -197,7 +181,7 @@ export default function Landing() {
     return () => {
       cancelled = true
     }
-  }, [active])
+  }, [active, t])
 
   const subtotal = useMemo(
     () => LINES.reduce((sum, l) => sum + (l.quantityMilli * l.unitAmountMinor) / 1000, 0),
@@ -266,9 +250,9 @@ export default function Landing() {
 
             <div className="mt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm text-ink-600">
               {[
-                { icon: Smartphone, text: 'Mobile money' },
-                { icon: Wallet, text: 'Cards & wallets' },
-                { icon: Landmark, text: 'Bank transfer' },
+                { icon: Smartphone, text: t('site.railMobileMoney') },
+                { icon: Wallet, text: t('site.railCards') },
+                { icon: Landmark, text: t('site.railBank') },
               ].map(({ icon: Icon, text }) => (
                 <span key={text} className="inline-flex items-center gap-1.5">
                   <Icon className="h-4 w-4 text-ink-400" />
@@ -301,14 +285,14 @@ export default function Landing() {
                   }`}
                 >
                   <span className="block truncate text-sm font-semibold">
-                    {scenario.flag} {scenario.label}
+                    {scenario.flag} {t(`site.sc.${scenario.id}.label` as TranslationKey)}
                   </span>
                   <span
                     className={`block truncate text-2xs ${
                       active.id === scenario.id ? 'text-ink-300' : 'text-ink-400'
                     }`}
                   >
-                    {scenario.sublabel}
+                    {t(`site.sc.${scenario.id}.sub` as TranslationKey)}
                   </span>
                 </button>
               ))}
@@ -319,13 +303,13 @@ export default function Landing() {
                 <div>
                   <p className="font-display text-base font-bold">Northwind Studio</p>
                   <p className="text-xs text-ink-500">
-                    Registered in {active.supplierCountry}
+                    {t('site.registeredIn', { country: active.supplierCountry })}
                     {active.supplierRegion ? ` · ${active.supplierRegion}` : ''}
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="text-2xs font-semibold uppercase tracking-wide text-ink-400">
-                    Invoice
+                    {t('site.invoiceWord')}
                   </p>
                   <p className="money text-sm font-semibold">NWS-0042</p>
                 </div>
@@ -346,9 +330,9 @@ export default function Landing() {
               <div className="px-6">
                 <div className="border-t border-ink-100 pt-3">
                   {LINES.map((line) => (
-                    <div key={line.description} className="flex justify-between py-1.5 text-sm">
+                    <div key={line.descriptionKey} className="flex justify-between py-1.5 text-sm">
                       <span className="text-ink-700">
-                        {line.description}
+                        {t(line.descriptionKey as TranslationKey)}
                         <span className="ml-1.5 text-ink-400">×{line.quantityMilli / 1000}</span>
                       </span>
                       <span className="money text-ink-900">
@@ -364,7 +348,7 @@ export default function Landing() {
 
               <div className="mt-2 border-t border-ink-100 px-6 py-4">
                 <div className="flex justify-between py-1 text-sm">
-                  <span className="text-ink-500">Subtotal</span>
+                  <span className="text-ink-500">{t('inv.subtotal')}</span>
                   <span className="money text-ink-700">
                     {formatMoney(subtotal, active.currency)}
                   </span>
@@ -407,7 +391,7 @@ export default function Landing() {
                     )}
 
                     <div className="mt-2 flex items-baseline justify-between border-t border-ink-200 pt-3">
-                      <span className="text-sm font-semibold text-ink-900">Total due</span>
+                      <span className="text-sm font-semibold text-ink-900">{t('site.totalDue')}</span>
                       <span className="money text-2xl font-bold text-ink-900">
                         {formatMoney(preview.totalMinor, active.currency)}
                       </span>
@@ -422,7 +406,9 @@ export default function Landing() {
                       </div>
                     )}
 
-                    <p className="mt-2.5 text-xs text-ink-500">{active.teaches}</p>
+                    <p className="mt-2.5 text-xs text-ink-500">
+                      {t(`site.sc.${active.id}.teaches` as TranslationKey)}
+                    </p>
                   </div>
                 )}
               </div>
@@ -440,7 +426,7 @@ export default function Landing() {
         <div className="mx-auto max-w-6xl px-5">
           <div className="max-w-2xl">
             <p className="text-sm font-semibold uppercase tracking-wide text-cobalt">
-              The tax engine
+              {t('site.taxEyebrow')}
             </p>
             <h2 className="mt-2 text-3xl font-bold text-ink-900 sm:text-4xl">
               {t('site.taxTitle')}
@@ -452,27 +438,27 @@ export default function Landing() {
             {[
               {
                 icon: Building2,
-                title: 'Liability that shifts',
-                body: 'Intra-EU B2B with a valid VAT ID reverse-charges to the customer. UK services to an overseas business fall outside the scope. Both print the declaration the invoice legally needs.',
+                title: t('site.featShift.title'),
+                body: t('site.featShift.body'),
                 regions: 'EU · UK',
               },
               {
                 icon: Globe2,
-                title: 'Taxed where the buyer is',
-                body: 'A B2C digital service is taxed at the consumer’s rate, not yours — 27% for Hungary, 17% for Luxembourg. The engine routes the supply to the right jurisdiction on its own.',
+                title: t('site.featDestination.title'),
+                body: t('site.featDestination.body'),
                 regions: 'EU OSS',
               },
               {
                 icon: Landmark,
-                title: 'Tax below the national level',
-                body: 'US sales tax is set by state. Canada splits GST, HST, PST and QST by province. India turns CGST + SGST into IGST the moment a supply crosses a state line.',
+                title: t('site.featSubnational.title'),
+                body: t('site.featSubnational.body'),
                 regions: 'US · Canada · India',
               },
               {
                 icon: BadgeCheck,
-                title: 'Rules that move',
-                body: 'Rates and computations change, and an invoice is evidence of what was charged on a given day. Every rule is date-aware, so a back-dated invoice uses the law that applied to the supply — never today’s.',
-                regions: 'All 53',
+                title: t('site.featDated.title'),
+                body: t('site.featDated.body'),
+                regions: t('site.featDated.regions', { count: 53 }),
               },
             ].map(({ icon: Icon, title, body, regions }) => (
               <div key={title} className="rounded-xl border border-ink-100 bg-ink-50 p-6">
@@ -491,11 +477,11 @@ export default function Landing() {
             <p className="text-sm font-semibold text-ink-900">{t('site.coverageTitle')}</p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
               {[
-                { region: 'Europe', detail: '27 EU member states, United Kingdom, Switzerland' },
-                { region: 'Africa', detail: 'Ghana, Nigeria, Kenya, South Africa' },
-                { region: 'Americas', detail: 'United States, Canada, Brazil' },
-                { region: 'Asia-Pacific', detail: 'India, Singapore, Japan, Australia' },
-                { region: 'Middle East', detail: 'United Arab Emirates' },
+                { region: t('site.regionEurope'), detail: t('site.regionEuropeDetail') },
+                { region: t('site.regionAfrica'), detail: t('site.regionAfricaDetail') },
+                { region: t('site.regionAmericas'), detail: t('site.regionAmericasDetail') },
+                { region: t('site.regionAsiaPacific'), detail: t('site.regionAsiaPacificDetail') },
+                { region: t('site.regionMiddleEast'), detail: t('site.regionMiddleEastDetail') },
               ].map(({ region, detail }) => (
                 <div key={region}>
                   <p className="text-xs font-semibold uppercase tracking-wide text-cobalt">
@@ -506,8 +492,7 @@ export default function Landing() {
               ))}
             </div>
             <p className="mt-5 border-t border-ink-200 pt-4 text-sm text-ink-500">
-              Adding a country means writing one rule and registering it. Nothing else in the
-              system changes — which is why the list keeps growing.
+              {t('site.coverageFooter')}
             </p>
           </div>
         </div>
@@ -525,18 +510,15 @@ export default function Landing() {
                 {t('site.collectTitle')}
               </h2>
               <p className="mt-4 text-lg text-ink-600">
-                Payment habits are local even when business is not. A buyer in Frankfurt expects
-                a bank debit, one in Austin reaches for a card, and one in Accra or Nairobi pays
-                from a phone. A tool that supports one rail quietly excludes the others&rsquo;
-                markets, so {BRAND.name} offers whichever fits the payer.
+                {t('site.collectBody')}
               </p>
               <ul className="mt-6 space-y-3">
                 {[
-                  'Cards and digital wallets in 135+ currencies',
-                  'Bank debits — SEPA across Europe, ACH in the United States',
-                  'Mobile money across Africa, including MTN, Telecel and M-Pesa',
-                  'Cash, cheque and transfers recorded through the same ledger',
-                  'One tap from the invoice — your customer never creates an account',
+                  t('site.collectBullet1'),
+                  t('site.collectBullet2'),
+                  t('site.collectBullet3'),
+                  t('site.collectBullet4'),
+                  t('site.collectBullet5'),
                 ].map((item) => (
                   <li key={item} className="flex gap-2.5 text-sm text-ink-700">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-jade" />
@@ -549,18 +531,18 @@ export default function Landing() {
             <div className="rounded-2xl border border-ink-200 bg-white p-6 shadow-card">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-ink-500">Amount due</p>
+                  <p className="text-xs text-ink-500">{t('pay.amountDue')}</p>
                   <p className="money text-3xl font-bold text-ink-900">€4,250.00</p>
                 </div>
                 <div className="rotate-[-12deg] rounded-lg border-2 border-jade px-3 py-1 shadow-stamp">
-                  <span className="text-sm font-bold uppercase tracking-wide text-jade">Paid</span>
+                  <span className="text-sm font-bold uppercase tracking-wide text-jade">{t('site.paidTag')}</span>
                 </div>
               </div>
               <div className="mt-5 space-y-2">
                 {[
-                  { icon: Wallet, label: 'Card or wallet', note: 'Visa, Mastercard, Apple Pay' },
-                  { icon: Landmark, label: 'Bank debit', note: 'SEPA, ACH, Bacs' },
-                  { icon: Smartphone, label: 'Mobile money', note: 'MTN, Telecel, M-Pesa' },
+                  { icon: Wallet, label: t('site.methodCard'), note: t('site.methodCardNote') },
+                  { icon: Landmark, label: t('site.methodBank'), note: t('site.methodBankNote') },
+                  { icon: Smartphone, label: t('site.methodMobile'), note: t('site.methodMobileNote') },
                 ].map(({ icon: Icon, label, note }) => (
                   <div
                     key={label}
@@ -575,8 +557,7 @@ export default function Landing() {
                 ))}
               </div>
               <p className="mt-4 text-xs text-ink-500">
-                TaxPedestal shows the payer only the methods that can actually settle their
-                invoice&rsquo;s currency from their country.
+                {t('site.collectFooter')}
               </p>
             </div>
           </div>
@@ -594,9 +575,7 @@ export default function Landing() {
               {t('site.reliabilityTitle')}
             </h2>
             <p className="mt-4 text-lg text-ink-300">
-              Payment webhooks fail. Endpoints get misconfigured, deploys drop deliveries,
-              handlers return 200 while failing. When that happens elsewhere, your customer is
-              charged and your invoice still says unpaid.
+              {t('site.reliabilityBody')}
             </p>
           </div>
 
@@ -604,18 +583,18 @@ export default function Landing() {
             {[
               {
                 icon: ScrollText,
-                title: 'Every movement is a ledger entry',
-                body: 'Balances are derived from immutable records, never an incremented counter. Any figure can be explained months later, and a mistake is corrected by a reversing entry that leaves the evidence intact.',
+                title: t('site.relLedger.title'),
+                body: t('site.relLedger.body'),
               },
               {
                 icon: ShieldCheck,
-                title: 'Credited exactly once',
-                body: 'Providers deliver webhooks at least once. A database-level uniqueness constraint makes a duplicate impossible to apply twice, even if two processes race.',
+                title: t('site.relOnce.title'),
+                body: t('site.relOnce.body'),
               },
               {
                 icon: FileText,
-                title: 'Reconciliation as a safety net',
-                body: 'Every ten minutes TaxPedestal asks the provider about payments still marked pending, and settles any that actually succeeded. A missed webhook self-heals.',
+                title: t('site.relReconcile.title'),
+                body: t('site.relReconcile.body'),
               },
             ].map(({ icon: Icon, title, body }) => (
               <div key={title} className="rounded-xl border border-ink-700 bg-ink-800 p-6">
@@ -651,9 +630,16 @@ export default function Landing() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 text-sm text-ink-500 sm:flex-row">
           <div className="flex items-center gap-2">
             <Logo />
-            <span className="font-display font-bold text-ink-900">TaxPedestal</span>
+            <span className="font-display font-bold text-ink-900">{BRAND.name}</span>
           </div>
-          <p>© {new Date().getFullYear()} TaxPedestal. Invoice anywhere, get paid everywhere.</p>
+          <p>
+            {t('site.rights', {
+              // A string, not a number: numeric vars go through Intl grouping,
+              // which would render the year as "2,026".
+              year: String(new Date().getFullYear()),
+              tagline: t('site.tagline'),
+            })}
+          </p>
         </div>
       </footer>
     </div>
