@@ -62,9 +62,17 @@ import webhookRoutes from './modules/payments/webhook.routes'
  *  2. requestContext runs first, so even a body-parser failure is logged with a
  *     request id the user can quote.
  */
-export function createApp(): Express {
-  const app = express()
-
+/**
+ * Applies every middleware and route to an existing Express instance.
+ *
+ * Split from `createApp` so the ENTRY POINT can own the `express()` call.
+ * Vercel's Express detector requires the entry module to import the `express`
+ * package itself; a module that only imports a factory is rejected with
+ * "No entrypoint found which imports express". Passing the instance in means
+ * `index.ts` imports and uses express for a real reason rather than carrying a
+ * decorative import that a future cleanup would delete.
+ */
+export function configureApp(app: Express): Express {
   // Render and Vercel sit behind a proxy. Without this, req.ip is the proxy's
   // address and every rate limit becomes global rather than per-client.
   app.set('trust proxy', 1)
@@ -210,6 +218,17 @@ export function createApp(): Express {
   app.use(errorHandler)
 
   return app
+}
+
+/**
+ * Builds a fully configured application.
+ *
+ * The convenience form, used by the tests and by anything that just wants an
+ * app. The deployed entry point calls `configureApp` directly — see the note
+ * on that function.
+ */
+export function createApp(): Express {
+  return configureApp(express())
 }
 
 /**

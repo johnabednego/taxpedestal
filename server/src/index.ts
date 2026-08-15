@@ -1,4 +1,5 @@
-import { createApp } from './create-app'
+import express from 'express'
+import { configureApp } from './create-app'
 import { connectDatabase, disconnectDatabase } from './config/db'
 import { env, isServerless } from './config/env'
 import { logger } from './core/logger'
@@ -17,6 +18,12 @@ import { startScheduler } from './jobs/scheduler'
  * this file only wins because the factory next door is named `create-app.ts`
  * rather than `app.ts`. See the note at the top of that file.
  *
+ * The detector then requires the chosen file to IMPORT EXPRESS ITSELF —
+ * importing a factory that imports express is not enough, and fails with
+ * "No entrypoint found which imports express". That is why the `express()`
+ * call lives here and the configuration is applied by `configureApp`, rather
+ * than this module calling a `createApp()` that hides both.
+ *
  * Detection happens during MODULE STARTUP, which drives the two differences
  * from a conventional server:
  *
@@ -34,7 +41,7 @@ import { startScheduler } from './jobs/scheduler'
  * until the connection is up, so the window before the database is ready is
  * visible rather than silent.
  */
-const app = createApp()
+const app = configureApp(express())
 
 // Not awaited: see (1) above. A failure is logged and left to `/ready` to
 // report — throwing here would take down an instance that can still serve the

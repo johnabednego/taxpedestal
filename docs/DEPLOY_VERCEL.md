@@ -40,14 +40,50 @@ see "Webhooks" below.
 creates; the port is how the platform finds the app, not a public port.
 `index.ts` also carries `export default app`, so either detection path works.
 
+## The second rule: the entry must import `express` itself
+
+Renaming alone was not enough. Vercel then rejected the file it had just found:
+
+```
+No entrypoint found which imports express. Found possible entrypoint: src/index.ts
+```
+
+The detector requires the entry module to import the `express` **package
+directly**. Importing a factory that imports express does not count.
+
+Rather than carry a decorative `import express` that a future cleanup would
+delete, the `express()` call was moved into the entry point and the
+configuration split out:
+
+```ts
+// src/index.ts — owns the instance
+import express from 'express'
+import { configureApp } from './create-app'
+const app = configureApp(express())
+
+// src/create-app.ts — applies middleware and routes to an instance
+export function configureApp(app: Express): Express { /* … */ return app }
+export function createApp(): Express { return configureApp(express()) }   // tests
+```
+
+`createApp()` still exists, so the test suite is unchanged.
+
 ### Verifying before you push
 
-From `server/`, exactly one file should match:
+From `server/`, all four must hold:
 
 ```bash
+# 1. Exactly one detection candidate
 for f in app.ts index.ts server.ts src/app.ts src/index.ts src/server.ts; do
   [ -f "$f" ] && echo "MATCH: $f"
 done
+
+# 2. That file imports express directly
+grep -n "^import express from 'express'" src/index.ts
+
+# 3. It exports a default AND binds a listener
+grep -n "^export default app" src/index.ts
+grep -n "app.listen" src/index.ts
 ```
 
 ---
