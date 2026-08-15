@@ -5,6 +5,7 @@ import { Loader2, Plus, ScrollText, Trash2 } from 'lucide-react'
 import dayjs from 'dayjs'
 import { ApiError, api, newIdempotencyKey } from '../lib/api'
 import { useAuth } from '../lib/auth'
+import { useI18n } from '../i18n'
 import { formatMoney, inputToQty, parseMoney } from '../lib/format'
 import {
   Button,
@@ -52,7 +53,11 @@ const emptyLine = (): LineDraft => ({
 })
 
 export default function InvoiceBuilder() {
-  const { org } = useAuth()
+  // `meta` is read here rather than inside the JSX below: calling a hook from
+  // within the render tree happens to work but breaks the moment the call sits
+  // behind a condition.
+  const { org, meta } = useAuth()
+  const { t } = useI18n()
   const navigate = useNavigate()
   const toast = useToast()
 
@@ -157,14 +162,14 @@ export default function InvoiceBuilder() {
           idempotencyKey: newIdempotencyKey(),
           body: { sendEmail: true },
         })
-        toast.push('Invoice sent', 'success')
+        toast.push(t('inv.sent'), 'success')
       } else {
-        toast.push('Draft saved', 'success')
+        toast.push(t('inv.draftSaved'), 'success')
       }
 
       navigate(`/app/invoices/${invoice._id}`)
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Could not save the invoice')
+      setError(err instanceof ApiError ? err.message : t('inv.saveFailed'))
     } finally {
       setSaving(false)
     }
@@ -175,10 +180,8 @@ export default function InvoiceBuilder() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-ink-900">New invoice</h1>
-        <p className="text-sm text-ink-500">
-          Tax is calculated from your country and your client&rsquo;s.
-        </p>
+        <h1 className="text-2xl font-bold text-ink-900">{t('inv.builderTitle')}</h1>
+        <p className="text-sm text-ink-500">{t('inv.builderSubtitle')}</p>
       </div>
 
       {error && <ErrorNotice message={error} />}
@@ -188,12 +191,12 @@ export default function InvoiceBuilder() {
           <Card>
             <div className="grid gap-3 sm:grid-cols-2">
               <Select
-                label="Client"
+                label={t('inv.client')}
                 required
                 value={clientId}
                 onChange={(e) => setClientId(e.target.value)}
               >
-                <option value="">Choose a client…</option>
+                <option value="">{t('inv.chooseClient')}</option>
                 {clients?.data.map((client) => (
                   <option key={client._id} value={client._id}>
                     {client.name} ({client.country})
@@ -201,24 +204,24 @@ export default function InvoiceBuilder() {
                 ))}
               </Select>
               <Select
-                label="Currency"
+                label={t('auth.currency')}
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
               >
-                {(useAuth().meta?.currencies ?? []).map((c) => (
+                {(meta?.currencies ?? []).map((c) => (
                   <option key={c.code} value={c.code}>
                     {c.code} — {c.name}
                   </option>
                 ))}
               </Select>
               <Input
-                label="Issue date"
+                label={t('inv.issueDate')}
                 type="date"
                 value={issueDate}
                 onChange={(e) => setIssueDate(e.target.value)}
               />
               <Input
-                label="Due date"
+                label={t('inv.dueDate')}
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
@@ -228,14 +231,14 @@ export default function InvoiceBuilder() {
 
           <Card>
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-base font-semibold text-ink-900">Lines</h2>
+              <h2 className="text-base font-semibold text-ink-900">{t('inv.lines')}</h2>
               <Button
                 size="sm"
                 variant="secondary"
                 icon={<Plus className="h-3.5 w-3.5" />}
                 onClick={() => setLines((c) => [...c, emptyLine()])}
               >
-                Add line
+                {t('inv.addLine')}
               </Button>
             </div>
 
@@ -247,15 +250,15 @@ export default function InvoiceBuilder() {
                 >
                   <div className="col-span-12 sm:col-span-5">
                     <Input
-                      label={index === 0 ? 'Description' : undefined}
+                      label={index === 0 ? t('inv.description') : undefined}
                       value={line.description}
                       onChange={(e) => updateLine(line.key, { description: e.target.value })}
-                      placeholder="What are you billing for?"
+                      placeholder={t('inv.descriptionPlaceholder')}
                     />
                   </div>
                   <div className="col-span-4 sm:col-span-2">
                     <Input
-                      label={index === 0 ? 'Qty' : undefined}
+                      label={index === 0 ? t('inv.quantity') : undefined}
                       value={line.quantity}
                       mono
                       inputMode="decimal"
@@ -264,7 +267,9 @@ export default function InvoiceBuilder() {
                   </div>
                   <div className="col-span-6 sm:col-span-3">
                     <Input
-                      label={index === 0 ? `Unit price (${currency})` : undefined}
+                      label={
+                        index === 0 ? t('inv.unitPriceWithCurrency', { currency }) : undefined
+                      }
                       value={line.unitAmount}
                       mono
                       inputMode="decimal"
@@ -279,7 +284,7 @@ export default function InvoiceBuilder() {
                           c.length === 1 ? [emptyLine()] : c.filter((l) => l.key !== line.key),
                         )
                       }
-                      aria-label="Remove line"
+                      aria-label={t('inv.removeLine')}
                       className="rounded-lg p-2 text-ink-400 hover:bg-rose-50 hover:text-rose"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -293,26 +298,26 @@ export default function InvoiceBuilder() {
           <Card>
             <div className="grid gap-3 sm:grid-cols-2">
               <Input
-                label="Discount %"
+                label={t('inv.discountPercent')}
                 value={discountPercent}
                 mono
                 inputMode="decimal"
-                hint="Applied before tax"
+                hint={t('inv.discountHint')}
                 onChange={(e) => setDiscountPercent(e.target.value)}
               />
               <Input
-                label="Reference"
+                label={t('inv.reference')}
                 value={reference}
                 onChange={(e) => setReference(e.target.value)}
-                placeholder="PO number or project"
+                placeholder={t('inv.referencePlaceholder')}
               />
             </div>
             <div className="mt-3">
               <Textarea
-                label="Notes"
+                label={t('inv.notes')}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Payment terms, thanks, anything the client should see"
+                placeholder={t('inv.notesPlaceholder')}
               />
             </div>
           </Card>
@@ -322,20 +327,18 @@ export default function InvoiceBuilder() {
         <div className="lg:sticky lg:top-6 lg:self-start">
           <Card>
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-base font-semibold text-ink-900">Totals</h2>
+              <h2 className="text-base font-semibold text-ink-900">{t('inv.totals')}</h2>
               {previewing && <Loader2 className="h-4 w-4 animate-spin text-ink-400" />}
             </div>
 
             {!preview ? (
-              <p className="py-8 text-center text-sm text-ink-500">
-                Choose a client and add a line to see the tax.
-              </p>
+              <p className="py-8 text-center text-sm text-ink-500">{t('inv.previewHint')}</p>
             ) : (
               <div className="space-y-1.5">
-                <Row label="Subtotal" value={formatMoney(preview.subtotalMinor, currency)} />
+                <Row label={t('inv.subtotal')} value={formatMoney(preview.subtotalMinor, currency)} />
                 {preview.discountMinor > 0 && (
                   <Row
-                    label="Discount"
+                    label={t('inv.discount')}
                     value={`−${formatMoney(preview.discountMinor, currency)}`}
                   />
                 )}
@@ -349,11 +352,11 @@ export default function InvoiceBuilder() {
                     />
                   ))
                 ) : (
-                  <Row label="Tax" value={formatMoney(0, currency)} />
+                  <Row label={t('inv.tax')} value={formatMoney(0, currency)} />
                 )}
 
                 <div className="flex items-baseline justify-between border-t border-ink-200 pt-3">
-                  <span className="text-sm font-semibold text-ink-900">Total</span>
+                  <span className="text-sm font-semibold text-ink-900">{t('inv.total')}</span>
                   <span className="money text-xl font-bold text-ink-900">
                     {formatMoney(preview.totalMinor, currency)}
                   </span>
@@ -379,7 +382,7 @@ export default function InvoiceBuilder() {
                 loading={saving}
                 onClick={() => save(true)}
               >
-                Send invoice
+                {t('inv.sendInvoice')}
               </Button>
               <Button
                 variant="secondary"
@@ -387,7 +390,7 @@ export default function InvoiceBuilder() {
                 disabled={!canSave}
                 onClick={() => save(false)}
               >
-                Save as draft
+                {t('inv.saveDraft')}
               </Button>
             </div>
           </Card>

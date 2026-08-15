@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import { BRAND } from '../brand'
 import { Link } from 'react-router-dom'
 import {
   Area,
@@ -13,7 +12,7 @@ import {
 import { AlertTriangle, FileText, Plus, Users, Wallet } from 'lucide-react'
 import { api } from '../lib/api'
 import { useAuth } from '../lib/auth'
-import { useI18n, type TranslationKey } from '../i18n'
+import { useI18n } from '../i18n'
 import { formatCompact, formatMoney } from '../lib/format'
 import { Button, Card, EmptyState, SectionHeading, Skeleton } from '../components/ui'
 
@@ -47,7 +46,7 @@ interface Summary {
 
 export default function Dashboard() {
   const { org } = useAuth()
-  const { t, locale, formatDate } = useI18n()
+  const { t, tOr, locale, formatNumber } = useI18n()
   const { data, isLoading, error } = useQuery({
     queryKey: ['analytics', org?.id],
     queryFn: () => api<Summary>('/api/v1/analytics/summary'),
@@ -141,11 +140,11 @@ export default function Dashboard() {
         <Card>
           <EmptyState
             icon={<FileText className="h-5 w-5" />}
-            title="No invoices yet"
-            description={`Create your first invoice and ${BRAND.name} will work out the tax for you.`}
+            title={t('dash.noInvoices')}
+            description={t('dash.noInvoicesHelp')}
             action={
               <Link to="/app/invoices/new">
-                <Button icon={<Plus className="h-4 w-4" />}>Create an invoice</Button>
+                <Button icon={<Plus className="h-4 w-4" />}>{t('dash.createInvoice')}</Button>
               </Link>
             }
           />
@@ -155,8 +154,8 @@ export default function Dashboard() {
           {/* Cashflow */}
           <Card>
             <SectionHeading
-              title="Invoiced vs collected"
-              description="Collected comes from the ledger, so it reflects money actually received."
+              title={t('dash.invoicedVsCollected')}
+              description={t('dash.invoicedVsCollectedHelp')}
             />
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -195,14 +194,14 @@ export default function Dashboard() {
                   />
                   <Area
                     type="monotone"
-                    dataKey="Invoiced"
+                    dataKey={invoicedLabel}
                     stroke="#2B59FF"
                     strokeWidth={2}
                     fill="url(#invoiced)"
                   />
                   <Area
                     type="monotone"
-                    dataKey="Collected"
+                    dataKey={collectedLabel}
                     stroke="#0E9F6E"
                     strokeWidth={2}
                     fill="url(#collected)"
@@ -216,20 +215,26 @@ export default function Dashboard() {
             {/* Aging */}
             <Card>
               <SectionHeading
-                title="Aging"
-                description="How long your money has been outstanding"
+                title={t('dash.aging')}
+                description={t('dash.agingSubtitle')}
               />
               {data.aging.length === 0 ? (
-                <p className="py-6 text-center text-sm text-ink-500">Nothing outstanding.</p>
+                <p className="py-6 text-center text-sm text-ink-500">
+                  {t('dash.nothingOutstanding')}
+                </p>
               ) : (
                 <div className="space-y-3">
                   {data.aging.map((bucket) => {
                     const max = Math.max(...data.aging.map((b) => b.amountMinor), 1)
-                    const isLate = bucket.bucket !== 'Not yet due'
+                    // Compared against the stable id, not the English prose —
+                    // the label is translated and would never match.
+                    const isLate = bucket.bucketId !== 'notYetDue'
                     return (
-                      <div key={bucket.bucket}>
+                      <div key={bucket.bucketId}>
                         <div className="mb-1 flex items-baseline justify-between text-sm">
-                          <span className="text-ink-600">{bucket.bucket}</span>
+                          <span className="text-ink-600">
+                            {tOr(`aging.${bucket.bucketId}`, bucket.bucket)}
+                          </span>
                           <span className="money font-medium text-ink-900">
                             {bucket.formatted}
                           </span>
@@ -249,20 +254,29 @@ export default function Dashboard() {
 
             {/* Recent payments */}
             <Card>
-              <SectionHeading title="Recent payments" />
+              <SectionHeading title={t('dash.recentPayments')} />
               {data.recentPayments.length === 0 ? (
-                <p className="py-6 text-center text-sm text-ink-500">No payments yet.</p>
+                <p className="py-6 text-center text-sm text-ink-500">{t('dash.noPayments')}</p>
               ) : (
                 <ul className="divide-y divide-ink-100">
                   {data.recentPayments.map((payment) => (
                     <li key={payment.id} className="flex items-center justify-between py-2.5">
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium text-ink-900">
-                          {payment.invoiceNumber ?? 'Payment'}
+                          {payment.invoiceNumber ?? t('dash.payment')}
                         </p>
                         <p className="truncate text-xs text-ink-500">
-                          {payment.channelDetail ?? payment.method.replace('_', ' ').toLowerCase()}
-                          {payment.paidAt ? ` · ${dayjs(payment.paidAt).format('D MMM')}` : ''}
+                          {payment.channelDetail ??
+                            tOr(
+                              `method.${payment.method}`,
+                              payment.method.replace('_', ' ').toLowerCase(),
+                            )}
+                          {payment.paidAt
+                            ? ` · ${new Intl.DateTimeFormat(locale, {
+                                day: 'numeric',
+                                month: 'short',
+                              }).format(new Date(payment.paidAt))}`
+                            : ''}
                         </p>
                       </div>
                       <span className="money shrink-0 text-sm font-semibold text-jade">
@@ -277,14 +291,14 @@ export default function Dashboard() {
 
           {data.topClients.length > 0 && (
             <Card>
-              <SectionHeading title="Top clients" description="By total invoiced" />
+              <SectionHeading title={t('dash.topClients')} description={t('dash.topClientsHelp')} />
               <ul className="divide-y divide-ink-100">
                 {data.topClients.map((client) => (
                   <li key={client.name} className="flex items-center justify-between py-2.5">
                     <div>
                       <p className="text-sm font-medium text-ink-900">{client.name}</p>
                       <p className="text-xs text-ink-500">
-                        {client.invoiceCount} invoice{client.invoiceCount === 1 ? '' : 's'}
+                        {t('dash.invoiceCount', { count: client.invoiceCount })}
                       </p>
                     </div>
                     <span className="money text-sm font-semibold text-ink-900">

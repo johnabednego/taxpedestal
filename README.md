@@ -1,7 +1,7 @@
 # TaxPedestal
 
 Global invoicing and payment collection for freelancers, agencies and small
-businesses. Send a compliant invoice to a customer in any of 41 tax
+businesses. Send a compliant invoice to a customer in any of 53 tax
 jurisdictions and get paid by card, wallet or mobile money.
 
 **Status:** in development. See "Build progress" below.
@@ -106,16 +106,32 @@ while glue code is held to a lower bar.
 ## Build progress
 
 - [x] Money primitives — minor units, ISO 4217 exponents, lossless allocation
-- [x] Tax engine — 41 jurisdictions, per-line assessment, reverse charge, OSS
+- [x] Tax engine — 53 jurisdictions, per-line assessment, reverse charge, OSS
 - [x] Error taxonomy, structured logging, boot-time config validation
 - [x] Data models — tenancy, RBAC, invoices, payments, webhook ledger, audit log
-- [ ] Auth — registration, login, refresh rotation, invitations
-- [ ] Invoice service — build, issue, state machine, PDF
-- [ ] Payments — Stripe + Paystack adapters, webhook handling
-- [ ] Analytics, reminders, admin console
-- [ ] Frontend
-- [ ] Deployment configuration
-- [ ] Examination documentation set
+- [x] Auth — registration, login, refresh rotation, invitations
+- [x] Invoice service — build, issue, state machine, PDF
+- [x] Payments — Stripe + Paystack adapters, webhook handling
+- [x] Analytics, reminders, admin console
+- [x] Frontend — including team management and a fully translated interface
+- [x] Deployment configuration
+- [x] Examination documentation set
+
+### Verification status
+
+| Check | Result |
+|---|---|
+| Unit + HTTP contract tests | 207 passing |
+| Integration tests (ledger, webhooks) | 34 passing |
+| Total | **241 / 241** |
+| TypeScript strict (server, web) | 0 errors |
+| ESLint (server) | 0 errors |
+| ESLint (web) | 0 errors, 8 `react-refresh` warnings |
+| Interface languages | 15 registered, 5 at 100% |
+
+The integration suite runs against `mongodb-memory-server` by default, so
+`npm test` needs no external database. Point `MONGODB_TEST_URI` at a disposable
+database to run against a real mongod instead.
 
 ## Licence
 

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { RefreshCw, ShieldAlert } from 'lucide-react'
-import dayjs from 'dayjs'
 import { api } from '../lib/api'
+import { useI18n, type TranslationKey } from '../i18n'
 import { Badge, Button, Card, SectionHeading, Skeleton, useToast } from '../components/ui'
 
 interface Overview {
@@ -25,6 +25,7 @@ interface WebhookEvent {
 
 export default function Admin() {
   const toast = useToast()
+  const { t, locale } = useI18n()
   const queryClient = useQueryClient()
 
   const { data: overview, isLoading } = useQuery({
@@ -41,7 +42,7 @@ export default function Admin() {
     mutationFn: () => api<{ settled: number; scanned: number }>('/api/v1/admin/reconcile/payments', { method: 'POST' }),
     onSuccess: (report) => {
       toast.push(
-        `Scanned ${report.scanned}, settled ${report.settled}`,
+        t('admin.sweepResult', { scanned: report.scanned, settled: report.settled }),
         report.settled > 0 ? 'warning' : 'success',
       )
       void queryClient.invalidateQueries({ queryKey: ['admin-overview'] })
@@ -56,7 +57,11 @@ export default function Admin() {
       ),
     onSuccess: (report) =>
       toast.push(
-        `Checked ${report.checked}, drift ${report.drifted}, repaired ${report.repaired}`,
+        t('admin.balanceResult', {
+          checked: report.checked,
+          drifted: report.drifted,
+          repaired: report.repaired,
+        }),
         report.drifted > 0 ? 'warning' : 'success',
       ),
   })
@@ -67,19 +72,21 @@ export default function Admin() {
     <div className="space-y-5">
       <div className="flex items-center gap-2">
         <ShieldAlert className="h-5 w-5 text-cobalt" />
-        <h1 className="text-2xl font-bold text-ink-900">Admin console</h1>
+        <h1 className="text-2xl font-bold text-ink-900">{t('admin.title')}</h1>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {[
-          ['Workspaces', overview?.organisations],
-          ['Users', overview?.users],
-          ['Invoices issued', overview?.invoices.issued],
-          ['Payments', overview?.successfulPayments],
-          ['Failed webhooks', overview?.webhooks.failed],
-        ].map(([label, value]) => (
-          <Card key={String(label)}>
-            <p className="text-sm text-ink-500">{label}</p>
+        {(
+          [
+            ['admin.workspaces', overview?.organisations],
+            ['admin.users', overview?.users],
+            ['admin.invoicesIssued', overview?.invoices.issued],
+            ['admin.payments', overview?.successfulPayments],
+            ['admin.failedWebhooks', overview?.webhooks.failed],
+          ] as Array<[TranslationKey, number | undefined]>
+        ).map(([label, value]) => (
+          <Card key={label}>
+            <p className="text-sm text-ink-500">{t(label)}</p>
             <p className="money mt-1 text-2xl font-bold text-ink-900">{value ?? 0}</p>
           </Card>
         ))}
@@ -87,8 +94,8 @@ export default function Admin() {
 
       <Card>
         <SectionHeading
-          title="Reconciliation"
-          description="Recover payments whose webhook never arrived, and verify balances against the ledger."
+          title={t('admin.reconciliation')}
+          description={t('admin.reconciliationHelp')}
         />
         <div className="flex flex-wrap gap-2">
           <Button
@@ -97,7 +104,7 @@ export default function Admin() {
             icon={<RefreshCw className="h-4 w-4" />}
             onClick={() => reconcile.mutate()}
           >
-            Sweep pending payments
+            {t('admin.sweepPayments')}
           </Button>
           <Button
             variant="secondary"
@@ -105,7 +112,7 @@ export default function Admin() {
             icon={<RefreshCw className="h-4 w-4" />}
             onClick={() => reconcileBalances.mutate()}
           >
-            Verify ledger balances
+            {t('admin.verifyBalances')}
           </Button>
         </div>
       </Card>
@@ -113,12 +120,12 @@ export default function Admin() {
       <Card padded={false}>
         <div className="px-5 pt-5">
           <SectionHeading
-            title="Webhook inspector"
-            description="What your system did with each provider event — not just what they sent."
+            title={t('admin.webhookInspector')}
+            description={t('admin.webhookInspectorHelp')}
           />
         </div>
         {!webhooks || webhooks.data.length === 0 ? (
-          <p className="px-5 pb-5 text-sm text-ink-500">No webhook events recorded yet.</p>
+          <p className="px-5 pb-5 text-sm text-ink-500">{t('admin.noWebhooks')}</p>
         ) : (
           <ul className="divide-y divide-ink-100">
             {webhooks.data.map((event) => (
@@ -129,13 +136,20 @@ export default function Admin() {
                     <span className="text-xs text-ink-500">{event.eventType}</span>
                   </div>
                   <p className="truncate text-xs text-ink-400">
-                    {dayjs(event.createdAt).format('D MMM HH:mm')}
-                    {event.attempts > 1 ? ` · ${event.attempts} deliveries` : ''}
+                    {new Intl.DateTimeFormat(locale, {
+                      day: 'numeric',
+                      month: 'short',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    }).format(new Date(event.createdAt))}
+                    {event.attempts > 1
+                      ? ` · ${t('admin.deliveries', { count: event.attempts })}`
+                      : ''}
                     {event.error ? ` · ${event.error}` : ''}
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  {!event.signatureValid && <Badge tone="danger">Bad signature</Badge>}
+                  {!event.signatureValid && <Badge tone="danger">{t('admin.badSignature')}</Badge>}
                   <Badge
                     tone={
                       event.status === 'PROCESSED'

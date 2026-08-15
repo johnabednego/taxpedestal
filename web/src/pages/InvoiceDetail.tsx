@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { BRAND } from '../brand'
 import { Link, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -14,7 +13,6 @@ import {
   Smartphone,
   Wallet,
 } from 'lucide-react'
-import dayjs from 'dayjs'
 import { ApiError, api, apiUrl, getAccessToken, newIdempotencyKey } from '../lib/api'
 import { useCan } from '../lib/auth'
 import { useI18n } from '../i18n'
@@ -94,6 +92,7 @@ interface InvoiceDetailData {
 
 export function InvoiceDetail() {
   const { id } = useParams<{ id: string }>()
+  const { t, tOr, locale, formatDate } = useI18n()
   const queryClient = useQueryClient()
   const toast = useToast()
   const canEdit = useCan('MEMBER')
@@ -117,19 +116,19 @@ export function InvoiceDetail() {
       }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['invoice', id] })
-      toast.push('Invoice sent', 'success')
+      toast.push(t('inv.sent'), 'success')
     },
-    onError: (e) => toast.push(e instanceof ApiError ? e.message : 'Could not send', 'danger'),
+    onError: (e) => toast.push(e instanceof ApiError ? e.message : t('inv.couldNotSend'), 'danger'),
   })
 
   const remind = useMutation({
     mutationFn: () => api(`/api/v1/invoices/${id}/remind`, { method: 'POST' }),
-    onSuccess: () => toast.push('Reminder sent', 'success'),
-    onError: (e) => toast.push(e instanceof ApiError ? e.message : 'Could not remind', 'danger'),
+    onSuccess: () => toast.push(t('inv.reminderSent'), 'success'),
+    onError: (e) => toast.push(e instanceof ApiError ? e.message : t('inv.couldNotRemind'), 'danger'),
   })
 
   if (isLoading) return <Skeleton className="h-96" />
-  if (error || !data) return <ErrorNotice message="Could not load this invoice." />
+  if (error || !data) return <ErrorNotice message={t('inv.loadFailed')} />
 
   const { invoice } = data
   const isDraft = invoice.status === 'DRAFT'
@@ -158,7 +157,7 @@ export function InvoiceDetail() {
       anchor.click()
       URL.revokeObjectURL(url)
     } catch {
-      toast.push('Could not download the PDF', 'danger')
+      toast.push(t('inv.downloadFailed'), 'danger')
     }
   }
 
@@ -175,7 +174,7 @@ export function InvoiceDetail() {
         className="inline-flex items-center gap-1.5 text-sm text-ink-500 hover:text-ink-900"
       >
         <ArrowLeft className="h-4 w-4" />
-        All invoices
+        {t('inv.allInvoices')}
       </Link>
 
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -185,7 +184,8 @@ export function InvoiceDetail() {
             <StatusBadge status={invoice.status} />
           </div>
           <p className="mt-0.5 text-sm text-ink-500">
-            {invoice.client?.name} · due {dayjs(invoice.dueDate).format('D MMM YYYY')}
+            {invoice.client?.name} · {t('inv.due').toLowerCase()}{' '}
+            {formatDate(invoice.dueDate, 'medium')}
           </p>
         </div>
 
@@ -198,31 +198,31 @@ export function InvoiceDetail() {
                 icon={<Download className="h-3.5 w-3.5" />}
                 onClick={downloadPdf}
               >
-                PDF
+                {t('inv.pdf')}
               </Button>
               <Button variant="secondary" size="sm" onClick={copyLink} icon={copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}>
-                {copied ? 'Copied' : 'Copy pay link'}
+                {copied ? t('action.copied') : t('inv.copyPayLink')}
               </Button>
             </>
           )}
           {isDraft && canEdit && (
             <Button size="sm" loading={send.isPending} icon={<Send className="h-3.5 w-3.5" />} onClick={() => send.mutate()}>
-              Send
+              {t('action.send')}
             </Button>
           )}
           {isOpen && canEdit && (
             <>
               <Button variant="secondary" size="sm" loading={remind.isPending} icon={<BellRing className="h-3.5 w-3.5" />} onClick={() => remind.mutate()}>
-                Remind
+                {t('inv.remind')}
               </Button>
               <Button size="sm" onClick={() => setPayOpen(true)}>
-                Record payment
+                {t('inv.recordPayment')}
               </Button>
             </>
           )}
           {invoice.status !== 'VOID' && invoice.amountPaidMinor === 0 && canAdmin && (
             <Button variant="ghost" size="sm" icon={<Ban className="h-3.5 w-3.5" />} onClick={() => setVoidOpen(true)}>
-              Void
+              {t('inv.void')}
             </Button>
           )}
         </div>
@@ -237,7 +237,7 @@ export function InvoiceDetail() {
                 <th className="pb-2 font-semibold">Description</th>
                 <th className="pb-2 text-right font-semibold">Qty</th>
                 <th className="pb-2 text-right font-semibold">Unit</th>
-                <th className="pb-2 text-right font-semibold">Amount</th>
+                <th className="pb-2 text-right font-semibold">{t('inv.amount')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-ink-100">
@@ -259,9 +259,9 @@ export function InvoiceDetail() {
           </table>
 
           <div className="mt-4 space-y-1.5 border-t border-ink-100 pt-4">
-            <SummaryRow label="Subtotal" value={formatMoney(invoice.subtotalMinor, invoice.currency)} />
+            <SummaryRow label={t('inv.subtotal')} value={formatMoney(invoice.subtotalMinor, invoice.currency)} />
             {invoice.discountMinor > 0 && (
-              <SummaryRow label="Discount" value={`−${formatMoney(invoice.discountMinor, invoice.currency)}`} />
+              <SummaryRow label={t('inv.discount')} value={`−${formatMoney(invoice.discountMinor, invoice.currency)}`} />
             )}
             {invoice.taxSnapshot.components.map((component) => (
               <SummaryRow
@@ -271,16 +271,16 @@ export function InvoiceDetail() {
               />
             ))}
             <div className="flex items-baseline justify-between border-t border-ink-200 pt-2.5">
-              <span className="text-sm font-semibold text-ink-900">Total</span>
+              <span className="text-sm font-semibold text-ink-900">{t('inv.total')}</span>
               <span className="money text-xl font-bold text-ink-900">
                 {formatMoney(invoice.totalMinor, invoice.currency)}
               </span>
             </div>
             {invoice.amountPaidMinor > 0 && (
               <>
-                <SummaryRow label="Paid" value={`−${formatMoney(invoice.amountPaidMinor, invoice.currency)}`} />
+                <SummaryRow label={t('inv.amountPaid')} value={`−${formatMoney(invoice.amountPaidMinor, invoice.currency)}`} />
                 <div className="flex items-baseline justify-between">
-                  <span className="text-sm font-semibold text-ink-900">Still due</span>
+                  <span className="text-sm font-semibold text-ink-900">{t('inv.stillDue')}</span>
                   <span className="money text-lg font-bold text-cobalt">
                     {formatMoney(invoice.amountDueMinor, invoice.currency)}
                   </span>
@@ -306,11 +306,11 @@ export function InvoiceDetail() {
           <ComplianceNotice compliance={data.compliance} />
           <Card>
             <SectionHeading
-              title="Ledger"
-              description="Every movement of money, in order. Entries are never edited."
+              title={t('inv.ledger')}
+              description={t('inv.ledgerSubtitle')}
             />
             {data.ledger.length === 0 ? (
-              <p className="py-4 text-center text-sm text-ink-500">Nothing recorded yet.</p>
+              <p className="py-4 text-center text-sm text-ink-500">{t('inv.nothingRecorded')}</p>
             ) : (
               <ul className="space-y-2.5">
                 {data.ledger.map((entry) => (
@@ -318,12 +318,15 @@ export function InvoiceDetail() {
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
                         <Badge tone={entry.amountMinor < 0 ? 'success' : 'neutral'}>
-                          {entry.type}
+                          {tOr(`ledger.${entry.type}`, entry.type)}
                         </Badge>
                       </div>
                       <p className="mt-0.5 truncate text-xs text-ink-500">{entry.description}</p>
                       <p className="text-2xs text-ink-400">
-                        {dayjs(entry.createdAt).format('D MMM YYYY, HH:mm')}
+                        {new Intl.DateTimeFormat(locale, {
+                          dateStyle: 'medium',
+                          timeStyle: 'short',
+                        }).format(new Date(entry.createdAt))}
                       </p>
                     </div>
                     <span
@@ -341,17 +344,18 @@ export function InvoiceDetail() {
 
           {data.payments.length > 0 && (
             <Card>
-              <SectionHeading title="Payments" />
+              <SectionHeading title={t('inv.payments')} />
               <ul className="divide-y divide-ink-100">
                 {data.payments.map((payment) => (
                   <li key={payment._id} className="flex items-center justify-between py-2">
                     <div>
                       <p className="text-sm text-ink-800">
-                        {payment.channelDetail ?? payment.method.replace('_', ' ').toLowerCase()}
+                        {payment.channelDetail ??
+                          tOr(`method.${payment.method}`, payment.method.replace('_', ' ').toLowerCase())}
                       </p>
                       <p className="text-xs text-ink-500">
                         {payment.provider} ·{' '}
-                        {payment.paidAt ? dayjs(payment.paidAt).format('D MMM') : payment.status}
+                        {payment.paidAt ? formatDate(payment.paidAt, 'short') : payment.status}
                       </p>
                     </div>
                     <span className="money text-sm font-medium">
@@ -416,6 +420,7 @@ function RecordPaymentModal({
   amountDueMinor: number
   onDone: () => void
 }) {
+  const { t } = useI18n()
   const [amount, setAmount] = useState('')
   const [method, setMethod] = useState('BANK_TRANSFER')
   const [error, setError] = useState('')
@@ -436,7 +441,7 @@ function RecordPaymentModal({
       })
       onDone()
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Could not record the payment')
+      setError(err instanceof ApiError ? err.message : t('inv.recordFailed'))
     } finally {
       setSaving(false)
     }
@@ -446,31 +451,31 @@ function RecordPaymentModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="Record a payment"
-      description={`For money received outside ${BRAND.name} — cash, cheque or bank transfer.`}
+      title={t('inv.recordPaymentTitle')}
+      description={t('inv.recordPaymentDescription')}
       footer={
         <>
-          <Button variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button onClick={submit} loading={saving}>Record</Button>
+          <Button variant="secondary" onClick={onClose}>{t('action.cancel')}</Button>
+          <Button onClick={submit} loading={saving}>{t('inv.record')}</Button>
         </>
       }
     >
       <div className="space-y-3">
         {error && <ErrorNotice message={error} />}
         <Input
-          label={`Amount (${currency})`}
+          label={t('inv.amountWithCurrency', { currency })}
           value={amount}
           mono
           inputMode="decimal"
           onChange={(e) => setAmount(e.target.value)}
-          hint={`Outstanding: ${formatMoney(amountDueMinor, currency)}`}
+          hint={t('inv.outstanding', { amount: formatMoney(amountDueMinor, currency) })}
         />
-        <Select label="Method" value={method} onChange={(e) => setMethod(e.target.value)}>
-          <option value="BANK_TRANSFER">Bank transfer</option>
-          <option value="CASH">Cash</option>
-          <option value="CHEQUE">Cheque</option>
-          <option value="MOBILE_MONEY">Mobile money</option>
-          <option value="OTHER">Other</option>
+        <Select label={t('inv.method')} value={method} onChange={(e) => setMethod(e.target.value)}>
+          <option value="BANK_TRANSFER">{t('method.BANK_TRANSFER')}</option>
+          <option value="CASH">{t('method.CASH')}</option>
+          <option value="CHEQUE">{t('method.CHEQUE')}</option>
+          <option value="MOBILE_MONEY">{t('method.MOBILE_MONEY')}</option>
+          <option value="OTHER">{t('method.OTHER')}</option>
         </Select>
       </div>
     </Modal>
@@ -488,6 +493,7 @@ function VoidModal({
   invoiceId: string
   onDone: () => void
 }) {
+  const { t } = useI18n()
   const [reason, setReason] = useState('')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
@@ -509,13 +515,13 @@ function VoidModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="Void this invoice"
-      description="The invoice stays on record. Voiding reverses the amount owed."
+      title={t('inv.voidTitle')}
+      description={t('inv.voidDescription')}
       footer={
         <>
-          <Button variant="secondary" onClick={onClose}>Cancel</Button>
+          <Button variant="secondary" onClick={onClose}>{t('action.cancel')}</Button>
           <Button variant="danger" onClick={submit} loading={saving} disabled={reason.trim().length < 3}>
-            Void invoice
+            {t('inv.voidInvoice')}
           </Button>
         </>
       }
@@ -523,11 +529,11 @@ function VoidModal({
       <div className="space-y-3">
         {error && <ErrorNotice message={error} />}
         <Input
-          label="Reason"
+          label={t('inv.voidReason')}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           placeholder="Duplicate of NWS-0041"
-          hint="Recorded in the audit trail"
+          hint={t('inv.voidReasonHint')}
         />
       </div>
     </Modal>
@@ -755,7 +761,7 @@ export function PublicInvoice() {
                       {supportsMomo && (
                         <div className="mt-3 grid gap-2 sm:grid-cols-2">
                           <Input
-                            label="Mobile money number"
+                            label={t('pay.mobileMoneyNumber')}
                             value={phone}
                             mono
                             inputMode="tel"
@@ -763,7 +769,7 @@ export function PublicInvoice() {
                             onChange={(e) => setPhone(e.target.value)}
                           />
                           <Select
-                            label="Network"
+                            label={t('pay.network')}
                             value={network}
                             onChange={(e) => setNetwork(e.target.value)}
                           >

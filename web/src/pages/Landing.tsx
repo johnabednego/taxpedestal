@@ -472,7 +472,7 @@ export default function Landing() {
                 icon: BadgeCheck,
                 title: 'Rules that move',
                 body: 'Rates and computations change, and an invoice is evidence of what was charged on a given day. Every rule is date-aware, so a back-dated invoice uses the law that applied to the supply — never today’s.',
-                regions: 'All 41',
+                regions: 'All 53',
               },
             ].map(({ icon: Icon, title, body, regions }) => (
               <div key={title} className="rounded-xl border border-ink-100 bg-ink-50 p-6">

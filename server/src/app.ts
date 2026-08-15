@@ -85,6 +85,11 @@ export function createApp(): Express {
         'X-Organisation-Id',
         'X-Request-Id',
         'Idempotency-Key',
+        // The interface language the user CHOSE. Accept-Language cannot serve
+        // here: it is a forbidden header name, so a browser client cannot set
+        // it, and it reports the browser's configuration rather than the
+        // in-app selection. The two differ whenever someone picks a language.
+        'X-Locale',
       ],
       exposedHeaders: ['X-Request-Id', 'Idempotency-Replayed'],
       maxAge: 86_400,
@@ -140,7 +145,8 @@ export function createApp(): Express {
    * user's language without us shipping a translation table.
    */
   app.get('/api/v1/meta', (req, res) => {
-    const locale = parseLocale(req.header('accept-language'))
+    // An explicit in-app choice wins over the browser's configured languages.
+    const locale = parseLocale(req.header('x-locale') ?? req.header('accept-language'))
 
     res.json({
       locale,

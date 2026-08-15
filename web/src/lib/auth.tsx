@@ -9,6 +9,7 @@ import {
 } from 'react'
 import { api, setAccessToken, setActiveOrg, setUnauthorisedHandler } from './api'
 import { registerCurrencies, type CurrencyMeta } from './format'
+import { useI18n } from '../i18n'
 import type { CountryOption } from './countries'
 
 export interface AuthUser {
@@ -84,6 +85,8 @@ export function useCan(minimum: keyof typeof RANK): boolean {
 const ORG_STORAGE_KEY = 'taxpedestal.activeOrg'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  // I18nProvider sits above this one in main.tsx, so the locale is available.
+  const { locale } = useI18n()
   const [user, setUser] = useState<AuthUser | null>(null)
   const [organisations, setOrganisations] = useState<AuthOrg[]>([])
   const [orgId, setOrgId] = useState<string | null>(() =>
@@ -136,6 +139,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     })()
 
+    return () => {
+      cancelled = true
+    }
+    // Intentionally runs once: loadUser depends on orgId, which would re-trigger.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  /**
+   * Reference data, refetched whenever the language changes.
+   *
+   * `/meta` returns the 249 country names in the requested language, so this
+   * cannot be a one-off fetch: switching to French has to re-ask for
+   * "Allemagne" rather than leave every picker in English.
+   */
+  useEffect(() => {
+    let cancelled = false
+
     void api<{
       currencies: CurrencyMeta[]
       countries: CountryOption[]
@@ -150,9 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true
     }
-    // Intentionally runs once: loadUser depends on orgId, which would re-trigger.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [locale])
 
   useEffect(() => {
     setUnauthorisedHandler(() => {

@@ -6,6 +6,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
 import { ApiError, api, setAccessToken } from '../lib/api'
 import { useAuth } from '../lib/auth'
+import { useI18n } from '../i18n'
 import { Button, Card, ErrorNotice, Input } from '../components/ui'
 
 /**
@@ -52,6 +53,7 @@ function Shell({
 /* -------------------------------------------------------------------------- */
 
 export function VerifyEmail() {
+  const { t } = useI18n()
   const [params] = useSearchParams()
   const token = params.get('token')
   const [state, setState] = useState<'working' | 'done' | 'failed'>('working')
@@ -79,11 +81,11 @@ export function VerifyEmail() {
   }, [token])
 
   return (
-    <Shell title="Confirming your email">
+    <Shell title={t('flow.confirmingEmail')}>
       {state === 'working' && (
         <div className="flex items-center gap-2 text-sm text-ink-500">
           <Loader2 className="h-4 w-4 animate-spin" />
-          Checking your link…
+          {t('flow.checkingLink')}
         </div>
       )}
 
@@ -91,10 +93,10 @@ export function VerifyEmail() {
         <div>
           <div className="flex items-center gap-2 text-jade">
             <CheckCircle2 className="h-5 w-5" />
-            <p className="text-sm font-medium">Your email is confirmed.</p>
+            <p className="text-sm font-medium">{t('flow.emailConfirmed')}</p>
           </div>
           <Link to="/app">
-            <Button className="mt-5 w-full">Go to your dashboard</Button>
+            <Button className="mt-5 w-full">{t('flow.goToDashboard')}</Button>
           </Link>
         </div>
       )}
@@ -107,7 +109,7 @@ export function VerifyEmail() {
           </div>
           <Link to="/login">
             <Button variant="secondary" className="mt-5 w-full">
-              Back to sign in
+              {t('flow.backToSignIn')}
             </Button>
           </Link>
         </div>
@@ -121,6 +123,7 @@ export function VerifyEmail() {
 /* -------------------------------------------------------------------------- */
 
 export function ForgotPassword() {
+  const { t } = useI18n()
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
@@ -146,16 +149,13 @@ export function ForgotPassword() {
 
   if (sent) {
     return (
-      <Shell title="Check your email">
+      <Shell title={t('flow.checkEmail')}>
         {/* Deliberately the same message whether or not the account exists —
             confirming it would turn this into a user-enumeration oracle. */}
-        <p className="text-sm text-ink-600">
-          If an account exists for <span className="font-medium">{email}</span>, a reset link
-          is on its way. It expires in an hour.
-        </p>
+        <p className="text-sm text-ink-600">{t('flow.resetSentTo', { email })}</p>
         <Link to="/login">
           <Button variant="secondary" className="mt-5 w-full">
-            Back to sign in
+            {t('flow.backToSignIn')}
           </Button>
         </Link>
       </Shell>
@@ -163,11 +163,11 @@ export function ForgotPassword() {
   }
 
   return (
-    <Shell title="Reset your password" subtitle="We'll email you a link to choose a new one.">
+    <Shell title={t('flow.forgotTitle')} subtitle={t('flow.forgotSubtitle')}>
       <form onSubmit={submit} className="space-y-4">
         {error && <ErrorNotice message={error} />}
         <Input
-          label="Email"
+          label={t('auth.email')}
           type="email"
           required
           autoComplete="email"
@@ -176,10 +176,10 @@ export function ForgotPassword() {
           placeholder="you@company.com"
         />
         <Button type="submit" className="w-full" loading={submitting}>
-          Send reset link
+          {t('flow.sendLink')}
         </Button>
         <Link to="/login" className="block text-center text-sm text-cobalt hover:underline">
-          Back to sign in
+          {t('flow.backToSignIn')}
         </Link>
       </form>
     </Shell>
@@ -191,6 +191,7 @@ export function ForgotPassword() {
 /* -------------------------------------------------------------------------- */
 
 export function ResetPassword() {
+  const { t } = useI18n()
   const [params] = useSearchParams()
   const navigate = useNavigate()
   const token = params.get('token') ?? ''
@@ -231,12 +232,10 @@ export function ResetPassword() {
 
   if (!token) {
     return (
-      <Shell title="That link is not valid">
-        <p className="text-sm text-ink-600">
-          The reset link is missing its code. Request a new one.
-        </p>
+      <Shell title={t('flow.linkNotValid')}>
+        <p className="text-sm text-ink-600">{t('flow.resetMissingCode')}</p>
         <Link to="/forgot-password">
-          <Button className="mt-5 w-full">Request a new link</Button>
+          <Button className="mt-5 w-full">{t('flow.requestNewLink')}</Button>
         </Link>
       </Shell>
     )
@@ -244,33 +243,31 @@ export function ResetPassword() {
 
   if (done) {
     return (
-      <Shell title="Password updated">
+      <Shell title={t('flow.passwordUpdated')}>
         <div className="flex items-center gap-2 text-jade">
           <CheckCircle2 className="h-5 w-5" />
-          <p className="text-sm font-medium">
-            You can sign in with your new password. Taking you there…
-          </p>
+          <p className="text-sm font-medium">{t('flow.resetSignInNow')}</p>
         </div>
       </Shell>
     )
   }
 
   return (
-    <Shell title="Choose a new password">
+    <Shell title={t('flow.resetTitle')}>
       <form onSubmit={submit} className="space-y-4">
         {error && <ErrorNotice message={error} />}
         <Input
-          label="New password"
+          label={t('flow.newPassword')}
           type="password"
           required
           autoComplete="new-password"
           value={password}
           error={fields.password}
-          hint="At least 12 characters"
+          hint={t('flow.passwordHintShort')}
           onChange={(e) => setPassword(e.target.value)}
         />
         <Input
-          label="Confirm new password"
+          label={t('flow.confirmNewPassword')}
           type="password"
           required
           autoComplete="new-password"
@@ -279,7 +276,7 @@ export function ResetPassword() {
           onChange={(e) => setConfirm(e.target.value)}
         />
         <Button type="submit" className="w-full" loading={submitting}>
-          Update password
+          {t('flow.setPassword')}
         </Button>
       </form>
     </Shell>
@@ -299,6 +296,7 @@ interface InvitationDetails {
 }
 
 export function AcceptInvite() {
+  const { t } = useI18n()
   const [params] = useSearchParams()
   const navigate = useNavigate()
   const { refreshUser } = useAuth()
@@ -360,7 +358,7 @@ export function AcceptInvite() {
 
   if (loading) {
     return (
-      <Shell title="Loading your invitation">
+      <Shell title={t('flow.loadingInvitation')}>
         <div className="flex items-center gap-2 text-sm text-ink-500">
           <Loader2 className="h-4 w-4 animate-spin" />
           One moment…
@@ -371,14 +369,14 @@ export function AcceptInvite() {
 
   if (loadError || !details) {
     return (
-      <Shell title="That invitation is not valid">
+      <Shell title={t('flow.invitationNotValid')}>
         <div className="flex items-start gap-2 text-rose">
           <XCircle className="mt-0.5 h-5 w-5 shrink-0" />
           <p className="text-sm">{loadError}</p>
         </div>
         <Link to="/login">
           <Button variant="secondary" className="mt-5 w-full">
-            Back to sign in
+            {t('flow.backToSignIn')}
           </Button>
         </Link>
       </Shell>
@@ -399,7 +397,7 @@ export function AcceptInvite() {
 
         {details.email && (
           <div className="rounded-lg bg-ink-50 px-3 py-2">
-            <p className="text-xs text-ink-500">Invitation sent to</p>
+            <p className="text-xs text-ink-500">{t('flow.invitationSentTo')}</p>
             <p className="money text-sm font-medium text-ink-900">{details.email}</p>
           </div>
         )}
@@ -407,7 +405,7 @@ export function AcceptInvite() {
         {!details.hasAccount && (
           <>
             <Input
-              label="Your name"
+              label={t('auth.fullName')}
               required
               autoComplete="name"
               value={fullName}
@@ -415,13 +413,13 @@ export function AcceptInvite() {
               onChange={(e) => setFullName(e.target.value)}
             />
             <Input
-              label="Choose a password"
+              label={t('flow.choosePassword')}
               type="password"
               required
               autoComplete="new-password"
               value={password}
               error={fields.password}
-              hint="At least 12 characters"
+              hint={t('flow.passwordHintShort')}
               onChange={(e) => setPassword(e.target.value)}
             />
           </>

@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+import { useI18n } from '../i18n'
 import { Loader2, X } from 'lucide-react'
 import {
   ButtonHTMLAttributes,
@@ -321,7 +322,14 @@ export const STATUS_LABEL: Record<string, string> = {
 }
 
 export function StatusBadge({ status }: { status: string }) {
-  return <Badge tone={STATUS_TONE[status] ?? 'neutral'}>{STATUS_LABEL[status] ?? status}</Badge>
+  const { tOr } = useI18n()
+  // STATUS_LABEL stays as the English fallback, so a status added server-side
+  // before its catalogue entry still renders words rather than an enum.
+  return (
+    <Badge tone={STATUS_TONE[status] ?? 'neutral'}>
+      {tOr(`status.${status}`, STATUS_LABEL[status] ?? status)}
+    </Badge>
+  )
 }
 
 /* -------------------------------------------------------------------------- */
@@ -387,6 +395,8 @@ export function Modal({
   footer?: ReactNode
   size?: 'md' | 'lg'
 }) {
+  const { t } = useI18n()
+
   // Escape must close, and the page behind must not scroll.
   useEffect(() => {
     if (!open) return
@@ -428,7 +438,7 @@ export function Modal({
           </div>
           <button
             onClick={onClose}
-            aria-label="Close"
+            aria-label={t('action.close')}
             className="rounded-lg p-1 text-ink-400 hover:bg-ink-100 hover:text-ink-700"
           >
             <X className="h-4 w-4" />

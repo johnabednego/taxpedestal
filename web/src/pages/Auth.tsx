@@ -1,6 +1,6 @@
 import { FormEvent, useState } from 'react'
 import { BRAND } from '../brand'
-import { useI18n } from '../i18n'
+import { useI18n, type TranslationKey } from '../i18n'
 import { LanguageSwitcher } from '../components/LanguageSwitcher'
 import { Logo } from '../components/Logo'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
@@ -21,6 +21,7 @@ function AuthLayout({
   children: React.ReactNode
   footer: React.ReactNode
 }) {
+  const { t } = useI18n()
   return (
     <div className="flex min-h-screen">
       {/* Form side */}
@@ -47,23 +48,22 @@ function AuthLayout({
       <div className="hidden bg-ink-900 lg:flex lg:w-1/2 lg:flex-col lg:justify-center lg:px-16">
         <blockquote className="max-w-md">
           <p className="font-display text-3xl font-bold leading-tight tracking-tightest text-white">
-            “Getting paid on time is the difference between a business and a hobby.”
+            {t('auth.quote')}
           </p>
           <footer className="mt-6 text-sm text-ink-400">
-            {BRAND.name} handles tax in 53 jurisdictions and collects by card, wallet or mobile
-            money — so the invoice is right and the money arrives.
+            {t('auth.quoteFooter', { count: 53 })}
           </footer>
         </blockquote>
 
         <div className="mt-12 grid grid-cols-3 gap-6 border-t border-ink-700 pt-8">
-          {[
-            ['41', 'tax jurisdictions'],
-            ['3', 'payment rails'],
-            ['0', 'double charges'],
-          ].map(([value, label]) => (
+          {([
+            ['53', 'auth.statJurisdictions'],
+            ['3', 'auth.statRails'],
+            ['0', 'auth.statDoubleCharges'],
+          ] as Array<[string, TranslationKey]>).map(([value, label]) => (
             <div key={label}>
               <p className="money text-2xl font-bold text-cobalt-400">{value}</p>
-              <p className="mt-0.5 text-xs text-ink-400">{label}</p>
+              <p className="mt-0.5 text-xs text-ink-400">{t(label)}</p>
             </div>
           ))}
         </div>
@@ -97,7 +97,7 @@ export function Login() {
         setError(err.message)
         setFields(err.fieldErrors)
       } else {
-        setError('Could not reach the server. Is the API running?')
+        setError(t('auth.serverUnreachable'))
       }
     } finally {
       setSubmitting(false)
@@ -112,7 +112,7 @@ export function Login() {
         <>
           {t('auth.noAccount')}{' '}
           <Link to="/register" className="font-medium text-cobalt hover:underline">
-            Create an account
+            {t('auth.signUp')}
           </Link>
         </>
       }
@@ -148,18 +148,13 @@ export function Login() {
           </Link>
         </div>
 
-        <div className="flex justify-end -mt-2">
-          <Link to="/forgot-password" className="text-sm text-cobalt hover:underline">
-            {t('auth.forgotPassword')}
-          </Link>
-        </div>
 
         <Button type="submit" className="w-full" loading={submitting} size="lg">
           {t('auth.signIn')}
         </Button>
 
         <p className="rounded-lg bg-ink-50 px-3 py-2 text-xs text-ink-500">
-          Demo account: <span className="money">demo@taxpedestal.app</span> /{' '}
+          {t('auth.demoAccount')} <span className="money">demo@taxpedestal.app</span> /{' '}
           <span className="money">taxpedestal-demo-2026</span>
         </p>
       </form>
@@ -201,7 +196,7 @@ export function Register() {
         setError(err.message)
         setFields(err.fieldErrors)
       } else {
-        setError('Could not reach the server. Is the API running?')
+        setError(t('auth.serverUnreachable'))
       }
     } finally {
       setSubmitting(false)
@@ -226,7 +221,7 @@ export function Register() {
         <>
           {t('auth.hasAccount')}{' '}
           <Link to="/login" className="font-medium text-cobalt hover:underline">
-            Sign in
+            {t('auth.signIn')}
           </Link>
         </>
       }
@@ -244,7 +239,7 @@ export function Register() {
           placeholder="Ama Mensah"
         />
         <Input
-          label="Work email"
+          label={t('auth.workEmail')}
           type="email"
           required
           autoComplete="email"
@@ -254,13 +249,13 @@ export function Register() {
           placeholder="you@company.com"
         />
         <Input
-          label="Password"
+          label={t('auth.password')}
           type="password"
           required
           autoComplete="new-password"
           value={form.password}
           error={fields.password}
-          hint="At least 12 characters. A short phrase works well."
+          hint={t('auth.passwordHint')}
           onChange={(e) => set('password')(e.target.value)}
         />
         <Input
@@ -284,7 +279,7 @@ export function Register() {
             }}
           />
           <Select
-            label="Currency"
+            label={t('auth.currency')}
             value={form.baseCurrency}
             error={fields.baseCurrency}
             onChange={(e) => set('baseCurrency')(e.target.value)}
@@ -304,7 +299,7 @@ export function Register() {
           size="lg"
           icon={<ArrowRight className="h-4 w-4" />}
         >
-          Create workspace
+          {t('site.createWorkspace')}
         </Button>
       </form>
     </AuthLayout>

@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react'
 import { BRAND } from '../brand'
+import { setActiveLocale } from '../lib/api'
 import { COUNTRY_LANGUAGE, RTL_LANGUAGES, findLanguage } from './languages'
 import { CATALOGS, type TranslationKey } from './locales'
 
@@ -66,6 +67,17 @@ interface I18nState {
   /** True when the current locale was chosen rather than detected. */
   isExplicit: () => boolean
   t: (key: TranslationKey, vars?: Record<string, string | number>) => string
+  /**
+   * Translate a key that came from the API, falling back to the text the API
+   * sent alongside it.
+   *
+   * The server returns a stable code plus English prose (aging buckets,
+   * payment rails, coverage summaries). When a catalogue covers the code we
+   * use it; when it does not — a code added server-side before the catalogue
+   * caught up — the caller still renders the server's words rather than a raw
+   * key like "rail.FLUTTERWAVE".
+   */
+  tOr: (key: string, fallback: string, vars?: Record<string, string | number>) => string
   languages: LanguageOption[]
   /** Best-guess interface language for a country, for onboarding defaults. */
   languageForCountry: (country: string) => string
@@ -150,6 +162,17 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, [locale, dir])
 
   /**
+   * Publish the choice to the API client.
+   *
+   * Some strings can only be localised by the server — the 249 country names
+   * and the language an invoice PDF is rendered in. Without this the server
+   * would answer in the browser's language while the interface showed another.
+   */
+  useEffect(() => {
+    setActiveLocale(locale)
+  }, [locale])
+
+  /**
    * Change the interface language.
    *
    * `explicit` defaults to true because almost every caller is a person
@@ -222,6 +245,18 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     [locale],
   )
 
+  const tOr = useCallback<I18nState['tOr']>(
+    (key, fallback, vars) => {
+      const catalog = CATALOGS[locale] ?? CATALOGS[locale.split('-')[0] ?? 'en'] ?? ENGLISH
+      const known =
+        (catalog as Record<string, string | undefined>)[key] ??
+        (ENGLISH as Record<string, string | undefined>)[key]
+      if (known === undefined) return fallback
+      return t(key as TranslationKey, vars)
+    },
+    [locale, t],
+  )
+
   /**
    * Offered languages.
    *
@@ -238,9 +273,10 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       Object.keys(CATALOGS)
         .map((code) => {
           const catalog = CATALOGS[code]!
-          const translated = Object.keys(catalog).filter(
-            (key) => catalog[key as TranslationKey],
-          ).length
+          // Indexed as a plain record: TranslationKey also admits plural bases
+          // (`dash.drafts`), which are never literal catalogue entries.
+          const entries = catalog as Record<string, string | undefined>
+          const translated = Object.keys(catalog).filter((key) => entries[key]).length
           const registered = findLanguage(code)
           return {
             code,
@@ -309,6 +345,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       setLocale,
       isExplicit,
       t,
+      tOr,
       languages,
       languageForCountry,
       formatNumber,
@@ -321,6 +358,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       setLocale,
       isExplicit,
       t,
+      tOr,
       languages,
       languageForCountry,
       formatNumber,

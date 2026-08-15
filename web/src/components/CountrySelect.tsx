@@ -1,6 +1,6 @@
 import { Select } from './ui'
-import { BRAND } from '../brand'
 import { useAuth } from '../lib/auth'
+import { useI18n } from '../i18n'
 import { countryName, flagFor, type CountryOption } from '../lib/countries'
 
 /**
@@ -16,7 +16,7 @@ import { countryName, flagFor, type CountryOption } from '../lib/countries'
  * discovering a zero-tax invoice later.
  */
 export function CountrySelect({
-  label = 'Country',
+  label,
   value,
   onChange,
   hint,
@@ -35,6 +35,7 @@ export function CountrySelect({
   showTaxHint?: boolean
 }) {
   const { meta } = useAuth()
+  const { t } = useI18n()
 
   // Fallback covers the moment before /meta resolves, and an offline client.
   const countries: CountryOption[] =
@@ -51,13 +52,13 @@ export function CountrySelect({
   const taxHint =
     showTaxHint && selected
       ? selected.hasAutomaticTax
-        ? `Tax is calculated automatically for ${selected.name}.`
-        : `${BRAND.name} has no built-in tax rules for ${selected.name} yet. You can define your own in Settings.`
+        ? t('country.automaticTax', { country: selected.name })
+        : t('country.manualTax', { country: selected.name })
       : undefined
 
   return (
     <Select
-      label={label}
+      label={label ?? t('auth.country')}
       value={value}
       error={error}
       disabled={disabled}
@@ -68,7 +69,7 @@ export function CountrySelect({
       {countries.map((country) => (
         <option key={country.code} value={country.code}>
           {flagFor(country.code)} {country.name}
-          {country.hasAutomaticTax ? '' : ' — manual tax'}
+          {country.hasAutomaticTax ? '' : ` — ${t('country.manualSuffix')}`}
         </option>
       ))}
     </Select>

@@ -15,6 +15,7 @@ const API_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://
 
 let accessToken: string | null = null
 let activeOrgId: string | null = null
+let activeLocale: string | null = null
 let refreshPromise: Promise<boolean> | null = null
 let onUnauthorised: (() => void) | null = null
 
@@ -24,6 +25,17 @@ export const setAccessToken = (token: string | null): void => {
 export const getAccessToken = (): string | null => accessToken
 export const setActiveOrg = (id: string | null): void => {
   activeOrgId = id
+}
+/**
+ * The interface language, sent with every request as `X-Locale`.
+ *
+ * The server localises what only it can: country names, and the language an
+ * invoice document is rendered in. Accept-Language cannot carry this — it is a
+ * forbidden header name that `fetch` refuses to set, and it describes the
+ * browser rather than the choice the user just made in the switcher.
+ */
+export const setActiveLocale = (locale: string | null): void => {
+  activeLocale = locale
 }
 export const setUnauthorisedHandler = (fn: (() => void) | null): void => {
   onUnauthorised = fn
@@ -102,6 +114,9 @@ export async function api<T>(path: string, options: RequestOptions = {}): Promis
   if (!anonymous && accessToken) requestHeaders.Authorization = `Bearer ${accessToken}`
   if (!anonymous && activeOrgId) requestHeaders['X-Organisation-Id'] = activeOrgId
   if (idempotencyKey) requestHeaders['Idempotency-Key'] = idempotencyKey
+  // Sent on anonymous requests too: the public payment page and the landing
+  // page's live preview are both localised, and neither has a session.
+  if (activeLocale) requestHeaders['X-Locale'] = activeLocale
 
   const response = await fetch(`${API_URL}${path}`, {
     ...rest,
