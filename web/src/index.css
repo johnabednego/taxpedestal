@@ -84,6 +84,28 @@
   }
 }
 
+@layer utilities {
+  /*
+   * RTL scripts need more leading than the Latin-tuned defaults.
+   *
+   * Display headings are set as tight as line-height 1.05, which suits Latin
+   * capitals but not Arabic. Arabic carries tall ascenders and deep descenders
+   * on the same line, and unlike Latin it is not bounded by a flat cap height,
+   * so at 1.05 consecutive lines physically overlap. The landing hero collided
+   * with itself at every viewport width.
+   *
+   * Placed in the utilities layer, and more specific than the `leading-*`
+   * utility it overrides, so it wins on both order and specificity without
+   * needing !important. Scoped to `[dir='rtl']`, so Latin layouts are
+   * untouched: the direction attribute is set from the active locale.
+   */
+  [dir='rtl'] h1,
+  [dir='rtl'] h2,
+  [dir='rtl'] h3 {
+    line-height: 1.4;
+  }
+}
+
 @layer components {
   .money {
     @apply font-mono tnum;
