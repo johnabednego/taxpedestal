@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { createApp } from '../../src/app'
+import { createApp } from '../../src/create-app'
 const app = createApp()
 
 describe('public tax preview', () => {

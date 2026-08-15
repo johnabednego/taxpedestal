@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import request from 'supertest'
-import { createApp } from '../../src/app'
+import { createApp } from '../../src/create-app'
 
 /**
  * HTTP smoke tests.

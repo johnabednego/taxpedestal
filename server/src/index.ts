@@ -1,4 +1,4 @@
-import { createApp } from './app'
+import { createApp } from './create-app'
 import { connectDatabase, disconnectDatabase } from './config/db'
 import { env, isServerless } from './config/env'
 import { logger } from './core/logger'
@@ -10,10 +10,15 @@ import { startScheduler } from './jobs/scheduler'
  * ============================================================================
  * THIS FILE RUNS ON BOTH A LONG-LIVED SERVER AND ON VERCEL
  * ============================================================================
- * Vercel's Express support detects an entry point at `src/index.ts` and
- * captures the server created by `app.listen()` — the port is never exposed
- * publicly, it is how the platform finds the app. The detection happens during
- * MODULE STARTUP, which drives the two differences from a conventional server:
+ * Vercel's Express support detects an entry point BY FILENAME and captures the
+ * server created by `app.listen()` — the port is never exposed publicly, it is
+ * how the platform finds the app. The search order is
+ * `app.* → index.* → server.* → src/app.* → src/index.* → src/server.*`, so
+ * this file only wins because the factory next door is named `create-app.ts`
+ * rather than `app.ts`. See the note at the top of that file.
+ *
+ * Detection happens during MODULE STARTUP, which drives the two differences
+ * from a conventional server:
  *
  *   1. The listener is bound synchronously. The previous version awaited the
  *      database first, so on a cold start nothing was listening until Atlas

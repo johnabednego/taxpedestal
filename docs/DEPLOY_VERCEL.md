@@ -5,23 +5,50 @@ project** pointed at the same repository, with `server` as its root directory.
 
 ---
 
-## Why there is no `api/index.ts`
+## The entry point, and why `app.ts` was renamed
 
-Vercel treats Express as a first-class framework. It looks for the entry point
-at one of these paths, relative to the project's root directory:
+Vercel treats Express as a first-class framework and finds the entry point by
+filename, **in this order**, relative to the project's root directory:
 
 ```
-app.{js,ts}   index.{js,ts}   server.{js,ts}
-src/app.{js,ts}   src/index.{js,ts}   src/server.{js,ts}
+app.*  →  index.*  →  server.*  →  src/app.*  →  src/index.*  →  src/server.*
 ```
 
-`server/src/index.ts` is already one of them, so **no new entry file is
-needed**. `api/index.ts` is not on that list — it is the older
-"one function per file" convention, and using it here would be actively worse
-for this project. See "Webhooks" below.
+The order is the trap. This project used to have both `src/app.ts` (a factory
+exporting `createApp`) and `src/index.ts` (the real entry point). `src/app.ts`
+outranks `src/index.ts`, so Vercel selected the factory, found no default
+export, and every request died with:
+
+```
+Invalid export found in module "/var/task/server/src/app.js".
+The default export must be a function or server.
+FUNCTION_INVOCATION_FAILED
+```
+
+The factory is now `src/create-app.ts`, which matches no detection pattern, so
+`src/index.ts` is the only candidate. Adding a default export to the factory
+instead would have been worse: importing it would construct an application, and
+`index.ts` — the module that connects the database — would never run.
+
+**Do not rename `create-app.ts` back to `app.ts`.**
+
+`api/index.ts` is not on the list at all. It is the older "one function per
+file" convention, and using it here would be actively worse for this project —
+see "Webhooks" below.
 
 `app.listen()` is supported and expected. Vercel captures the server the call
 creates; the port is how the platform finds the app, not a public port.
+`index.ts` also carries `export default app`, so either detection path works.
+
+### Verifying before you push
+
+From `server/`, exactly one file should match:
+
+```bash
+for f in app.ts index.ts server.ts src/app.ts src/index.ts src/server.ts; do
+  [ -f "$f" ] && echo "MATCH: $f"
+done
+```
 
 ---
 

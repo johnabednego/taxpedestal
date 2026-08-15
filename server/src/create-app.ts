@@ -29,6 +29,28 @@ import webhookRoutes from './modules/payments/webhook.routes'
 /**
  * Application assembly.
  *
+ * ============================================================================
+ * WHY THIS FILE IS NOT CALLED app.ts
+ * ============================================================================
+ * Vercel auto-detects an Express entry point by filename, in this order:
+ *
+ *     app.*  →  index.*  →  server.*  →  src/app.*  →  src/index.*  →  src/server.*
+ *
+ * `src/app.ts` therefore OUTRANKS `src/index.ts`. This module is a factory: it
+ * exports `createApp` and deliberately has no default export and no listener,
+ * so the platform selected it, found nothing it could serve, and every request
+ * failed with:
+ *
+ *     Invalid export found in module ".../src/app.js".
+ *     The default export must be a function or server.
+ *
+ * Adding a default export here would be worse than the rename: it would make
+ * merely importing this module construct an application, and the real entry
+ * point in `index.ts` — which is what connects the database — would never run.
+ *
+ * The name keeps `src/index.ts` the single unambiguous entry point. Do not
+ * rename this back to `app.ts`.
+ *
  * MIDDLEWARE ORDER IS LOAD-BEARING. Two placements in particular:
  *
  *  1. WEBHOOKS ARE MOUNTED BEFORE express.json(). Signature verification hashes
