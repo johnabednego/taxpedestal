@@ -163,7 +163,7 @@ export default function Settings() {
               onChange={(e) => set('baseCurrency', e.target.value)}
             >
               {(meta?.currencies ?? []).map((c) => (
-                <option key={c.code} value={c.code}>{c.code} — {c.name}</option>
+                <option key={c.code} value={c.code}>{c.code}, {c.name}</option>
               ))}
             </Select>
             <Input
@@ -301,7 +301,7 @@ export default function Settings() {
  *
  * `change-password` and `logout-all` existed on the server from the start with
  * nothing calling them, so a signed-in user could only change their password by
- * signing out and using the forgotten-password email — and had no way at all to
+ * signing out and using the forgotten-password email, and had no way at all to
  * end a session on a device they no longer control.
  *
  * Changing the password bumps the token version server-side, which revokes
@@ -432,7 +432,7 @@ const ROLE_KEY: Record<OrgRole, TranslationKey> = {
  * Team management.
  *
  * The API has supported invitations, role changes and removal from the start,
- * and the accept-invitation page existed — but nothing in the interface could
+ * and the accept-invitation page existed, but nothing in the interface could
  * SEND an invitation, so the whole journey was unreachable.
  *
  * Two server rules are mirrored here so the UI never offers what the API would
@@ -495,7 +495,7 @@ function TeamCard() {
 
       <ul className="divide-y divide-ink-100">
         {(members ?? []).map((member) => {
-          const name = member.user?.fullName ?? member.invitedEmail ?? '—'
+          const name = member.user?.fullName ?? member.invitedEmail ?? '-'
           const isSelf = member.user?._id === user?._id
           // The last owner is load-bearing: removing them would orphan the
           // workspace, so the server refuses and the UI does not offer it.
@@ -692,8 +692,7 @@ interface CustomProfile {
  * Lets an organisation define its own tax components.
  *
  * This is what makes TaxPedestal usable from anywhere rather than only the ~50
- * countries we ship rules for. Iraq, for example, has no general VAT at all —
- * only a narrow sales tax on particular services — so no built-in rule could
+ * countries we ship rules for. Iraq, for example, has no general VAT at all, * only a narrow sales tax on particular services, so no built-in rule could
  * ever be right for every Iraqi business. The user states their own.
  *
  * It also serves businesses in covered countries who are on a special scheme:

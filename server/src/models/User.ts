@@ -15,7 +15,7 @@ export interface IUser extends Document {
    * Interface language, as a BCP 47 tag.
    *
    * Stored on the account rather than only in the browser so the choice
-   * follows the user to a new device — someone who set the interface to Arabic
+   * follows the user to a new device, someone who set the interface to Arabic
    * should not have to find the switcher again on their phone.
    *
    * Null means "never chosen", which is different from "chose English": the

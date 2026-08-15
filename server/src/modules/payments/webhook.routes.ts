@@ -9,7 +9,7 @@ import type { ProviderId } from '../../services/payments/types'
  * RAW BODY IS MANDATORY. Signature verification hashes the exact bytes the
  * provider sent. express.json() parses and discards them, and re-serialising
  * with JSON.stringify produces different bytes whenever key order or whitespace
- * differs — verification then fails for every request. This router therefore
+ * differs, verification then fails for every request. This router therefore
  * uses express.raw and is mounted BEFORE the JSON parser in app.ts.
  *
  * These routes are deliberately NOT rate limited: throttling a provider's
@@ -36,7 +36,7 @@ function makeHandler(providerId: ProviderId) {
 
       if (outcome.status === 'invalid') {
         // 400 tells the provider the request was rejected, which surfaces in
-        // their dashboard as a failed delivery — exactly what we want an
+        // their dashboard as a failed delivery, exactly what we want an
         // operator to see if a secret was rotated without a deploy.
         res.status(400).json({ received: false, reason: 'Signature verification failed' })
         return

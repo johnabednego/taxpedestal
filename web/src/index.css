@@ -40,6 +40,48 @@
   ::selection {
     @apply bg-cobalt-100 text-ink-900;
   }
+
+  /*
+   * Suppress the browsers' own password controls.
+   *
+   * Edge injects a reveal "eye" via ::-ms-reveal as soon as a password field
+   * has content, and removes it again on blur. Alongside the app's own toggle
+   * that produces two eyes side by side, one of which appears and vanishes on
+   * its own. Chrome and Safari add similar overlays for saved credentials and
+   * generated passwords, which land in the same corner.
+   *
+   * Hiding the native ones loses nothing: the app's toggle does the same job,
+   * is present in every browser rather than one, and is translated and
+   * labelled for screen readers.
+   */
+  /*
+   * One selector per rule, deliberately. A selector list is discarded whole
+   * when any member is unknown to the browser, so grouping these would mean a
+   * browser that implements only one of them applies neither.
+   */
+  input::-ms-reveal {
+    display: none;
+  }
+
+  input::-ms-clear {
+    display: none;
+  }
+
+  input::-webkit-credentials-auto-fill-button {
+    visibility: hidden;
+    pointer-events: none;
+    /* Collapse the reserved slot as well as hiding it, so it cannot push the
+       value out from under our own toggle. */
+    margin: 0;
+    width: 0;
+  }
+
+  input::-webkit-strong-password-auto-fill-button {
+    visibility: hidden;
+    pointer-events: none;
+    margin: 0;
+    width: 0;
+  }
 }
 
 @layer components {

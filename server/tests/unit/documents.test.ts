@@ -114,7 +114,7 @@ describe('countries where a PDF has no legal standing', () => {
     ['IT', /FatturaPA|SDI/],
   ])('says so plainly for %s', (country, pattern) => {
     // Silently producing a pretty PDF here would imply legal validity it does
-    // not have — a worse failure than saying we cannot do it.
+    // not have, a worse failure than saying we cannot do it.
     const f = fixture({ country }, { country })
     const report = checkInvoiceCompliance(f.invoice, f.organisation, f.client)
     expect(report.eInvoicingRegime).toBeDefined()
@@ -171,7 +171,7 @@ describe('document language', () => {
   })
 })
 
-describe('rule provenance — never present stale rules as current', () => {
+describe('rule provenance, never present stale rules as current', () => {
   it('reports when the rules were last reviewed', () => {
     const f = fixture()
     const report = checkInvoiceCompliance(f.invoice, f.organisation, f.client)

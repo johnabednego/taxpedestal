@@ -44,7 +44,7 @@ router.use(requireAuth, requireOrg)
 
 const lineSchema = z.object({
   description: z.string().trim().min(1, 'Describe what you are billing for').max(500),
-  // Quantity in thousandths so 1.5 hours is 1500 — never a float.
+  // Quantity in thousandths so 1.5 hours is 1500, never a float.
   quantityMilli: z.number().int().min(0).max(1_000_000_000),
   // Minor units, integer. See core/money.ts for why floats are refused.
   unitAmountMinor: z.number().int().min(-100_000_000_000).max(100_000_000_000),
@@ -86,7 +86,7 @@ const manualPaymentSchema = z.object({
 })
 
 /* -------------------------------------------------------------------------- */
-/* Live tax preview — powers the invoice builder and the marketing page        */
+/* Live tax preview, powers the invoice builder and the marketing page        */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -94,7 +94,7 @@ const manualPaymentSchema = z.object({
  *
  * The builder calls this on every edit so the customer sees correct tax before
  * committing. Sharing the exact pricing function with creation means the
- * preview can never disagree with the saved invoice — a class of bug that
+ * preview can never disagree with the saved invoice, a class of bug that
  * plagues invoicing tools where the UI recomputes totals in its own JavaScript.
  */
 router.post(
@@ -338,7 +338,7 @@ router.post(
  * Record a payment received outside the platform.
  *
  * Goes through the SAME ledger path as gateway payments, so cash and card
- * behave identically for reporting and audit — there is no second code path
+ * behave identically for reporting and audit, there is no second code path
  * that skips the ledger.
  */
 router.post(

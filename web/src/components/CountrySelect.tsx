@@ -8,7 +8,7 @@ import { countryName, flagFor, type CountryOption } from '../lib/countries'
  *
  * Lists EVERY country, never only the ones with automatic tax. An earlier
  * version fed this from the tax registry, which meant a business in China,
- * Iraq or Israel could not complete registration at all — the option simply
+ * Iraq or Israel could not complete registration at all, the option simply
  * was not there.
  *
  * Countries without automatic tax are still selectable and are labelled, so the
@@ -69,7 +69,9 @@ export function CountrySelect({
       {countries.map((country) => (
         <option key={country.code} value={country.code}>
           {flagFor(country.code)} {country.name}
-          {country.hasAutomaticTax ? '' : ` — ${t('country.manualSuffix')}`}
+          {/* Parenthesised, not comma-separated: "Afghanistan, manual tax"
+              reads as part of the country's name. */}
+          {country.hasAutomaticTax ? '' : ` (${t('country.manualSuffix')})`}
         </option>
       ))}
     </Select>

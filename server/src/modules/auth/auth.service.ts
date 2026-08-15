@@ -107,7 +107,7 @@ export interface AuthResult extends IssuedTokens {
   user: IUser
   /**
    * Null for a platform administrator, who belongs to no tenant. Every other
-   * account has one, so the field stays required rather than optional — a
+   * account has one, so the field stays required rather than optional, a
    * caller must decide what to render when there is no workspace.
    */
   organisation: { id: string; name: string; slug: string; role: OrgRole } | null
@@ -119,15 +119,14 @@ export interface AuthResult extends IssuedTokens {
  * Registration creates three linked documents. Without a transaction a failure
  * midway leaves an orphaned user who can log in but has no workspace. Mongo
  * transactions need a replica set, which Atlas provides but a standalone local
- * mongod does not — so we attempt a transaction and fall back to compensating
+ * mongod does not, so we attempt a transaction and fall back to compensating
  * cleanup. The fallback is logged as technical debt (TD-006).
  */
 export async function register(input: RegisterInput, ctx: SessionContext = {}): Promise<AuthResult> {
   const email = input.email.toLowerCase().trim()
 
   if (await User.exists({ email })) {
-    // Deliberately explicit. Registration cannot hide existing accounts —
-    // the user must be told to sign in instead — so enumeration is mitigated
+    // Deliberately explicit. Registration cannot hide existing accounts, // the user must be told to sign in instead, so enumeration is mitigated
     // by rate limiting rather than by an ambiguous message.
     throw new ConflictError('An account with that email already exists', { field: 'email' })
   }
@@ -265,7 +264,7 @@ export async function login(
       'name slug suspendedAt',
     )
 
-  // A platform administrator is deliberately a member of no tenant — that
+  // A platform administrator is deliberately a member of no tenant, that
   // separation is the point of the role. Requiring a membership here locked
   // the seeded admin out of the console entirely, since nothing ever grants
   // it one. Tenant routes remain closed to it: they run requireOrg, which

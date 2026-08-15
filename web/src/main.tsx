@@ -15,7 +15,7 @@ const queryClient = new QueryClient({
       // without showing a paid invoice as unpaid for minutes.
       staleTime: 30_000,
       retry: (failureCount, error) => {
-        // Never retry auth or validation failures — they will fail identically.
+        // Never retry auth or validation failures, they will fail identically.
         const status = (error as { status?: number })?.status
         if (status && status >= 400 && status < 500) return false
         return failureCount < 2

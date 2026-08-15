@@ -12,7 +12,7 @@ import { isValidCountry } from '../../core/countries'
  */
 export const passwordSchema = z
   .string()
-  .min(12, 'Use at least 12 characters — a short phrase works well')
+  .min(12, 'Use at least 12 characters, a short phrase works well')
   .max(200, 'That password is too long')
   .refine((v) => v.trim().length > 0, 'Password cannot be only whitespace')
 

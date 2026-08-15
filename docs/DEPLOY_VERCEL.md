@@ -28,13 +28,12 @@ FUNCTION_INVOCATION_FAILED
 The factory is now `src/create-app.ts`, which matches no detection pattern, so
 `src/index.ts` is the only candidate. Adding a default export to the factory
 instead would have been worse: importing it would construct an application, and
-`index.ts` — the module that connects the database — would never run.
+`index.ts` (the module that connects the database) would never run.
 
 **Do not rename `create-app.ts` back to `app.ts`.**
 
 `api/index.ts` is not on the list at all. It is the older "one function per
-file" convention, and using it here would be actively worse for this project —
-see "Webhooks" below.
+file" convention, and using it here would be actively worse for this project. See "Webhooks" below.
 
 `app.listen()` is supported and expected. Vercel captures the server the call
 creates; the port is how the platform finds the app, not a public port.
@@ -56,12 +55,12 @@ delete, the `express()` call was moved into the entry point and the
 configuration split out:
 
 ```ts
-// src/index.ts — owns the instance
+// src/index.ts owns the instance
 import express from 'express'
 import { configureApp } from './create-app'
 const app = configureApp(express())
 
-// src/create-app.ts — applies middleware and routes to an instance
+// src/create-app.ts applies middleware and routes to an instance
 export function configureApp(app: Express): Express { /* … */ return app }
 export function createApp(): Express { return configureApp(express()) }   // tests
 ```
@@ -136,7 +135,7 @@ node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
 
 **Deliberately omitted**
 
-- `PORT` — the platform assigns it; the schema defaults to 4000 locally.
+- `PORT`. The platform assigns it; the schema defaults to 4000 locally.
 
 **Notes that matter**
 
@@ -164,8 +163,8 @@ endpoints, registered in `server/vercel.json` and guarded by `CRON_SECRET`:
 | `reconcile-balances` | Audits cached balances against the ledger |
 
 Vercel sends `Authorization: Bearer $CRON_SECRET`. Without a matching secret
-the routes return **404**, not 401 — an unauthenticated endpoint that settles
-payments is not something to advertise.
+the routes return **404** rather than 401. An unauthenticated endpoint that
+settles payments is not something to advertise.
 
 ### Frequency is a real trade-off on Hobby
 
@@ -177,7 +176,7 @@ The cost is concrete: `reconcile-payments` is the safety net for a payment that
 succeeded at the provider while its webhook was lost. On a long-lived server it
 ran every 10 minutes; daily, that gap is up to a day. Three mitigations:
 
-1. Webhooks remain the primary path — reconciliation is the fallback, not the
+1. Webhooks remain the primary path. Reconciliation is the fallback, not the
    mechanism.
 2. An admin can run it on demand from the admin console at any time.
 3. On **Pro**, restore the original cadence in `server/vercel.json`:
@@ -187,8 +186,8 @@ ran every 10 minutes; daily, that gap is up to a day. Three mitigations:
 { "path": "/api/v1/cron/mark-overdue",       "schedule": "7 * * * *"    }
 ```
 
-If that gap is unacceptable and Pro is not an option, keep the API on Render —
-`render.yaml` still provisions it, and the in-process scheduler works there.
+If that gap is unacceptable and Pro is not an option, keep the API on Render. `render.yaml` still provisions it, and the in-process
+scheduler works there.
 
 ---
 
@@ -205,7 +204,7 @@ so the raw stream reaches `express.raw()` untouched. That is a documented
 difference between the two shapes, and it is the main reason this deployment
 uses the `src/index.ts` entry point.
 
-Verify after deploying, rather than assuming — a broken signature check still
+Verify after deploying rather than assuming. A broken signature check still
 returns 200 to the provider while crediting nothing:
 
 1. Point the Stripe webhook at `https://<api>/api/v1/webhooks/stripe` and send a
@@ -231,11 +230,11 @@ Paystack signs with the secret key, so it needs no separate value.
 3. **Check readiness:** `https://<api>.vercel.app/ready` must return 200 with
    `"database":"connected"`. `/health` answers without touching the database,
    so a 200 there with a 503 on `/ready` means the app is up but Atlas is not
-   reachable — almost always the IP allow-list.
+   reachable, almost always the IP allow-list.
 4. **Confirm the session survives a reload.** The refresh token is an httpOnly
    cookie sent cross-site between two different `vercel.app` hosts, which
    requires `SameSite=None; Secure`. The code already sets both when
-   `NODE_ENV=production` — if sign-in works but a refresh logs you out, that
+   `NODE_ENV=production`, if sign-in works but a refresh logs you out, that
    variable is missing.
 
 ---

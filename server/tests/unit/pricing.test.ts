@@ -16,7 +16,7 @@ const NO_TAX: PricingContext = {
   issueDate: new Date('2026-06-01T00:00:00Z'),
 }
 
-describe('priceInvoice — line arithmetic', () => {
+describe('priceInvoice, line arithmetic', () => {
   it('multiplies fractional quantities correctly', () => {
     // 1.5 hours at GHS 200.00 = GHS 300.00
     const result = priceInvoice(
@@ -65,7 +65,7 @@ describe('priceInvoice — line arithmetic', () => {
   })
 })
 
-describe('priceInvoice — invoice-level discount allocation', () => {
+describe('priceInvoice, invoice-level discount allocation', () => {
   it('allocates the discount across lines with no rounding loss', () => {
     // 10% off three lines of 3.33 each. Independent rounding would leak a unit.
     const result = priceInvoice(
@@ -117,7 +117,7 @@ describe('priceInvoice — invoice-level discount allocation', () => {
   })
 })
 
-describe('priceInvoice — tax integration', () => {
+describe('priceInvoice, tax integration', () => {
   it('itemises Ghana VAT, NHIL and GETFund separately', () => {
     const result = priceInvoice(
       [{ description: 'Consulting', quantityMilli: 1000, unitAmountMinor: 100_000 }],
@@ -188,7 +188,7 @@ describe('priceInvoice — tax integration', () => {
   })
 })
 
-describe('priceInvoice — edge cases', () => {
+describe('priceInvoice, edge cases', () => {
   it('prices an empty invoice as zero', () => {
     const result = priceInvoice([], GH_2026)
     expect(result.subtotalMinor).toBe(0)

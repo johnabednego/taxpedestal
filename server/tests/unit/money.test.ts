@@ -99,7 +99,7 @@ describe('applyBasisPoints', () => {
     expect(applyBasisPoints(10_000, 1500)).toBe(1500)
     // 2.5% NHIL on the same base.
     expect(applyBasisPoints(10_000, 250)).toBe(250)
-    // 9.975% QST — the awkward one.
+    // 9.975% QST, the awkward one.
     expect(applyBasisPoints(10_000, 998)).toBe(998)
   })
 
@@ -155,7 +155,7 @@ describe('allocate', () => {
   })
 })
 
-describe('parseMoneyInput — exact decimal parsing', () => {
+describe('parseMoneyInput, exact decimal parsing', () => {
   it('parses plain decimals', () => {
     expect(parseMoneyInput('12.34', 'USD')).toBe(1234)
     expect(parseMoneyInput('0.05', 'USD')).toBe(5)

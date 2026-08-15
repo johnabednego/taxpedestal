@@ -114,7 +114,7 @@ export function priceInvoice(
   //
   //  1. The discount is allocated across POSITIVE lines only. A credit line is
   //     already a reduction; applying a discount to it would make it less
-  //     negative and therefore INCREASE the amount owed — the opposite of what
+  //     negative and therefore INCREASE the amount owed, the opposite of what
   //     "10% off" means.
   //  2. If the subtotal is zero or negative there is nothing to discount, so the
   //     discount is zero rather than a negative number (which would silently

@@ -80,10 +80,10 @@ export const CURRENCIES: Record<string, CurrencyMeta> = {
   COP: { code: 'COP', exponent: 2, symbol: 'CO$', name: 'Colombian Peso' },
   PEN: { code: 'PEN', exponent: 2, symbol: 'S/', name: 'Peruvian Sol' },
   QAR: { code: 'QAR', exponent: 2, symbol: 'QR', name: 'Qatari Riyal' },
-  // West and Central African CFA francs — zero-decimal.
+  // West and Central African CFA francs, zero-decimal.
   XOF: { code: 'XOF', exponent: 0, symbol: 'CFA', name: 'West African CFA Franc' },
   XAF: { code: 'XAF', exponent: 0, symbol: 'FCFA', name: 'Central African CFA Franc' },
-  // Zero-decimal currencies — the minor unit IS the major unit.
+  // Zero-decimal currencies, the minor unit IS the major unit.
   JPY: { code: 'JPY', exponent: 0, symbol: '¥', name: 'Japanese Yen' },
   KRW: { code: 'KRW', exponent: 0, symbol: '₩', name: 'South Korean Won' },
   VND: { code: 'VND', exponent: 0, symbol: '₫', name: 'Vietnamese Dong' },

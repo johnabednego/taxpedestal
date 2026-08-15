@@ -15,7 +15,7 @@
  *
  * 1. A language may use categories English does not have. Arabic distinguishes
  *    six; English has two. `dash.drafts_few` is therefore legitimate even
- *    though no such English key exists — it is validated against the FAMILY
+ *    though no such English key exists, it is validated against the FAMILY
  *    (`dash.drafts_*`), so a typo in the base is still caught.
  *
  * 2. Coverage is counted per family, not per key. Otherwise Arabic supplying
@@ -63,8 +63,8 @@ for (const [code, catalog] of Object.entries(CATALOGS)) {
  * Placeholders must match, or a variable silently disappears from a sentence.
  *
  * `{count}` is exempt inside a plural family: several languages name small
- * numbers as words rather than digits — Arabic's "one" form reads "one open
- * invoice", not "1 open invoice" — so requiring the digit there would force a
+ * numbers as words rather than digits. Arabic's "one" form reads "one open
+ * invoice", not "1 open invoice", so requiring the digit there would force a
  * grammatically wrong translation. Every other placeholder is still mandatory,
  * because dropping {name} or {date} loses information rather than style.
  */

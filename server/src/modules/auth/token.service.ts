@@ -32,7 +32,7 @@ export interface AccessTokenClaims {
  * Token issuer and audience.
  *
  * Derived from the brand but pinned as constants, because changing them
- * invalidates every token in circulation — a rename must not silently sign
+ * invalidates every token in circulation, a rename must not silently sign
  * every user out. If the brand changes again, these stay put.
  */
 const BRAND_ISSUER = BRAND.name.toLowerCase()
@@ -45,7 +45,7 @@ export function hashToken(token: string): string {
   return SHA256(token)
 }
 
-/** 48 random bytes, base64url. Not a JWT — it carries no claims by design. */
+/** 48 random bytes, base64url. Not a JWT, it carries no claims by design. */
 export function generateOpaqueToken(): string {
   return crypto.randomBytes(48).toString('base64url')
 }
@@ -123,7 +123,7 @@ export async function issueTokenPair(
  * REUSE DETECTION: if the presented token has already been rotated
  * (`replacedBy` is set) or was revoked, two parties hold the same secret. We
  * cannot tell which is the attacker, so the entire family is revoked and the
- * user's tokenVersion is bumped — every access token dies too. The legitimate
+ * user's tokenVersion is bumped, every access token dies too. The legitimate
  * user is forced to sign in again, which is the correct trade against an
  * attacker retaining access.
  */
@@ -143,7 +143,7 @@ export async function rotateRefreshToken(
   if (isReuse) {
     logger.warn(
       { userId: existing.user.toString(), family: existing.family },
-      'Refresh token reuse detected — revoking token family',
+      'Refresh token reuse detected, revoking token family',
     )
     await revokeFamily(existing.family, 'REUSE_DETECTED')
     await User.findByIdAndUpdate(existing.user, { $inc: { tokenVersion: 1 } })

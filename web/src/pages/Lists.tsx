@@ -153,7 +153,7 @@ export function Invoices() {
                       </Link>
                     </td>
                     <td className="px-4 py-3 text-sm text-ink-700">
-                      {invoice.client?.name ?? '—'}
+                      {invoice.client?.name ?? '-'}
                     </td>
                     <td className="px-4 py-3 text-sm text-ink-500">
                       {formatDate(invoice.dueDate, 'medium')}
@@ -188,7 +188,7 @@ export function Invoices() {
                     <div className="min-w-0">
                       <p className="money text-sm font-semibold text-ink-900">{invoice.number}</p>
                       <p className="truncate text-xs text-ink-500">
-                        {invoice.client?.name ?? '—'} · {t('inv.due').toLowerCase()}{' '}
+                        {invoice.client?.name ?? '-'} · {t('inv.due').toLowerCase()}{' '}
                         {formatDate(invoice.dueDate, 'short')}
                       </p>
                     </div>

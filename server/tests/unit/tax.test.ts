@@ -29,7 +29,7 @@ describe('registry', () => {
   })
 })
 
-describe('Ghana — VAT Act 2025 (Act 1151)', () => {
+describe('Ghana. VAT Act 2025 (Act 1151)', () => {
   it('charges 15% VAT + 2.5% NHIL + 2.5% GETFund on one shared base from 2026', () => {
     const result = assessTax(ctx())
 
@@ -327,7 +327,7 @@ describe('unsupported jurisdiction', () => {
   })
 })
 
-describe('assessInvoice — per-line assessment', () => {
+describe('assessInvoice, per-line assessment', () => {
   const shared = {
     supplier: { country: 'GH', taxRegistered: true, taxId: 'GH-1' },
     customer: { country: 'GH', taxRegistered: false, isBusiness: false },
@@ -382,7 +382,7 @@ describe('assessInvoice — per-line assessment', () => {
   })
 })
 
-describe('China — VAT Law effective 2026', () => {
+describe('China. VAT Law effective 2026', () => {
   const cnSupplier = { country: 'CN', taxRegistered: true, taxId: 'CN-123' }
 
   it('charges 6% on services for a general taxpayer', () => {
@@ -430,7 +430,7 @@ describe('China — VAT Law effective 2026', () => {
   })
 })
 
-describe('Israel — rate change on 1 January 2025', () => {
+describe('Israel, rate change on 1 January 2025', () => {
   const ilSupplier = { country: 'IL', taxRegistered: true, taxId: 'IL-1' }
 
   it('charges 18% for a current supply', () => {
@@ -464,7 +464,7 @@ describe('Israel — rate change on 1 January 2025', () => {
   })
 })
 
-describe('custom tax profiles — countries with no built-in rule', () => {
+describe('custom tax profiles, countries with no built-in rule', () => {
   // Iraq has no general VAT, only a narrow sales tax on particular services.
   // No vendor rule can express that; the user must define it.
   const iraqProfile = {

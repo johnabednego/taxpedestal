@@ -13,7 +13,7 @@ import type {
 } from '../types'
 
 /**
- * Stripe adapter — worldwide cards, wallets and bank debits.
+ * Stripe adapter, worldwide cards, wallets and bank debits.
  *
  * SIGNATURE VERIFICATION USES THE OFFICIAL SDK, NOT HAND-ROLLED HMAC.
  *
@@ -26,7 +26,7 @@ import type {
  */
 
 /**
- * Currencies Stripe settles. Not exhaustive — restricted to the set TaxPedestal
+ * Currencies Stripe settles. Not exhaustive, restricted to the set TaxPedestal
  * invoices in, so an unsupported pair fails fast at selection rather than at
  * checkout.
  */
@@ -102,8 +102,7 @@ export const stripeProvider: PaymentProvider = {
       const session = await stripe.checkout.sessions.create(
         {
           mode: 'payment',
-          // Stripe expects minor units, which is exactly how we store money —
-          // no conversion boundary, so no rounding bug possible here.
+          // Stripe expects minor units, which is exactly how we store money, // no conversion boundary, so no rounding bug possible here.
           line_items: [
             {
               quantity: 1,
@@ -170,7 +169,7 @@ export const stripeProvider: PaymentProvider = {
         signature,
         env.STRIPE_WEBHOOK_SECRET,
         // Default 300s tolerance. Explicit so the value is reviewable, and
-        // never 0 — that would disable replay protection entirely.
+        // never 0, that would disable replay protection entirely.
         300,
       )
 

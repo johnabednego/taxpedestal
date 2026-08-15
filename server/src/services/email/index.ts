@@ -9,7 +9,7 @@ import { render, type TemplateName } from './templates'
  *
  * A failed notification must not fail the business operation that triggered it.
  * If the mail relay is down, an invoice that was successfully created and
- * charged should still be created and charged — the user can resend the email.
+ * charged should still be created and charged, the user can resend the email.
  * Errors are logged and returned as a result object instead of propagating.
  *
  * The `console` transport is the default so the whole product runs end to end
@@ -49,7 +49,7 @@ const consoleTransport: Transport = {
         // The text body is logged rather than the HTML so it stays readable.
         preview: body.text.slice(0, 400),
       },
-      'Email (console transport — not actually sent)',
+      'Email (console transport, not actually sent)',
     )
     return { messageId: `console-${Date.now()}` }
   },

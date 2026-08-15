@@ -365,7 +365,7 @@ router.patch(
   requireAuth,
   validate(
     z.object({
-      // Validated as a real locale, not stored as arbitrary text — this value
+      // Validated as a real locale, not stored as arbitrary text, this value
       // is later passed to Intl, which throws on malformed input.
       preferredLocale: z
         .string()

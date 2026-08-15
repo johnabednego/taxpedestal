@@ -57,7 +57,7 @@ async function seed(): Promise<void> {
       logger.info({ email: env.PLATFORM_ADMIN_EMAIL }, 'Platform admin created')
     }
   } else {
-    logger.warn('PLATFORM_ADMIN_EMAIL/PASSWORD not set — skipping admin creation')
+    logger.warn('PLATFORM_ADMIN_EMAIL/PASSWORD not set, skipping admin creation')
   }
 
   /* --- Demo user and workspace ------------------------------------------ */
@@ -95,7 +95,7 @@ async function seed(): Promise<void> {
       invoicePrefix: 'NWS',
       defaultPaymentTermsDays: 14,
       defaultNotes: 'Thank you for your business.',
-      defaultFooter: 'Northwind Studio Ltd — VAT registered in Ghana',
+      defaultFooter: 'Northwind Studio Ltd. VAT registered in Ghana',
       onboardingCompletedAt: new Date(),
       createdBy: demoUser._id,
     })
@@ -176,7 +176,7 @@ async function seed(): Promise<void> {
   /* --- Invoices ---------------------------------------------------------- */
   const alreadySeeded = await Invoice.countDocuments({ org: org._id })
   if (alreadySeeded > 0) {
-    logger.info({ count: alreadySeeded }, 'Invoices already present — skipping invoice seed')
+    logger.info({ count: alreadySeeded }, 'Invoices already present, skipping invoice seed')
     await summarise(org._id)
     await disconnectDatabase()
     return
@@ -184,7 +184,7 @@ async function seed(): Promise<void> {
 
   const [ghBusiness, euBusiness, usBusiness, ghConsumer] = clients
 
-  // 1. Domestic Ghana — 20% under Act 1151, paid in full.
+  // 1. Domestic Ghana, 20% under Act 1151, paid in full.
   const inv1 = await createDraft(org._id, demoUser._id, {
     clientId: ghBusiness!._id.toString(),
     currency: 'GHS',
@@ -205,20 +205,20 @@ async function seed(): Promise<void> {
     description: 'Bank transfer received',
   })
 
-  // 2. Intra-EU B2B — reverse charge, tax must come out as zero.
+  // 2. Intra-EU B2B, reverse charge, tax must come out as zero.
   const inv2 = await createDraft(org._id, demoUser._id, {
     clientId: euBusiness!._id.toString(),
     currency: 'EUR',
     issueDate: dayjs().subtract(12, 'day').toISOString(),
     dueDate: dayjs().add(2, 'day').toISOString(),
     lines: [
-      { description: 'UX consulting retainer — March', quantityMilli: 1000, unitAmountMinor: 420_000 },
+      { description: 'UX consulting retainer. March', quantityMilli: 1000, unitAmountMinor: 420_000 },
     ],
     reference: 'BDC-RET-03',
   })
   await issueAndSend(org._id, demoUser._id, inv2._id.toString(), { sendEmail: false })
 
-  // 3. US client — export of services from Ghana, zero-rated. Partially paid.
+  // 3. US client, export of services from Ghana, zero-rated. Partially paid.
   const inv3 = await createDraft(org._id, demoUser._id, {
     clientId: usBusiness!._id.toString(),
     currency: 'USD',
@@ -238,7 +238,7 @@ async function seed(): Promise<void> {
     description: 'Part payment received',
   })
 
-  // 4. Ghana consumer — overdue, so the aging report has something in it.
+  // 4. Ghana consumer, overdue, so the aging report has something in it.
   const inv4 = await createDraft(org._id, demoUser._id, {
     clientId: ghConsumer!._id.toString(),
     currency: 'GHS',

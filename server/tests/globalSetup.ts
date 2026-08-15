@@ -1,8 +1,8 @@
 /**
- * Jest globalSetup — resolve a MongoDB instance for integration tests.
+ * Jest globalSetup, resolve a MongoDB instance for integration tests.
  *
  * Resolution order:
- *   1. MONGODB_TEST_URI env var — an external mongod or a disposable Atlas
+ *   1. MONGODB_TEST_URI env var, an external mongod or a disposable Atlas
  *      database. Use this in CI and in sandboxes with no outbound access.
  *   2. mongodb-memory-server, which downloads a mongod binary on first run.
  *
@@ -30,7 +30,7 @@ export default async function globalSetup(): Promise<void> {
       replSet: { count: 1, storageEngine: 'wiredTiger' },
     })
     globalThis.__MONGO_REPLSET__ = replSet
-    // getUri() with no argument yields ".../?replicaSet=..." — a URI with no
+    // getUri() with no argument yields ".../?replicaSet=...", a URI with no
     // database path at all. assertSafeTestDatabase then rejects it, because a
     // nameless URI would drop whatever the driver picks as its default. Naming
     // the database here is what lets the guard recognise it as disposable.
@@ -43,7 +43,7 @@ export default async function globalSetup(): Promise<void> {
     process.env.__MONGO_SKIP_REASON__ = reason ?? 'unknown'
     // eslint-disable-next-line no-console
     console.warn(
-      `\n  Integration tests will be SKIPPED — no MongoDB available.\n  Reason: ${reason}\n  Set MONGODB_TEST_URI to run them (e.g. mongodb://127.0.0.1:27017/taxpedestal-test).\n`,
+      `\n  Integration tests will be SKIPPED, no MongoDB available.\n  Reason: ${reason}\n  Set MONGODB_TEST_URI to run them (e.g. mongodb://127.0.0.1:27017/taxpedestal-test).\n`,
     )
   }
 }

@@ -151,7 +151,7 @@ router.patch(
  * Archive rather than delete.
  *
  * A client referenced by issued invoices cannot be removed without orphaning
- * financial records, so deletion is not offered at all — archiving hides them
+ * financial records, so deletion is not offered at all, archiving hides them
  * from pickers while keeping history intact.
  */
 router.post(

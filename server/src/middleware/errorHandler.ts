@@ -22,8 +22,7 @@ interface ErrorBody {
 /**
  * Terminal error middleware.
  *
- * Translates known error shapes into a stable envelope and — critically —
- * refuses to leak internals. An unexpected error returns a generic message in
+ * Translates known error shapes into a stable envelope and, critically, * refuses to leak internals. An unexpected error returns a generic message in
  * production while the real cause goes to the logs with the request id, so
  * support can correlate without the stack trace reaching the client.
  */

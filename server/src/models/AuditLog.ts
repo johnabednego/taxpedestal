@@ -5,7 +5,7 @@ import { Schema, model, Document, Types } from 'mongoose'
  *
  * Required for a financial product: "who voided that invoice, and when" must be
  * answerable months later. Writes are fire-and-forget from the caller's point of
- * view — an audit failure must never fail the user's action — but the record is
+ * view, an audit failure must never fail the user's action, but the record is
  * never updated or deleted through the application.
  */
 export interface IAuditLog extends Document {

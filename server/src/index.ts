@@ -12,14 +12,13 @@ import { startScheduler } from './jobs/scheduler'
  * THIS FILE RUNS ON BOTH A LONG-LIVED SERVER AND ON VERCEL
  * ============================================================================
  * Vercel's Express support detects an entry point BY FILENAME and captures the
- * server created by `app.listen()` — the port is never exposed publicly, it is
+ * server created by `app.listen()`, the port is never exposed publicly, it is
  * how the platform finds the app. The search order is
  * `app.* → index.* → server.* → src/app.* → src/index.* → src/server.*`, so
  * this file only wins because the factory next door is named `create-app.ts`
  * rather than `app.ts`. See the note at the top of that file.
  *
- * The detector then requires the chosen file to IMPORT EXPRESS ITSELF —
- * importing a factory that imports express is not enough, and fails with
+ * The detector then requires the chosen file to IMPORT EXPRESS ITSELF, * importing a factory that imports express is not enough, and fails with
  * "No entrypoint found which imports express". That is why the `express()`
  * call lives here and the configuration is applied by `configureApp`, rather
  * than this module calling a `createApp()` that hides both.
@@ -44,7 +43,7 @@ import { startScheduler } from './jobs/scheduler'
 const app = configureApp(express())
 
 // Not awaited: see (1) above. A failure is logged and left to `/ready` to
-// report — throwing here would take down an instance that can still serve the
+// report, throwing here would take down an instance that can still serve the
 // health endpoints and return honest 503s.
 void connectDatabase().catch((error: unknown) => {
   logger.error(
@@ -63,7 +62,7 @@ const server = app.listen(env.PORT, () => {
 /**
  * In-process cron. Disabled on serverless, where a schedule registered inside a
  * function instance either never fires or fires once per cold start. Vercel
- * drives the same jobs through HTTP instead — see `cron.routes.ts`.
+ * drives the same jobs through HTTP instead, see `cron.routes.ts`.
  */
 startScheduler()
 
@@ -89,7 +88,7 @@ if (!isServerless) {
   process.on('SIGINT', () => shutdown('SIGINT'))
 
   process.on('uncaughtException', (error) => {
-    logger.fatal({ err: error.message, stack: error.stack }, 'Uncaught exception — exiting')
+    logger.fatal({ err: error.message, stack: error.stack }, 'Uncaught exception, exiting')
     process.exit(1)
   })
 }

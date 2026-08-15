@@ -29,7 +29,7 @@ import { runReminderSweep } from '../../jobs/reminders'
  * AUTHORISATION
  * ============================================================================
  * These endpoints move money: they settle payments and repair balances. They
- * are therefore refused entirely unless CRON_SECRET is configured — an
+ * are therefore refused entirely unless CRON_SECRET is configured, an
  * unauthenticated reconciliation endpoint is worse than no endpoint at all.
  *
  * The comparison is constant-time. A plain `===` on a secret leaks its prefix
@@ -63,8 +63,7 @@ function requireCronSecret(req: Request, _res: Response, next: NextFunction): vo
 
   const a = Buffer.from(supplied)
   const b = Buffer.from(env.CRON_SECRET)
-  // timingSafeEqual throws on a length mismatch, so compare lengths first —
-  // length is not the secret.
+  // timingSafeEqual throws on a length mismatch, so compare lengths first, // length is not the secret.
   const ok = a.length === b.length && crypto.timingSafeEqual(a, b)
   if (!ok) {
     logger.warn({ path: req.path }, 'Cron endpoint called with an invalid secret')

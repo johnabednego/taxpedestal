@@ -28,7 +28,7 @@ import { describeTaxTreatment, recordAudit, registerPublicView } from '../invoic
 /**
  * Public invoice pages.
  *
- * UNAUTHENTICATED BY DESIGN — the recipient of an invoice does not have an
+ * UNAUTHENTICATED BY DESIGN, the recipient of an invoice does not have an
  * account and must not need one to pay. Access is by a 256-bit opaque token in
  * the URL, which is why Invoice.publicToken is random rather than the ObjectId:
  * sequential identifiers would let anyone enumerate other people's invoices.
@@ -172,7 +172,7 @@ router.get(
  * Public PDF download.
  *
  * The recipient needs a copy for their own records and has no account, so this
- * is reachable with the invoice token alone — the same secret that already
+ * is reachable with the invoice token alone, the same secret that already
  * grants sight of the invoice.
  */
 router.get(
@@ -222,7 +222,7 @@ const checkoutSchema = z.object({
  *
  * The AMOUNT IS COMPUTED SERVER-SIDE from the invoice balance and is never
  * taken from the request except as a capped partial payment. A client that
- * posts `amountMinor: 1` for a 1,200.00 invoice can only underpay itself — it
+ * posts `amountMinor: 1` for a 1,200.00 invoice can only underpay itself, it
  * can never cause us to request less from the gateway than we record, because
  * both come from the same server-side value.
  */
@@ -284,7 +284,7 @@ router.post(
         idempotencyKey,
         customerEmail: client.email ?? org.email ?? 'billing@taxpedestal.app',
         customerName: client.name,
-        description: `Invoice ${invoice.number} — ${org.name}`,
+        description: `Invoice ${invoice.number}, ${org.name}`,
         returnUrl: `${env.APP_URL}/pay/${token}`,
         metadata: {
           invoiceId: invoice._id.toString(),
@@ -337,7 +337,7 @@ router.post(
  *
  * Mobile money completes asynchronously: the customer approves a prompt on
  * their handset and the result arrives by webhook. The browser polls this while
- * showing "waiting for approval". Reads our own record only — it does not hit
+ * showing "waiting for approval". Reads our own record only, it does not hit
  * the provider, so polling cannot be used to hammer their API.
  */
 router.get(
@@ -369,7 +369,7 @@ router.get(
 /**
  * Download the invoice PDF from the public payment page.
  *
- * Same token gate as viewing it — a customer who can see the invoice can keep
+ * Same token gate as viewing it, a customer who can see the invoice can keep
  * a copy, which is what they need for their own bookkeeping.
  */
 router.get(
@@ -404,7 +404,7 @@ router.get(
  * an invoice paid, or anyone with the link could clear their own debt. The
  * ledger entry is written only when the supplier confirms receipt.
  *
- * What this does buy is the thing that actually matters operationally — the
+ * What this does buy is the thing that actually matters operationally, the
  * supplier is told money is coming, with a reference to match against their
  * bank statement.
  */
@@ -446,7 +446,7 @@ router.post(
       res.json({
         declared: true,
         alreadyDeclared: true,
-        message: 'Thanks — this transfer is already awaiting confirmation.',
+        message: 'Thanks, this transfer is already awaiting confirmation.',
       })
       return
     }
@@ -482,7 +482,7 @@ router.post(
       declared: true,
       alreadyDeclared: false,
       message:
-        'Thanks. We have told the sender to expect your transfer — they will confirm once it arrives.',
+        'Thanks. We have told the sender to expect your transfer, they will confirm once it arrives.',
     })
   }),
 )

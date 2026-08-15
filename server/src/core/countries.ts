@@ -12,7 +12,7 @@
  *
  * The first version of this product answered both from the tax registry, which
  * meant a business in China, Iraq or Israel could not even complete
- * registration — the country picker simply did not list them. That is not a
+ * registration, the country picker simply did not list them. That is not a
  * missing feature, it is a locked door.
  *
  * Now: operating countries come from here (the full ISO 3166-1 list), and tax
@@ -21,7 +21,7 @@
  * Organisation.customTaxProfile). Nothing is ever blocked.
  *
  * DISPLAY NAMES ARE NOT STORED. `Intl.DisplayNames` resolves a code to a name
- * in whatever locale the reader is using — "DE" becomes Germany, Allemagne,
+ * in whatever locale the reader is using, "DE" becomes Germany, Allemagne,
  * Deutschland or 德国 with no translation table on our side. Hardcoding English
  * names would have made the product monolingual by construction.
  */
@@ -57,7 +57,7 @@ export function isValidCountry(code: string): boolean {
 /**
  * Default invoicing currency per country.
  *
- * A convenience for onboarding only — the user can pick any supported currency.
+ * A convenience for onboarding only, the user can pick any supported currency.
  * Countries absent from this map fall back to USD, which is the pragmatic
  * default for cross-border invoicing.
  */

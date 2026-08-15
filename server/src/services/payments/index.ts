@@ -47,7 +47,7 @@ export function availableRails(
   customerCountry: string,
   /**
    * The MERCHANT's country. A gateway can only settle if it onboards
-   * businesses there — the customer's location alone is not sufficient, which
+   * businesses there, the customer's location alone is not sufficient, which
    * is the distinction the first version of this function missed.
    */
   merchantCountry?: string,

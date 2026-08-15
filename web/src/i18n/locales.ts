@@ -8,7 +8,7 @@
  * the large majority of the world's population and a substantial share of its
  * countries. They are NOT every language of every country, and claiming
  * otherwise would mean machine-translating financial and legal terminology into
- * languages nobody on the team can check — shipping confident-sounding errors
+ * languages nobody on the team can check, shipping confident-sounding errors
  * into a product that handles money.
  *
  * Adding a language is a file drop: add an entry here, and it appears in the
@@ -173,6 +173,7 @@ const en = {
   'inv.draftSaved': 'Draft saved',
   'inv.saveFailed': 'Could not save the invoice',
   'inv.allInvoices': 'All invoices',
+  'inv.backToInvoice': 'Back to invoice',
   'inv.pdf': 'PDF',
   'inv.reminderSent': 'Reminder sent',
   'inv.method': 'Method',
@@ -260,7 +261,7 @@ const en = {
   // Declared bank transfers awaiting the supplier's confirmation
   'pay.pendingTitle': 'Awaiting your confirmation',
   'pay.pendingHelp':
-    'The customer says they have sent this transfer. Confirm only once the money is in your account — confirming is what credits the invoice.',
+    'The customer says they have sent this transfer. Confirm only once the money is in your account. Confirming is what credits the invoice.',
   'pay.confirmReceipt': 'Confirm receipt',
   'pay.confirmed': 'Payment confirmed',
   'pay.reject': 'Reject',
@@ -320,7 +321,7 @@ const en = {
   'settings.defaultNotes': 'Default notes',
   'settings.brandColour': 'Brand colour',
 
-  // Settings — custom tax rates
+  // Settings: custom tax rates
   'customTax.title': 'Your own tax rates',
   'customTax.hasAutomatic':
     '{brand} calculates tax for your country automatically. Define your own only if you are on a special scheme.',
@@ -341,9 +342,9 @@ const en = {
   'customTax.notePlaceholder': 'Sales tax charged under …',
   'customTax.totalRate': 'Total rate applied:',
 
-  // Settings — getting paid
+  // Settings: getting paid
   'paid.bankDetails': 'Show my bank details on invoices',
-  'paid.bankDetailsHelp': 'Works in every country — your customer transfers directly to you',
+  'paid.bankDetailsHelp': 'Works in every country, and your customer transfers directly to you',
   'paid.accountName': 'Account name',
   'paid.bankName': 'Bank name',
   'paid.accountNumber': 'Account number',
@@ -371,16 +372,16 @@ const en = {
   'rail.MANUAL.desc': 'Record money you received any other way',
   'railReason.restricted': 'Payment processors do not operate in this jurisdiction.',
   'railReason.chargesDisabled':
-    'The provider reports this account cannot yet take charges — finish onboarding in their dashboard.',
+    'The provider reports this account cannot yet take charges. Finish onboarding in their dashboard.',
   'railReason.notOnboardedHere':
-    'Our records say this provider does not onboard businesses here. Coverage changes — connect a key to check directly.',
+    'Our records say this provider does not onboard businesses here. Coverage changes, so connect a key to check directly.',
   'railReason.notConnected': 'Not yet connected by this workspace.',
   'paySummary.restricted':
     'Invoicing and bookkeeping work normally. Card and mobile money processors do not operate in this jurisdiction, so collect by bank transfer.',
   'paySummary.hasAutomatic':
     'Your customers can pay online, and you can also collect by bank transfer.',
   'paySummary.eligibleNotConnected':
-    'Online payments are available in your country — connect a provider in Settings to switch them on.',
+    'Online payments are available in your country. Connect a provider in Settings to switch them on.',
   'paySummary.bankTransferOnly':
     'Online card processing is not offered to businesses registered here. Collect by bank transfer, printed on every invoice.',
 
@@ -398,7 +399,7 @@ const en = {
   'admin.verifyBalances': 'Verify ledger balances',
   'admin.webhookInspector': 'Webhook inspector',
   'admin.webhookInspectorHelp':
-    'What your system did with each provider event — not just what they sent.',
+    'What your system did with each provider event, not just what they sent.',
   'admin.noWebhooks': 'No webhook events recorded yet.',
   'admin.badSignature': 'Bad signature',
   'admin.sweepResult': 'Scanned {scanned}, settled {settled}',
@@ -428,7 +429,7 @@ const en = {
   'team.roleChanged': 'Role updated',
   'team.removeAria': 'Remove {name}',
   'team.confirmRemove': 'Remove {name} from this workspace?',
-  'team.roleViewerHelp': 'Read only — suitable for an accountant',
+  'team.roleViewerHelp': 'Read only, suitable for an accountant',
   'team.roleMemberHelp': 'Create and send invoices, record payments',
   'team.roleAdminHelp': 'All of the above, plus settings and team management',
   'team.roleOwnerHelp': 'Everything, including transferring ownership',
@@ -462,11 +463,13 @@ const en = {
   'flow.resetMissingCode': 'The reset link is missing its code. Request a new one.',
   'flow.resetSignInNow': 'You can sign in with your new password. Taking you there…',
   'auth.workEmail': 'Work email',
+  'auth.showPassword': 'Show password',
+  'auth.hidePassword': 'Hide password',
   'auth.serverUnreachable': 'Could not reach the server. Is the API running?',
   'auth.demoAccount': 'Demo account:',
   'auth.quote': '“Getting paid on time is the difference between a business and a hobby.”',
   'auth.quoteFooter':
-    '{brand} handles tax in {count} jurisdictions and collects by card, wallet or mobile money — so the invoice is right and the money arrives.',
+    '{brand} handles tax in {count} jurisdictions and collects by card, wallet or mobile money, so the invoice is right and the money arrives.',
   'auth.statJurisdictions': 'tax jurisdictions',
   'auth.statRails': 'payment rails',
   'auth.statDoubleCharges': 'double charges',
@@ -477,7 +480,7 @@ const en = {
     '{brand} has no built-in tax rules for {country} yet. You can define your own in Settings.',
   'country.manualSuffix': 'manual tax',
 
-  // Invoice detail — dialogs
+  // Invoice detail: dialogs
   'inv.recordPaymentTitle': 'Record a payment',
   'inv.voidTitle': 'Void this invoice',
   'inv.voidDescription': 'The invoice stays on record. Voiding reverses the amount owed.',
@@ -491,7 +494,7 @@ const en = {
   'inv.couldNotSend': 'Could not send',
   'inv.couldNotRemind': 'Could not remind',
   'inv.recordPaymentDescription':
-    'For money received outside {brand} — cash, cheque or bank transfer.',
+    'For money received outside {brand}: cash, cheque or bank transfer.',
   'inv.record': 'Record',
   'inv.amountWithCurrency': 'Amount ({currency})',
   'inv.outstanding': 'Outstanding: {amount}',
@@ -542,7 +545,7 @@ const en = {
   'site.ctaPrimary': 'Create your first invoice',
   'site.ctaSecondary': 'See how the tax engine works',
   'site.freeNote': 'Free for your first 25 invoices. No card required.',
-  'site.liveHint': 'Live — change the country and watch the tax recompute',
+  'site.liveHint': 'Live: change the country and watch the tax recompute',
   'site.liveFooter': 'This calls the same pricing engine that computes real invoices.',
   'site.computingTax': 'Computing tax…',
   'site.apiOffline': 'Start the API to see live tax computation.',
@@ -572,13 +575,13 @@ const en = {
   // total cannot drift apart.
   'site.sc.gb.label': 'United Kingdom',
   'site.sc.gb.sub': 'Domestic B2B',
-  'site.sc.gb.teaches': 'A single national rate — the simple case.',
+  'site.sc.gb.teaches': 'A single national rate, the simple case.',
   'site.sc.eu-b2b.label': 'Germany → France',
   'site.sc.eu-b2b.sub': 'Intra-EU B2B',
   'site.sc.eu-b2b.teaches': 'Liability shifts to the customer. The declaration is mandatory.',
   'site.sc.eu-b2c.label': 'Germany → Hungary',
   'site.sc.eu-b2c.sub': 'EU consumer, digital',
-  'site.sc.eu-b2c.teaches': 'Taxed where the consumer is — Hungary’s 27%, not Germany’s 19%.',
+  'site.sc.eu-b2c.teaches': 'Taxed where the consumer is: Hungary’s 27%, not Germany’s 19%.',
   'site.sc.in.label': 'India',
   'site.sc.in.sub': 'Inter-state supply',
   'site.sc.in.teaches': 'Crossing a state line turns CGST + SGST into a single IGST line.',
@@ -587,7 +590,7 @@ const en = {
   'site.sc.us.teaches': 'Sourced to the destination state, not the seller’s.',
   'site.sc.gh.label': 'Ghana',
   'site.sc.gh.sub': 'Domestic B2B',
-  'site.sc.gh.teaches': 'Three separate levies on one base — itemised, as the law requires.',
+  'site.sc.gh.teaches': 'Three separate levies on one base, itemised as the law requires.',
 
   // Tax engine section
   'site.taxEyebrow': 'The tax engine',
@@ -596,13 +599,13 @@ const en = {
     'Intra-EU B2B with a valid VAT ID reverse-charges to the customer. UK services to an overseas business fall outside the scope. Both print the declaration the invoice legally needs.',
   'site.featDestination.title': 'Taxed where the buyer is',
   'site.featDestination.body':
-    'A B2C digital service is taxed at the consumer’s rate, not yours — 27% for Hungary, 17% for Luxembourg. The engine routes the supply to the right jurisdiction on its own.',
+    'A B2C digital service is taxed at the consumer’s rate, not yours: 27% for Hungary, 17% for Luxembourg. The engine routes the supply to the right jurisdiction on its own.',
   'site.featSubnational.title': 'Tax below the national level',
   'site.featSubnational.body':
     'US sales tax is set by state. Canada splits GST, HST, PST and QST by province. India turns CGST + SGST into IGST the moment a supply crosses a state line.',
   'site.featDated.title': 'Rules that move',
   'site.featDated.body':
-    'Rates and computations change, and an invoice is evidence of what was charged on a given day. Every rule is date-aware, so a back-dated invoice uses the law that applied to the supply — never today’s.',
+    'Rates and computations change, and an invoice is evidence of what was charged on a given day. Every rule is date-aware, so a back-dated invoice uses the law that applied to the supply, never today’s.',
   'site.featDated.regions': 'All {count}',
 
   // Coverage
@@ -617,16 +620,16 @@ const en = {
   'site.regionMiddleEast': 'Middle East',
   'site.regionMiddleEastDetail': 'United Arab Emirates',
   'site.coverageFooter':
-    'Adding a country means writing one rule and registering it. Nothing else in the system changes — which is why the list keeps growing.',
+    'Adding a country means writing one rule and registering it. Nothing else in the system changes, which is why the list keeps growing.',
 
   // Getting paid
   'site.collectBody':
     'Payment habits are local even when business is not. A buyer in Frankfurt expects a bank debit, one in Austin reaches for a card, and one in Accra or Nairobi pays from a phone. A tool that supports one rail quietly excludes the others’ markets, so {brand} offers whichever fits the payer.',
   'site.collectBullet1': 'Cards and digital wallets in 135+ currencies',
-  'site.collectBullet2': 'Bank debits — SEPA across Europe, ACH in the United States',
+  'site.collectBullet2': 'Bank debits: SEPA across Europe, ACH in the United States',
   'site.collectBullet3': 'Mobile money across Africa, including MTN, Telecel and M-Pesa',
   'site.collectBullet4': 'Cash, cheque and transfers recorded through the same ledger',
-  'site.collectBullet5': 'One tap from the invoice — your customer never creates an account',
+  'site.collectBullet5': 'One tap from the invoice, and your customer never creates an account',
   'site.paidTag': 'Paid',
   'site.methodCard': 'Card or wallet',
   'site.methodCardNote': 'Visa, Mastercard, Apple Pay',
@@ -685,8 +688,8 @@ export type TranslationKey = CatalogKey | PluralBase<CatalogKey>
  *
  * A language can need categories English does not have: Arabic distinguishes
  * zero, one, two, few, many and other, while English declares only `_one` and
- * `_other`. Deriving the permitted slots from each plural BASE — rather than
- * from the exact English keys — lets Arabic supply all six and still be
+ * `_other`. Deriving the permitted slots from each plural BASE, rather than
+ * from the exact English keys, lets Arabic supply all six and still be
  * type-checked against a real base, so a typo in the base is still an error.
  */
 type PluralSlot<K> = K extends `${infer Base}_${PluralCategory}`
@@ -696,9 +699,13 @@ type PluralSlot<K> = K extends `${infer Base}_${PluralCategory}`
 type Catalog = Partial<Record<CatalogKey | PluralSlot<CatalogKey>, string>>
 
 /* -------------------------------------------------------------------------- */
-/* French — official or co-official in 29 countries                            */
+/* French, official or co-official in 29 countries                            */
 /* -------------------------------------------------------------------------- */
 const fr: Catalog = {
+  'auth.showPassword': 'Afficher le mot de passe',
+  'auth.hidePassword': 'Masquer le mot de passe',
+  'inv.backToInvoice': 'Retour à la facture',
+
   'site.totalDue': 'Total à payer',
   'site.demoLine1': 'Création d’identité de marque',
   'site.demoLine2': 'Graphisme d’emballage',
@@ -711,13 +718,13 @@ const fr: Catalog = {
   'site.invoiceWord': 'Facture',
   'site.sc.gb.label': 'Royaume-Uni',
   'site.sc.gb.sub': 'B2B national',
-  'site.sc.gb.teaches': 'Un taux national unique — le cas simple.',
+  'site.sc.gb.teaches': 'Un taux national unique, le cas simple.',
   'site.sc.eu-b2b.label': 'Allemagne → France',
   'site.sc.eu-b2b.sub': 'B2B intracommunautaire',
   'site.sc.eu-b2b.teaches': 'La redevabilité passe au client. La mention est obligatoire.',
   'site.sc.eu-b2c.label': 'Allemagne → Hongrie',
   'site.sc.eu-b2c.sub': 'Consommateur UE, numérique',
-  'site.sc.eu-b2c.teaches': 'Taxé là où se trouve le consommateur — 27% hongrois, et non 19% allemands.',
+  'site.sc.eu-b2c.teaches': 'Taxé là où se trouve le consommateur : 27% hongrois, et non 19% allemands.',
   'site.sc.in.label': 'Inde',
   'site.sc.in.sub': 'Livraison inter-États',
   'site.sc.in.teaches': 'Franchir une frontière d’État transforme CGST + SGST en une seule ligne IGST.',
@@ -726,12 +733,12 @@ const fr: Catalog = {
   'site.sc.us.teaches': 'Rattaché à l’État de destination, pas à celui du vendeur.',
   'site.sc.gh.label': 'Ghana',
   'site.sc.gh.sub': 'B2B national',
-  'site.sc.gh.teaches': 'Trois prélèvements distincts sur une même base — détaillés, comme la loi l’exige.',
+  'site.sc.gh.teaches': 'Trois prélèvements distincts sur une même base, détaillés, comme la loi l’exige.',
   'site.taxEyebrow': 'Le moteur fiscal',
   'site.featShift.title': 'Une redevabilité qui se déplace',
   'site.featShift.body': 'Le B2B intracommunautaire avec un numéro de TVA valide bascule en autoliquidation chez le client. Les services britanniques à une entreprise étrangère sortent du champ. Les deux impriment la mention légalement requise sur la facture.',
   'site.featDestination.title': 'Taxé là où se trouve l’acheteur',
-  'site.featDestination.body': 'Un service numérique B2C est taxé au taux du consommateur, pas au vôtre — 27% pour la Hongrie, 17% pour le Luxembourg. Le moteur oriente seul la prestation vers la bonne juridiction.',
+  'site.featDestination.body': 'Un service numérique B2C est taxé au taux du consommateur, pas au vôtre, 27% pour la Hongrie, 17% pour le Luxembourg. Le moteur oriente seul la prestation vers la bonne juridiction.',
   'site.featSubnational.title': 'La fiscalité en dessous du niveau national',
   'site.featSubnational.body': 'La taxe de vente américaine est fixée par État. Le Canada répartit TPS, TVH, TVP et TVQ par province. L’Inde transforme CGST + SGST en IGST dès qu’une prestation franchit une frontière d’État.',
   'site.featDated.title': 'Des règles qui évoluent',
@@ -747,13 +754,13 @@ const fr: Catalog = {
   'site.regionAsiaPacificDetail': 'Inde, Singapour, Japon, Australie',
   'site.regionMiddleEast': 'Moyen-Orient',
   'site.regionMiddleEastDetail': 'Émirats arabes unis',
-  'site.coverageFooter': 'Ajouter un pays consiste à écrire une règle et à l’enregistrer. Rien d’autre ne change dans le système — c’est pourquoi la liste ne cesse de s’allonger.',
+  'site.coverageFooter': 'Ajouter un pays consiste à écrire une règle et à l’enregistrer. Rien d’autre ne change dans le système, c’est pourquoi la liste ne cesse de s’allonger.',
   'site.collectBody': 'Les habitudes de paiement restent locales même quand les affaires ne le sont pas. Un acheteur à Francfort attend un prélèvement, un autre à Austin sort sa carte, un autre à Accra ou Nairobi paie depuis son téléphone. Un outil qui ne gère qu’un seul moyen exclut discrètement les marchés des autres : {brand} propose celui qui convient au payeur.',
   'site.collectBullet1': 'Cartes et portefeuilles numériques dans plus de 135 devises',
-  'site.collectBullet2': 'Prélèvements — SEPA en Europe, ACH aux États-Unis',
+  'site.collectBullet2': 'Prélèvements. SEPA en Europe, ACH aux États-Unis',
   'site.collectBullet3': 'Mobile money dans toute l’Afrique, dont MTN, Telecel et M-Pesa',
   'site.collectBullet4': 'Espèces, chèques et virements enregistrés dans le même grand livre',
-  'site.collectBullet5': 'À un geste depuis la facture — votre client ne crée jamais de compte',
+  'site.collectBullet5': 'À un geste depuis la facture, votre client ne crée jamais de compte',
   'site.paidTag': 'Payée',
   'site.methodCard': 'Carte ou portefeuille',
   'site.methodCardNote': 'Visa, Mastercard, Apple Pay',
@@ -918,7 +925,7 @@ const fr: Catalog = {
   'customTax.notePlaceholder': 'Taxe de vente perçue au titre de …',
   'customTax.totalRate': 'Taux total appliqué :',
   'paid.bankDetails': 'Afficher mes coordonnées bancaires sur les factures',
-  'paid.bankDetailsHelp': 'Fonctionne dans tous les pays — votre client vous vire directement les fonds',
+  'paid.bankDetailsHelp': 'Fonctionne dans tous les pays, votre client vous vire directement les fonds',
   'paid.accountName': 'Titulaire du compte',
   'paid.bankName': 'Nom de la banque',
   'paid.accountNumber': 'Numéro de compte',
@@ -941,12 +948,12 @@ const fr: Catalog = {
   'rail.MANUAL': 'Espèces, chèque et hors ligne',
   'rail.MANUAL.desc': 'Enregistrez l’argent reçu par tout autre moyen',
   'railReason.restricted': 'Les prestataires de paiement n’opèrent pas dans cette juridiction.',
-  'railReason.chargesDisabled': 'Le prestataire indique que ce compte ne peut pas encore encaisser — terminez l’inscription sur son tableau de bord.',
-  'railReason.notOnboardedHere': 'Selon nos données, ce prestataire n’inscrit pas d’entreprises ici. La couverture évolue — connectez une clé pour vérifier directement.',
+  'railReason.chargesDisabled': 'Le prestataire indique que ce compte ne peut pas encore encaisser, terminez l’inscription sur son tableau de bord.',
+  'railReason.notOnboardedHere': 'Selon nos données, ce prestataire n’inscrit pas d’entreprises ici. La couverture évolue, connectez une clé pour vérifier directement.',
   'railReason.notConnected': 'Pas encore connecté par cet espace de travail.',
   'paySummary.restricted': 'La facturation et la comptabilité fonctionnent normalement. Les processeurs de cartes et de mobile money n’opèrent pas dans cette juridiction : encaissez par virement.',
   'paySummary.hasAutomatic': 'Vos clients peuvent payer en ligne, et vous pouvez aussi encaisser par virement.',
-  'paySummary.eligibleNotConnected': 'Le paiement en ligne est disponible dans votre pays — connectez un prestataire dans les Paramètres pour l’activer.',
+  'paySummary.eligibleNotConnected': 'Le paiement en ligne est disponible dans votre pays, connectez un prestataire dans les Paramètres pour l’activer.',
   'paySummary.bankTransferOnly': 'Le traitement des cartes en ligne n’est pas proposé aux entreprises immatriculées ici. Encaissez par virement, imprimé sur chaque facture.',
   'admin.title': 'Console d’administration',
   'admin.workspaces': 'Espaces de travail',
@@ -959,7 +966,7 @@ const fr: Catalog = {
   'admin.sweepPayments': 'Balayer les paiements en attente',
   'admin.verifyBalances': 'Vérifier les soldes du grand livre',
   'admin.webhookInspector': 'Inspecteur de webhooks',
-  'admin.webhookInspectorHelp': 'Ce que votre système a fait de chaque événement — pas seulement ce qui a été envoyé.',
+  'admin.webhookInspectorHelp': 'Ce que votre système a fait de chaque événement, pas seulement ce qui a été envoyé.',
   'admin.noWebhooks': 'Aucun événement de webhook enregistré pour l’instant.',
   'admin.badSignature': 'Signature invalide',
   'admin.sweepResult': '{scanned} analysés, {settled} réglés',
@@ -986,7 +993,7 @@ const fr: Catalog = {
   'team.roleChanged': 'Rôle mis à jour',
   'team.removeAria': 'Retirer {name}',
   'team.confirmRemove': 'Retirer {name} de cet espace de travail ?',
-  'team.roleViewerHelp': 'Lecture seule — convient à un comptable',
+  'team.roleViewerHelp': 'Lecture seule, convient à un comptable',
   'team.roleMemberHelp': 'Créer et envoyer des factures, enregistrer des paiements',
   'team.roleAdminHelp': 'Tout ce qui précède, plus les paramètres et la gestion de l’équipe',
   'team.roleOwnerHelp': 'Tout, y compris le transfert de propriété',
@@ -1020,7 +1027,7 @@ const fr: Catalog = {
   'auth.serverUnreachable': 'Impossible de joindre le serveur. L’API est-elle démarrée ?',
   'auth.demoAccount': 'Compte de démonstration :',
   'auth.quote': '« Être payé à temps, c’est la différence entre une entreprise et un passe-temps. »',
-  'auth.quoteFooter': '{brand} gère la fiscalité dans {count} juridictions et encaisse par carte, portefeuille ou mobile money — la facture est juste et l’argent arrive.',
+  'auth.quoteFooter': '{brand} gère la fiscalité dans {count} juridictions et encaisse par carte, portefeuille ou mobile money, la facture est juste et l’argent arrive.',
   'auth.statJurisdictions': 'juridictions fiscales',
   'auth.statRails': 'moyens de paiement',
   'auth.statDoubleCharges': 'double débit',
@@ -1039,7 +1046,7 @@ const fr: Catalog = {
   'inv.loadFailed': 'Impossible de charger cette facture.',
   'inv.couldNotSend': 'Envoi impossible',
   'inv.couldNotRemind': 'Relance impossible',
-  'inv.recordPaymentDescription': 'Pour l’argent reçu en dehors de {brand} — espèces, chèque ou virement.',
+  'inv.recordPaymentDescription': 'Pour l’argent reçu en dehors de {brand}, espèces, chèque ou virement.',
   'inv.record': 'Enregistrer',
   'inv.amountWithCurrency': 'Montant ({currency})',
   'inv.outstanding': 'Restant dû : {amount}',
@@ -1054,7 +1061,7 @@ const fr: Catalog = {
   'site.ctaPrimary': 'Créer votre première facture',
   'site.ctaSecondary': 'Voir le moteur fiscal à l’œuvre',
   'site.freeNote': 'Gratuit pour vos 25 premières factures. Sans carte bancaire.',
-  'site.liveHint': 'En direct — changez de pays et regardez la TVA se recalculer',
+  'site.liveHint': 'En direct, changez de pays et regardez la TVA se recalculer',
   'site.liveFooter': 'Ceci appelle le moteur qui calcule les vraies factures.',
   'site.computingTax': 'Calcul de la TVA…',
   'site.apiOffline': 'Démarrez l’API pour voir le calcul en direct.',
@@ -1157,6 +1164,10 @@ const fr: Catalog = {
 /* Spanish                                                                     */
 /* -------------------------------------------------------------------------- */
 const es: Catalog = {
+  'auth.showPassword': 'Mostrar contraseña',
+  'auth.hidePassword': 'Ocultar contraseña',
+  'inv.backToInvoice': 'Volver a la factura',
+
   'site.totalDue': 'Total a pagar',
   'site.demoLine1': 'Diseño de identidad de marca',
   'site.demoLine2': 'Arte final de packaging',
@@ -1512,7 +1523,7 @@ const es: Catalog = {
   'site.ctaPrimary': 'Cree su primera factura',
   'site.ctaSecondary': 'Vea cómo funciona el motor fiscal',
   'site.freeNote': 'Gratis para sus primeras 25 facturas. Sin tarjeta.',
-  'site.liveHint': 'En vivo — cambie el país y vea recalcularse el impuesto',
+  'site.liveHint': 'En vivo, cambie el país y vea recalcularse el impuesto',
   'site.liveFooter': 'Esto llama al mismo motor que calcula las facturas reales.',
   'site.computingTax': 'Calculando impuestos…',
   'site.apiOffline': 'Inicie la API para ver el cálculo en vivo.',
@@ -1614,9 +1625,13 @@ const es: Catalog = {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Arabic — right to left                                                      */
+/* Arabic, right to left                                                      */
 /* -------------------------------------------------------------------------- */
 const ar: Catalog = {
+  'auth.showPassword': 'إظهار كلمة المرور',
+  'auth.hidePassword': 'إخفاء كلمة المرور',
+  'inv.backToInvoice': 'العودة إلى الفاتورة',
+
   'site.totalDue': 'الإجمالي المستحق',
   'site.demoLine1': 'تصميم هوية العلامة التجارية',
   'site.demoLine2': 'تصميم أعمال التغليف',
@@ -1629,13 +1644,13 @@ const ar: Catalog = {
   'site.invoiceWord': 'فاتورة',
   'site.sc.gb.label': 'المملكة المتحدة',
   'site.sc.gb.sub': 'معاملة محلية بين شركتين',
-  'site.sc.gb.teaches': 'معدل وطني واحد — الحالة الأبسط.',
+  'site.sc.gb.teaches': 'معدل وطني واحد، الحالة الأبسط.',
   'site.sc.eu-b2b.label': 'ألمانيا ← فرنسا',
   'site.sc.eu-b2b.sub': 'بين شركتين داخل الاتحاد الأوروبي',
   'site.sc.eu-b2b.teaches': 'تنتقل مسؤولية الضريبة إلى العميل، وذكر ذلك على الفاتورة إلزامي.',
   'site.sc.eu-b2c.label': 'ألمانيا ← المجر',
   'site.sc.eu-b2c.sub': 'مستهلك في الاتحاد الأوروبي، خدمة رقمية',
-  'site.sc.eu-b2c.teaches': 'تُفرض الضريبة حيث يوجد المستهلك — 27% المجرية، لا 19% الألمانية.',
+  'site.sc.eu-b2c.teaches': 'تُفرض الضريبة حيث يوجد المستهلك، 27% المجرية، لا 19% الألمانية.',
   'site.sc.in.label': 'الهند',
   'site.sc.in.sub': 'توريد بين الولايات',
   'site.sc.in.teaches': 'عبور حدود الولاية يحوّل CGST + SGST إلى بند IGST واحد.',
@@ -1644,12 +1659,12 @@ const ar: Catalog = {
   'site.sc.us.teaches': 'تُنسب إلى ولاية الوجهة، لا إلى ولاية البائع.',
   'site.sc.gh.label': 'غانا',
   'site.sc.gh.sub': 'معاملة محلية بين شركتين',
-  'site.sc.gh.teaches': 'ثلاثة رسوم منفصلة على وعاء واحد — مُفصَّلة كما يقتضي القانون.',
+  'site.sc.gh.teaches': 'ثلاثة رسوم منفصلة على وعاء واحد، مُفصَّلة كما يقتضي القانون.',
   'site.taxEyebrow': 'محرك الضرائب',
   'site.featShift.title': 'مسؤولية تنتقل',
   'site.featShift.body': 'المعاملات بين الشركات داخل الاتحاد الأوروبي برقم ضريبي صالح تخضع للاحتساب العكسي لدى العميل. أما الخدمات البريطانية لشركة خارج البلاد فتقع خارج نطاق الضريبة. وكلتا الحالتين تطبعان الإقرار الذي تشترطه الفاتورة قانوناً.',
   'site.featDestination.title': 'الضريبة حيث يوجد المشتري',
-  'site.featDestination.body': 'الخدمة الرقمية الموجهة للمستهلك تخضع لمعدل بلده لا لمعدلك — 27% للمجر و17% للوكسمبورغ. ويوجّه المحرك التوريد إلى الولاية الضريبية الصحيحة من تلقاء نفسه.',
+  'site.featDestination.body': 'الخدمة الرقمية الموجهة للمستهلك تخضع لمعدل بلده لا لمعدلك، 27% للمجر و17% للوكسمبورغ. ويوجّه المحرك التوريد إلى الولاية الضريبية الصحيحة من تلقاء نفسه.',
   'site.featSubnational.title': 'ضرائب دون المستوى الوطني',
   'site.featSubnational.body': 'تحدد كل ولاية أمريكية ضريبة مبيعاتها. وتقسم كندا GST وHST وPST وQST حسب المقاطعة. أما الهند فتحوّل CGST + SGST إلى IGST لحظة عبور التوريد حدود ولاية.',
   'site.featDated.title': 'قواعد تتغيّر',
@@ -1665,13 +1680,13 @@ const ar: Catalog = {
   'site.regionAsiaPacificDetail': 'الهند، سنغافورة، اليابان، أستراليا',
   'site.regionMiddleEast': 'الشرق الأوسط',
   'site.regionMiddleEastDetail': 'الإمارات العربية المتحدة',
-  'site.coverageFooter': 'إضافة بلد تعني كتابة قاعدة واحدة وتسجيلها. لا يتغير أي شيء آخر في النظام — ولهذا تستمر القائمة في النمو.',
+  'site.coverageFooter': 'إضافة بلد تعني كتابة قاعدة واحدة وتسجيلها. لا يتغير أي شيء آخر في النظام، ولهذا تستمر القائمة في النمو.',
   'site.collectBody': 'عادات الدفع محلية حتى حين لا يكون العمل كذلك. المشتري في فرانكفورت يتوقع خصماً بنكياً، والمشتري في أوستن يمد يده إلى البطاقة، ومن في أكرا أو نيروبي يدفع من هاتفه. الأداة التي تدعم وسيلة واحدة تستبعد أسواق الوسائل الأخرى بصمت، لذا يوفّر {brand} الوسيلة التي تناسب الدافع.',
   'site.collectBullet1': 'بطاقات ومحافظ رقمية بأكثر من 135 عملة',
-  'site.collectBullet2': 'الخصم البنكي — SEPA في أوروبا وACH في الولايات المتحدة',
+  'site.collectBullet2': 'الخصم البنكي. SEPA في أوروبا وACH في الولايات المتحدة',
   'site.collectBullet3': 'محافظ الهاتف في أنحاء أفريقيا، ومنها MTN وTelecel وM-Pesa',
   'site.collectBullet4': 'النقد والشيكات والتحويلات، كلها مسجلة في دفتر الأستاذ نفسه',
-  'site.collectBullet5': 'بنقرة واحدة من الفاتورة — لا ينشئ عميلك حساباً أبداً',
+  'site.collectBullet5': 'بنقرة واحدة من الفاتورة، لا ينشئ عميلك حساباً أبداً',
   'site.paidTag': 'مدفوعة',
   'site.methodCard': 'بطاقة أو محفظة',
   'site.methodCardNote': 'Visa وMastercard وApple Pay',
@@ -1710,7 +1725,7 @@ const ar: Catalog = {
   'inv.deleteFailed': 'تعذر حذف المسودة',
   'inv.onlyDraftsEditable': 'المسودات وحدها قابلة للتعديل. ألغِ هذه الفاتورة وأصدر واحدة جديدة.',
   'pay.pendingTitle': 'بانتظار تأكيدك',
-  'pay.pendingHelp': 'يفيد العميل بأنه أرسل هذا التحويل. لا تؤكد إلا بعد وصول المبلغ إلى حسابك — فالتأكيد هو ما يقيّد المبلغ على الفاتورة.',
+  'pay.pendingHelp': 'يفيد العميل بأنه أرسل هذا التحويل. لا تؤكد إلا بعد وصول المبلغ إلى حسابك، فالتأكيد هو ما يقيّد المبلغ على الفاتورة.',
   'pay.confirmReceipt': 'تأكيد الاستلام',
   'pay.confirmed': 'تم تأكيد الدفعة',
   'pay.reject': 'رفض',
@@ -1844,7 +1859,7 @@ const ar: Catalog = {
   'customTax.notePlaceholder': 'ضريبة مبيعات مفروضة بموجب …',
   'customTax.totalRate': 'إجمالي المعدل المطبق:',
   'paid.bankDetails': 'إظهار بياناتي البنكية على الفواتير',
-  'paid.bankDetailsHelp': 'يعمل في كل بلد — يحوّل عميلك المبلغ إليك مباشرة',
+  'paid.bankDetailsHelp': 'يعمل في كل بلد، يحوّل عميلك المبلغ إليك مباشرة',
   'paid.accountName': 'اسم صاحب الحساب',
   'paid.bankName': 'اسم البنك',
   'paid.accountNumber': 'رقم الحساب',
@@ -1867,12 +1882,12 @@ const ar: Catalog = {
   'rail.MANUAL': 'نقداً وشيكات ووسائل خارج النظام',
   'rail.MANUAL.desc': 'سجّل الأموال التي استلمتها بأي طريقة أخرى',
   'railReason.restricted': 'لا تعمل شركات معالجة المدفوعات في هذه الولاية القضائية.',
-  'railReason.chargesDisabled': 'يفيد المزوّد بأن هذا الحساب لا يستطيع التحصيل بعد — أكمل التسجيل في لوحته.',
-  'railReason.notOnboardedHere': 'تشير سجلاتنا إلى أن هذا المزوّد لا يسجل الشركات هنا. التغطية تتغير — اربط مفتاحاً للتحقق مباشرة.',
+  'railReason.chargesDisabled': 'يفيد المزوّد بأن هذا الحساب لا يستطيع التحصيل بعد، أكمل التسجيل في لوحته.',
+  'railReason.notOnboardedHere': 'تشير سجلاتنا إلى أن هذا المزوّد لا يسجل الشركات هنا. التغطية تتغير، اربط مفتاحاً للتحقق مباشرة.',
   'railReason.notConnected': 'لم تربطه مساحة العمل هذه بعد.',
   'paySummary.restricted': 'الفوترة ومسك الدفاتر يعملان بشكل طبيعي. لا تعمل شركات البطاقات ومحافظ الهاتف في هذه الولاية القضائية، لذا حصّل عبر التحويل البنكي.',
   'paySummary.hasAutomatic': 'يمكن لعملائك الدفع عبر الإنترنت، ويمكنك أيضاً التحصيل بالتحويل البنكي.',
-  'paySummary.eligibleNotConnected': 'الدفع عبر الإنترنت متاح في بلدك — اربط مزوّداً من الإعدادات لتفعيله.',
+  'paySummary.eligibleNotConnected': 'الدفع عبر الإنترنت متاح في بلدك، اربط مزوّداً من الإعدادات لتفعيله.',
   'paySummary.bankTransferOnly': 'لا تتوفر معالجة البطاقات عبر الإنترنت للشركات المسجلة هنا. حصّل عبر التحويل البنكي المطبوع على كل فاتورة.',
   'admin.title': 'لوحة الإدارة',
   'admin.workspaces': 'مساحات العمل',
@@ -1916,7 +1931,7 @@ const ar: Catalog = {
   'team.roleChanged': 'تم تحديث الدور',
   'team.removeAria': 'إزالة {name}',
   'team.confirmRemove': 'هل تريد إزالة {name} من مساحة العمل هذه؟',
-  'team.roleViewerHelp': 'للاطلاع فقط — مناسب للمحاسب',
+  'team.roleViewerHelp': 'للاطلاع فقط، مناسب للمحاسب',
   'team.roleMemberHelp': 'إنشاء الفواتير وإرسالها وتسجيل المدفوعات',
   'team.roleAdminHelp': 'كل ما سبق، إضافة إلى الإعدادات وإدارة الفريق',
   'team.roleOwnerHelp': 'كل شيء، بما في ذلك نقل الملكية',
@@ -1950,7 +1965,7 @@ const ar: Catalog = {
   'auth.serverUnreachable': 'تعذر الوصول إلى الخادم. هل واجهة البرمجة قيد التشغيل؟',
   'auth.demoAccount': 'حساب تجريبي:',
   'auth.quote': '«أن تُدفع لك المستحقات في موعدها هو الفارق بين عمل تجاري وهواية.»',
-  'auth.quoteFooter': 'يتولى {brand} الضرائب في {count} ولاية ضريبية ويحصّل بالبطاقة أو المحفظة أو محفظة الهاتف — فتكون الفاتورة صحيحة ويصل المال.',
+  'auth.quoteFooter': 'يتولى {brand} الضرائب في {count} ولاية ضريبية ويحصّل بالبطاقة أو المحفظة أو محفظة الهاتف، فتكون الفاتورة صحيحة ويصل المال.',
   'auth.statJurisdictions': 'ولاية ضريبية',
   'auth.statRails': 'وسائل تحصيل',
   'auth.statDoubleCharges': 'خصم مزدوج',
@@ -1969,7 +1984,7 @@ const ar: Catalog = {
   'inv.loadFailed': 'تعذر تحميل هذه الفاتورة.',
   'inv.couldNotSend': 'تعذر الإرسال',
   'inv.couldNotRemind': 'تعذر إرسال التذكير',
-  'inv.recordPaymentDescription': 'للأموال المستلمة خارج {brand} — نقداً أو بشيك أو بتحويل بنكي.',
+  'inv.recordPaymentDescription': 'للأموال المستلمة خارج {brand}, نقداً أو بشيك أو بتحويل بنكي.',
   'inv.record': 'تسجيل',
   'inv.amountWithCurrency': 'المبلغ ({currency})',
   'inv.outstanding': 'المستحق: {amount}',
@@ -1984,7 +1999,7 @@ const ar: Catalog = {
   'site.ctaPrimary': 'أنشئ أول فاتورة لك',
   'site.ctaSecondary': 'شاهد كيف يعمل محرك الضرائب',
   'site.freeNote': 'مجاناً لأول ٢٥ فاتورة. دون بطاقة بنكية.',
-  'site.liveHint': 'مباشر — غيّر الدولة وشاهد الضريبة تُحتسب من جديد',
+  'site.liveHint': 'مباشر، غيّر الدولة وشاهد الضريبة تُحتسب من جديد',
   'site.liveFooter': 'هذا يستدعي المحرك نفسه الذي يحسب الفواتير الحقيقية.',
   'site.computingTax': 'جارٍ احتساب الضريبة…',
   'site.apiOffline': 'شغّل الواجهة البرمجية لرؤية الاحتساب المباشر.',
@@ -2105,6 +2120,10 @@ const ar: Catalog = {
 /* Chinese (Simplified)                                                        */
 /* -------------------------------------------------------------------------- */
 const zh: Catalog = {
+  'auth.showPassword': '显示密码',
+  'auth.hidePassword': '隐藏密码',
+  'inv.backToInvoice': '返回发票',
+
   'site.totalDue': '应付总额',
   'site.demoLine1': '品牌形象设计',
   'site.demoLine2': '包装图形设计',
@@ -2117,13 +2136,13 @@ const zh: Catalog = {
   'site.invoiceWord': '发票',
   'site.sc.gb.label': '英国',
   'site.sc.gb.sub': '境内 B2B',
-  'site.sc.gb.teaches': '单一的全国税率——最简单的情形。',
+  'site.sc.gb.teaches': '单一的全国税率：最简单的情形。',
   'site.sc.eu-b2b.label': '德国 → 法国',
   'site.sc.eu-b2b.sub': '欧盟境内 B2B',
   'site.sc.eu-b2b.teaches': '纳税义务转移给客户，且必须印上相应声明。',
   'site.sc.eu-b2c.label': '德国 → 匈牙利',
   'site.sc.eu-b2c.sub': '欧盟消费者，数字服务',
-  'site.sc.eu-b2c.teaches': '按消费者所在地征税——适用匈牙利的 27%，而非德国的 19%。',
+  'site.sc.eu-b2c.teaches': '按消费者所在地征税：适用匈牙利的 27%，而非德国的 19%。',
   'site.sc.in.label': '印度',
   'site.sc.in.sub': '跨邦供应',
   'site.sc.in.teaches': '一旦跨越邦界，CGST + SGST 就合并为一条 IGST。',
@@ -2132,12 +2151,12 @@ const zh: Catalog = {
   'site.sc.us.teaches': '按目的地州计税，而非卖方所在州。',
   'site.sc.gh.label': '加纳',
   'site.sc.gh.sub': '境内 B2B',
-  'site.sc.gh.teaches': '同一计税基础上的三项独立税费——依法逐项列示。',
+  'site.sc.gh.teaches': '同一计税基础上的三项独立税费：依法逐项列示。',
   'site.taxEyebrow': '税务引擎',
   'site.featShift.title': '会转移的纳税义务',
   'site.featShift.body': '持有效增值税号的欧盟境内 B2B 交易适用反向征收，由客户承担。英国向境外企业提供的服务则不在征税范围内。两者都会印上发票依法所需的声明。',
   'site.featDestination.title': '按买方所在地征税',
-  'site.featDestination.body': 'B2C 数字服务按消费者所在地的税率征税，而非您的税率——匈牙利 27%，卢森堡 17%。引擎会自动将该项供应归属到正确的税收管辖区。',
+  'site.featDestination.body': 'B2C 数字服务按消费者所在地的税率征税，而非您的税率：匈牙利 27%，卢森堡 17%。引擎会自动将该项供应归属到正确的税收管辖区。',
   'site.featSubnational.title': '低于国家层级的税收',
   'site.featSubnational.body': '美国销售税由各州自行设定。加拿大按省份区分 GST、HST、PST 和 QST。在印度，供应一旦跨越邦界，CGST + SGST 即转为 IGST。',
   'site.featDated.title': '会变动的规则',
@@ -2153,13 +2172,13 @@ const zh: Catalog = {
   'site.regionAsiaPacificDetail': '印度、新加坡、日本、澳大利亚',
   'site.regionMiddleEast': '中东',
   'site.regionMiddleEastDetail': '阿拉伯联合酋长国',
-  'site.coverageFooter': '新增一个国家只需编写一条规则并注册它。系统其余部分无需任何改动——这正是这份清单不断扩展的原因。',
+  'site.coverageFooter': '新增一个国家只需编写一条规则并注册它。系统其余部分无需任何改动：这正是这份清单不断扩展的原因。',
   'site.collectBody': '即使业务跨越国界，付款习惯依然是本地化的。法兰克福的买家期待银行代扣，奥斯汀的买家会掏出银行卡，而阿克拉或内罗毕的买家用手机付款。只支持一种方式的工具会悄悄把其他市场排除在外，因此 {brand} 会提供最适合付款方的那一种。',
   'site.collectBullet1': '支持 135 种以上货币的银行卡与电子钱包',
-  'site.collectBullet2': '银行代扣——欧洲的 SEPA、美国的 ACH',
+  'site.collectBullet2': '银行代扣：欧洲的 SEPA、美国的 ACH',
   'site.collectBullet3': '覆盖非洲的移动支付，包括 MTN、Telecel 和 M-Pesa',
   'site.collectBullet4': '现金、支票和转账均记入同一分类账',
-  'site.collectBullet5': '在发票上一键完成——您的客户无需注册账户',
+  'site.collectBullet5': '在发票上一键完成：您的客户无需注册账户',
   'site.paidTag': '已付款',
   'site.methodCard': '银行卡或钱包',
   'site.methodCardNote': 'Visa、Mastercard、Apple Pay',
@@ -2198,7 +2217,7 @@ const zh: Catalog = {
   'inv.deleteFailed': '无法删除该草稿',
   'inv.onlyDraftsEditable': '只有草稿可以编辑。请作废此发票并重新开具。',
   'pay.pendingTitle': '等待您确认',
-  'pay.pendingHelp': '客户表示已汇出这笔款项。请在款项确实到账后再确认——确认才会为发票入账。',
+  'pay.pendingHelp': '客户表示已汇出这笔款项。请在款项确实到账后再确认：确认才会为发票入账。',
   'pay.confirmReceipt': '确认收款',
   'pay.confirmed': '付款已确认',
   'pay.reject': '拒绝',
@@ -2322,7 +2341,7 @@ const zh: Catalog = {
   'customTax.notePlaceholder': '依据……征收销售税',
   'customTax.totalRate': '适用税率合计：',
   'paid.bankDetails': '在发票上显示我的银行信息',
-  'paid.bankDetailsHelp': '适用于所有国家——客户可直接向您转账',
+  'paid.bankDetailsHelp': '适用于所有国家：客户可直接向您转账',
   'paid.accountName': '账户名称',
   'paid.bankName': '银行名称',
   'paid.accountNumber': '账号',
@@ -2345,12 +2364,12 @@ const zh: Catalog = {
   'rail.MANUAL': '现金、支票及线下方式',
   'rail.MANUAL.desc': '记录通过其他任何方式收到的款项',
   'railReason.restricted': '支付服务商不在此司法管辖区运营。',
-  'railReason.chargesDisabled': '服务商报告该账户尚不能收款——请在其后台完成入驻。',
-  'railReason.notOnboardedHere': '据我们的资料，该服务商不在此地为企业开户。覆盖范围会变化——连接密钥可直接核实。',
+  'railReason.chargesDisabled': '服务商报告该账户尚不能收款：请在其后台完成入驻。',
+  'railReason.notOnboardedHere': '据我们的资料，该服务商不在此地为企业开户。覆盖范围会变化：连接密钥可直接核实。',
   'railReason.notConnected': '本工作区尚未连接。',
   'paySummary.restricted': '开票与记账功能正常。银行卡和移动支付服务商不在此司法管辖区运营，请通过银行转账收款。',
   'paySummary.hasAutomatic': '您的客户可以在线付款，您也可以通过银行转账收款。',
-  'paySummary.eligibleNotConnected': '您所在国家可使用在线支付——请在“设置”中连接服务商以启用。',
+  'paySummary.eligibleNotConnected': '您所在国家可使用在线支付：请在“设置”中连接服务商以启用。',
   'paySummary.bankTransferOnly': '在此登记的企业无法使用在线银行卡收单。请通过银行转账收款，账户信息会印在每张发票上。',
   'admin.title': '管理控制台',
   'admin.workspaces': '工作区',
@@ -2389,7 +2408,7 @@ const zh: Catalog = {
   'team.roleChanged': '角色已更新',
   'team.removeAria': '移除 {name}',
   'team.confirmRemove': '要将 {name} 从此工作区移除吗？',
-  'team.roleViewerHelp': '只读——适合会计师',
+  'team.roleViewerHelp': '只读：适合会计师',
   'team.roleMemberHelp': '创建并发送发票、记录付款',
   'team.roleAdminHelp': '以上全部，另加设置与团队管理',
   'team.roleOwnerHelp': '全部权限，包括转让所有权',
@@ -2423,7 +2442,7 @@ const zh: Catalog = {
   'auth.serverUnreachable': '无法连接服务器。API 是否已启动？',
   'auth.demoAccount': '演示账户：',
   'auth.quote': '“能否按时收到货款，是生意与爱好的分野。”',
-  'auth.quoteFooter': '{brand} 处理 {count} 个税收管辖区的税务，并支持银行卡、电子钱包和移动支付收款——发票无误，款项到账。',
+  'auth.quoteFooter': '{brand} 处理 {count} 个税收管辖区的税务，并支持银行卡、电子钱包和移动支付收款：发票无误，款项到账。',
   'auth.statJurisdictions': '个税收管辖区',
   'auth.statRails': '种收款方式',
   'auth.statDoubleCharges': '次重复扣款',
@@ -2442,7 +2461,7 @@ const zh: Catalog = {
   'inv.loadFailed': '无法加载此发票。',
   'inv.couldNotSend': '发送失败',
   'inv.couldNotRemind': '催款提醒发送失败',
-  'inv.recordPaymentDescription': '用于在 {brand} 之外收到的款项——现金、支票或银行转账。',
+  'inv.recordPaymentDescription': '用于在 {brand} 之外收到的款项：现金、支票或银行转账。',
   'inv.record': '记录',
   'inv.amountWithCurrency': '金额（{currency}）',
   'inv.outstanding': '未结金额：{amount}',
@@ -2457,7 +2476,7 @@ const zh: Catalog = {
   'site.ctaPrimary': '创建第一张发票',
   'site.ctaSecondary': '了解税务引擎如何运作',
   'site.freeNote': '前 25 张发票免费，无需银行卡。',
-  'site.liveHint': '实时演示 — 切换国家，看税费重新计算',
+  'site.liveHint': '实时演示, 切换国家，看税费重新计算',
   'site.liveFooter': '此处调用的正是计算真实发票的引擎。',
   'site.computingTax': '正在计算税费…',
   'site.apiOffline': '启动 API 即可查看实时税费计算。',
@@ -2623,7 +2642,7 @@ const hi: Catalog = {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Swahili — East Africa                                                       */
+/* Swahili. East Africa                                                       */
 /* -------------------------------------------------------------------------- */
 const sw: Catalog = {
   'nav.dashboard': 'Dashibodi', 'nav.invoices': 'Ankara', 'nav.clients': 'Wateja',

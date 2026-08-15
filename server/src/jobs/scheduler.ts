@@ -21,7 +21,7 @@ const running = new Set<string>()
 
 async function runExclusive(name: string, fn: () => Promise<unknown>): Promise<void> {
   if (running.has(name)) {
-    logger.warn({ job: name }, 'Skipping scheduled run — previous run still in progress')
+    logger.warn({ job: name }, 'Skipping scheduled run, previous run still in progress')
     return
   }
   running.add(name)

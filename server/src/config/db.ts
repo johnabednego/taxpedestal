@@ -21,7 +21,7 @@ export async function connectDatabase(uri = env.MONGODB_URI): Promise<typeof mon
   // NOTE: `sanitizeFilter` is deliberately NOT enabled globally.
   //
   // It defends against query-selector injection by wrapping any nested object
-  // holding a `$`-prefixed key in `$eq` — but it cannot distinguish an operator
+  // holding a `$`-prefixed key in `$eq`, but it cannot distinguish an operator
   // injected by a caller from one written here. Enabled globally it rewrites
   // every legitimate query, so `{ _id: { $in: ids } }` becomes
   // `{ _id: { $eq: { $in: ids } } }` and throws CastError. That silently broke
@@ -38,7 +38,7 @@ export async function connectDatabase(uri = env.MONGODB_URI): Promise<typeof mon
      *
      * A long-lived server keeps one pool, so ten is comfortable. A serverless
      * deployment can hold dozens of concurrent instances, each with its own
-     * pool — at ten apiece that exhausts an Atlas free-tier connection limit
+     * pool, at ten apiece that exhausts an Atlas free-tier connection limit
      * under very ordinary traffic. Instances there are also short-lived and
      * handle few simultaneous requests, so a small pool costs nothing.
      */

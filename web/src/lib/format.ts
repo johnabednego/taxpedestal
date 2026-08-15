@@ -2,7 +2,7 @@
  * Formatting helpers.
  *
  * Mirrors server/src/core/money.ts. Amounts arrive as INTEGER MINOR UNITS and
- * are only converted at the moment of display — never stored or arithmetic'd as
+ * are only converted at the moment of display, never stored or arithmetic'd as
  * floats in the client either, or the totals shown would drift from the totals
  * charged.
  */

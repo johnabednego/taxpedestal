@@ -9,10 +9,10 @@
  *
  * Invoice variation is two separate things:
  *
- *   PRESENTATION — logo, colour, layout, language, date format.
+ *   PRESENTATION, logo, colour, layout, language, date format.
  *                  Genuinely a user preference. Handled by templates.ts.
  *
- *   LEGAL CONTENT — which particulars must appear for the document to be a
+ *   LEGAL CONTENT, which particulars must appear for the document to be a
  *                   valid tax invoice. NOT a preference. The EU VAT Directive
  *                   Article 226 lists them; India requires HSN/SAC codes and
  *                   place of supply; Ghana requires each levy itemised.
@@ -20,7 +20,7 @@
  * Handing legal content to a drag-and-drop canvas moves compliance onto the
  * least-equipped party. A user who deletes the reverse-charge declaration
  * because it looked untidy has an invoice their customer's tax authority can
- * reject — and they will blame the tool that let them.
+ * reject, and they will blame the tool that let them.
  *
  * So this file encodes the second category as RULES, using the same registry
  * pattern as the tax engine. Adding a country is one entry. The template system
@@ -28,7 +28,7 @@
  * this file marks required.
  *
  * IMPORTANT SCOPE NOTE: several countries mandate structured e-invoicing where
- * a PDF has no legal standing at all — Brazil (NF-e), Mexico (CFDI), Italy
+ * a PDF has no legal standing at all. Brazil (NF-e), Mexico (CFDI), Italy
  * (FatturaPA via SDI), India (IRN/e-invoice above a turnover threshold). Those
  * need certified integrations, not a nicer PDF. `eInvoicingRegime` flags them
  * so the product says so plainly instead of implying a PDF is sufficient.
@@ -166,7 +166,7 @@ const EU_STATES = new Set([
 ])
 
 /**
- * EU — Council Directive 2006/112/EC, Article 226.
+ * EU. Council Directive 2006/112/EC, Article 226.
  *
  * Article 226 enumerates the particulars a VAT invoice must contain. The ones
  * a general invoicing tool can actually verify are checked here; those that
@@ -181,7 +181,7 @@ function createEuProfile(country: string): DocumentProfile {
       const issues = baseChecks(ctx)
 
       // Art. 226(4): the customer's VAT identification number is required
-      // where the customer is liable for the tax — i.e. reverse charge.
+      // where the customer is liable for the tax, i.e. reverse charge.
       if (ctx.isReverseCharge) {
         issues.push(
           ...customerTaxIdRequired(
@@ -207,7 +207,7 @@ function createEuProfile(country: string): DocumentProfile {
       // Art. 226(11a): the mention "Reverse charge" is mandatory.
       if (ctx.isReverseCharge) {
         statements.push(
-          'Reverse charge — VAT to be accounted for by the recipient (Article 196, Council Directive 2006/112/EC).',
+          'Reverse charge. VAT to be accounted for by the recipient (Article 196, Council Directive 2006/112/EC).',
         )
       }
       return statements

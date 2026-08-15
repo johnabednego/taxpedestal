@@ -1,6 +1,7 @@
 import clsx from 'clsx'
+import { Link } from 'react-router-dom'
 import { useI18n } from '../i18n'
-import { Loader2, X } from 'lucide-react'
+import { ArrowLeft, Eye, EyeOff, Loader2, X } from 'lucide-react'
 import {
   ButtonHTMLAttributes,
   InputHTMLAttributes,
@@ -55,7 +56,7 @@ export function Button({
   return (
     <button
       {...props}
-      // Disabled while loading so a double click cannot submit twice — the
+      // Disabled while loading so a double click cannot submit twice, the
       // client-side half of the idempotency story.
       disabled={disabled || loading}
       className={clsx(
@@ -119,22 +120,56 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   mono?: boolean
 }
 
+/**
+ * Text input.
+ *
+ * `type="password"` automatically gains a reveal toggle. Doing it here rather
+ * than at each call site means every password field in the product behaves the
+ * same way, including ones added later.
+ *
+ * The toggle is a `button` with `tabIndex={-1}`: reachable by pointer, skipped
+ * by the keyboard, so tabbing still runs field to field rather than detouring
+ * through a control that only changes presentation.
+ */
 export function Input({ label, hint, error, mono, className, ...props }: InputProps) {
   const id = useId()
+  const { t } = useI18n()
+  const [revealed, setRevealed] = useState(false)
+
+  const isPassword = props.type === 'password'
+  const type = isPassword && revealed ? 'text' : props.type
+
   return (
     <Field label={label} hint={hint} error={error} required={props.required} htmlFor={id}>
-      <input
-        id={id}
-        {...props}
-        aria-invalid={Boolean(error)}
-        className={clsx(
-          controlClass,
-          'h-10',
-          mono && 'font-mono tnum',
-          error ? 'border-rose' : 'border-ink-200',
-          className,
+      <div className={isPassword ? 'relative' : undefined}>
+        <input
+          id={id}
+          {...props}
+          type={type}
+          aria-invalid={Boolean(error)}
+          className={clsx(
+            controlClass,
+            'h-10',
+            // Room for the toggle, on whichever side the script ends.
+            isPassword && 'pe-10',
+            mono && 'font-mono tnum',
+            error ? 'border-rose' : 'border-ink-200',
+            className,
+          )}
+        />
+        {isPassword && (
+          <button
+            type="button"
+            tabIndex={-1}
+            onClick={() => setRevealed((v) => !v)}
+            aria-label={revealed ? t('auth.hidePassword') : t('auth.showPassword')}
+            aria-pressed={revealed}
+            className="absolute end-0 top-0 flex h-10 w-10 items-center justify-center rounded-e-lg text-ink-400 transition-colors hover:text-ink-700"
+          >
+            {revealed ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
         )}
-      />
+      </div>
     </Field>
   )
 }
@@ -241,6 +276,27 @@ export function Card({
     >
       {children}
     </div>
+  )
+}
+
+/**
+ * A "back to somewhere" link for pages that are not top-level destinations.
+ *
+ * Always points at a KNOWN route rather than calling history.back(). A page
+ * reached from a pasted link, an email, or a redirect has no meaningful
+ * history entry, and a back arrow that lands the user on their previous
+ * website is worse than no arrow at all.
+ */
+export function BackLink({ to, label }: { to: string; label: string }) {
+  return (
+    <Link
+      to={to}
+      className="inline-flex items-center gap-1.5 text-sm text-ink-500 transition-colors hover:text-ink-900"
+    >
+      {/* Mirrored in right-to-left layouts, where "back" points the other way. */}
+      <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />
+      {label}
+    </Link>
   )
 }
 

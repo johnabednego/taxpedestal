@@ -43,7 +43,7 @@ function AuthLayout({
         </div>
       </div>
 
-      {/* Editorial side. Hidden on mobile — decoration must never cost a
+      {/* Editorial side. Hidden on mobile, decoration must never cost a
           keystroke on a phone. */}
       <div className="hidden bg-ink-900 lg:flex lg:w-1/2 lg:flex-col lg:justify-center lg:px-16">
         <blockquote className="max-w-md">
@@ -286,7 +286,7 @@ export function Register() {
           >
             {currencies.map((currency) => (
               <option key={currency.code} value={currency.code}>
-                {currency.code} — {currency.name}
+                {currency.code}, {currency.name}
               </option>
             ))}
           </Select>

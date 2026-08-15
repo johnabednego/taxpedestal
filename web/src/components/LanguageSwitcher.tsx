@@ -6,7 +6,7 @@ import { useI18n } from '../i18n'
 /**
  * Language switcher.
  *
- * Lists each language by its ENDONYM — its name in itself — because someone
+ * Lists each language by its ENDONYM, its name in itself, because someone
  * looking for Arabic scans for "العربية", not "Arabic". The English name is
  * shown alongside for orientation.
  *
@@ -51,7 +51,7 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
     setPlacement({
       dropUp,
       // Never taller than the space available, and never so short it is
-      // useless — the list scrolls inside whatever it gets.
+      // useless, the list scrolls inside whatever it gets.
       maxHeight: Math.max(160, Math.min(360, dropUp ? above : below)),
     })
   }, [open])

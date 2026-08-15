@@ -33,7 +33,7 @@ export const BRAND = {
    * goes on a domain or a filing. Dropping to `shortName` alone is a one-line
    * change here if that search comes back badly.
    */
-  etymology: 'A pedestal — the base a thing stands on',
+  etymology: 'A pedestal, the base a thing stands on',
 
   tagline: 'Invoice the world. Get the tax right.',
 

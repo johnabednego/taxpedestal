@@ -15,7 +15,7 @@ const TTL_HOURS = 24
  * and replayed on retry.
  *
  * Replayed responses carry `Idempotency-Replayed: true` so clients can tell the
- * difference — something Stripe does not surface and which makes debugging a
+ * difference, something Stripe does not surface and which makes debugging a
  * retry loop far easier.
  */
 export function idempotency(req: Request, res: Response, next: NextFunction): void {

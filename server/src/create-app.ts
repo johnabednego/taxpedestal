@@ -46,7 +46,7 @@ import webhookRoutes from './modules/payments/webhook.routes'
  *
  * Adding a default export here would be worse than the rename: it would make
  * merely importing this module construct an application, and the real entry
- * point in `index.ts` — which is what connects the database — would never run.
+ * point in `index.ts`, which is what connects the database, would never run.
  *
  * The name keeps `src/index.ts` the single unambiguous entry point. Do not
  * rename this back to `app.ts`.
@@ -57,7 +57,7 @@ import webhookRoutes from './modules/payments/webhook.routes'
  *     the exact bytes the provider sent. Once express.json() has parsed the
  *     body those bytes are gone, and re-serialising produces a different digest
  *     whenever key order or whitespace differs. Mounting after the JSON parser
- *     breaks every webhook — silently, since the endpoint still returns 200.
+ *     breaks every webhook, silently, since the endpoint still returns 200.
  *
  *  2. requestContext runs first, so even a body-parser failure is logged with a
  *     request id the user can quote.
@@ -165,8 +165,8 @@ export function configureApp(app: Express): Express {
    * Reference data for the client.
    *
    * TWO SEPARATE COUNTRY LISTS, and the distinction is the point:
-   *   `countries`    — every ISO 3166 territory. Anyone can operate anywhere.
-   *   `taxCountries` — where TaxPedestal computes tax automatically.
+   *   `countries`, every ISO 3166 territory. Anyone can operate anywhere.
+   *   `taxCountries`, where TaxPedestal computes tax automatically.
    *
    * The UI shows all countries and marks which have automatic tax, so a
    * business in an uncovered country sees an honest capability note rather than
@@ -224,7 +224,7 @@ export function configureApp(app: Express): Express {
  * Builds a fully configured application.
  *
  * The convenience form, used by the tests and by anything that just wants an
- * app. The deployed entry point calls `configureApp` directly — see the note
+ * app. The deployed entry point calls `configureApp` directly, see the note
  * on that function.
  */
 export function createApp(): Express {
@@ -235,7 +235,7 @@ export function createApp(): Express {
  * Pick a usable locale from an Accept-Language header.
  *
  * Only the primary tag is taken, and it is validated against Intl rather than
- * trusted — an arbitrary header value reaching Intl.DisplayNames throws, and a
+ * trusted, an arbitrary header value reaching Intl.DisplayNames throws, and a
  * malformed one must not 500 a reference endpoint.
  */
 function parseLocale(header: string | undefined): string {

@@ -145,7 +145,7 @@ describeIntegration('webhook signature verification', () => {
 
   it('rejects a tampered body', async () => {
     const { headers } = signPaystack({ event: 'charge.success', data: { id: 1, amount: 100 } })
-    // Same signature, different body — exactly what an attacker would send.
+    // Same signature, different body, exactly what an attacker would send.
     const tampered = Buffer.from(
       JSON.stringify({ event: 'charge.success', data: { id: 1, amount: 999_999 } }),
     )
@@ -183,7 +183,7 @@ describeIntegration('webhook signature verification', () => {
   })
 })
 
-describeIntegration('webhook idempotency — the double-credit guarantee', () => {
+describeIntegration('webhook idempotency, the double-credit guarantee', () => {
   it('credits an invoice exactly once when the same event is delivered twice', async () => {
     const fixture = await seedPayableInvoice()
     const spy = jest.spyOn(paystackProvider, 'fetchTransaction').mockResolvedValue({
@@ -210,7 +210,7 @@ describeIntegration('webhook idempotency — the double-credit guarantee', () =>
     expect(second.status).toBe('duplicate')
 
     const invoice = await Invoice.findById(fixture.invoiceId)
-    // 120,000 — NOT 240,000.
+    // 120,000. NOT 240,000.
     expect(invoice!.amountPaidMinor).toBe(120_000)
     expect(invoice!.amountDueMinor).toBe(0)
     expect(invoice!.status).toBe(InvoiceStatus.PAID)
@@ -254,7 +254,7 @@ describeIntegration('webhook idempotency — the double-credit guarantee', () =>
 
   it('does not re-credit when a different event id references a settled payment', async () => {
     // Paystack sends both charge.success and transaction.success for one payment.
-    // Distinct event ids, so the ledger dedupe does not catch it — the terminal
+    // Distinct event ids, so the ledger dedupe does not catch it, the terminal
     // payment-status check must.
     const fixture = await seedPayableInvoice()
     jest.spyOn(paystackProvider, 'fetchTransaction').mockResolvedValue({
@@ -285,7 +285,7 @@ describeIntegration('webhook idempotency — the double-credit guarantee', () =>
   })
 })
 
-describeIntegration('webhook amount verification — the tampering guard', () => {
+describeIntegration('webhook amount verification, the tampering guard', () => {
   it('refuses to credit when the provider reports a different amount', async () => {
     const fixture = await seedPayableInvoice(120_000)
     // The webhook body claims the right amount, but the authoritative API says
@@ -322,7 +322,7 @@ describeIntegration('webhook amount verification — the tampering guard', () =>
 
   it('refuses to credit on a currency mismatch', async () => {
     const fixture = await seedPayableInvoice(120_000)
-    // Same number, different currency — 120,000 NGN is not 120,000 GHS.
+    // Same number, different currency, 120,000 NGN is not 120,000 GHS.
     jest.spyOn(paystackProvider, 'fetchTransaction').mockResolvedValue({
       providerReference: fixture.reference,
       status: 'succeeded',

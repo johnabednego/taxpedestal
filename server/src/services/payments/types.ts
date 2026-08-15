@@ -52,7 +52,7 @@ export interface CheckoutResult {
    * How the client should complete payment:
    *  - `redirect`   : send the browser to `redirectUrl` (hosted checkout)
    *  - `client_side`: use `clientSecret` with the provider's JS SDK
-   *  - `otp`        : mobile money — customer authorises on their handset
+   *  - `otp`        : mobile money, customer authorises on their handset
    *  - `settled`    : already complete (manual/offline record)
    */
   action: 'redirect' | 'client_side' | 'otp' | 'settled'
@@ -88,7 +88,7 @@ export interface TransactionSnapshot {
 
 export interface WebhookVerification {
   valid: boolean
-  /** Provider's unique event id — the idempotency key for processing. */
+  /** Provider's unique event id, the idempotency key for processing. */
   eventId: string | null
   eventType: string | null
   /** Parsed payload. Only trust this after `valid` is true. */

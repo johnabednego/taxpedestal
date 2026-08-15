@@ -12,7 +12,7 @@ import { Card } from './ui'
  * have.
  *
  * Every message cites its source, and the panel says when the rules were last
- * reviewed — so a user can see the information is dated rather than assuming it
+ * reviewed, so a user can see the information is dated rather than assuming it
  * is current. Tax law moves; a product that presents stale rules with
  * unchanging confidence is worse than one that admits its age.
  */
@@ -70,7 +70,7 @@ export function ComplianceNotice({ compliance }: { compliance: ComplianceData | 
             <FileWarning className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" />
             <div>
               <p className="text-sm font-semibold text-amber-700">
-                {t('compliance.eInvoicing')} — {compliance.eInvoicingRegime.name}
+                {t('compliance.eInvoicing')}, {compliance.eInvoicingRegime.name}
               </p>
               <p className="mt-1 text-sm leading-relaxed text-amber-700">
                 {compliance.eInvoicingRegime.note}

@@ -4,7 +4,7 @@ import { SUPPORTED_CURRENCY_CODES } from '../core/money'
 /**
  * Append-only financial ledger.
  *
- * WHY THIS EXISTS — and why it is better than the counter it replaces.
+ * WHY THIS EXISTS, and why it is better than the counter it replaces.
  *
  * The obvious way to track what an invoice has been paid is a mutable field
  * incremented on each payment (`$inc amountPaidMinor`). Stripe Invoicing works
@@ -33,13 +33,13 @@ import { SUPPORTED_CURRENCY_CODES } from '../core/money'
  */
 
 export enum LedgerEntryType {
-  /** Invoice issued — the customer now owes this amount. */
+  /** Invoice issued, the customer now owes this amount. */
   CHARGE = 'CHARGE',
   /** Money received. */
   PAYMENT = 'PAYMENT',
   /** Money returned to the customer. */
   REFUND = 'REFUND',
-  /** Invoice cancelled — reverses the outstanding charge. */
+  /** Invoice cancelled, reverses the outstanding charge. */
   VOID = 'VOID',
   /** Written off as uncollectable. */
   WRITE_OFF = 'WRITE_OFF',

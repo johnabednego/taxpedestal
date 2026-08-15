@@ -49,7 +49,7 @@ export interface PostEntryInput {
 
 export interface PostEntryResult {
   entry: ILedgerEntry
-  /** False when an entry with this key already existed — nothing was written. */
+  /** False when an entry with this key already existed, nothing was written. */
   created: boolean
   outstandingMinor: number
 }
@@ -59,7 +59,7 @@ export interface PostEntryResult {
  *
  * IDEMPOTENT BY CONSTRUCTION. A duplicate (invoice, idempotencyKey) pair is
  * rejected by a unique index, caught here, and reported as `created: false`.
- * Callers do not need to check first — the check-then-write pattern races.
+ * Callers do not need to check first, the check-then-write pattern races.
  */
 export async function postEntry(input: PostEntryInput): Promise<PostEntryResult> {
   assertInteger(input.amountMinor, 'amountMinor')
@@ -110,7 +110,7 @@ export async function postEntry(input: PostEntryInput): Promise<PostEntryResult>
           idempotencyKey: input.idempotencyKey,
           type: input.type,
         },
-        'Ledger entry already exists — no double credit',
+        'Ledger entry already exists, no double credit',
       )
 
       return {
@@ -146,7 +146,7 @@ export async function computePaid(invoiceId: Types.ObjectId): Promise<number> {
  * Refresh the cached projection on the invoice from the ledger.
  *
  * The cache exists so listing 500 invoices does not require 500 aggregations.
- * It is written only from derived values, never incremented in place — that
+ * It is written only from derived values, never incremented in place, that
  * distinction is what keeps the ledger authoritative.
  */
 export async function reproject(invoice: IInvoice): Promise<number> {

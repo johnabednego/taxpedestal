@@ -3,7 +3,7 @@ import { isValidCountry } from '../core/countries'
 import { SUPPORTED_CURRENCY_CODES } from '../core/money'
 
 /**
- * A customer of the organisation — the party an invoice is addressed to.
+ * A customer of the organisation, the party an invoice is addressed to.
  *
  * `isBusiness` and `taxId` together decide whether a cross-border EU supply is
  * reverse-charged, so they are not cosmetic contact fields: they change the
@@ -13,7 +13,7 @@ export interface IClient extends Document {
   _id: Types.ObjectId
   org: Types.ObjectId
   name: string
-  /** Primary billing contact — where invoices are sent. */
+  /** Primary billing contact, where invoices are sent. */
   email: string | null
   phone: string | null
   contactName: string | null

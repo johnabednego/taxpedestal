@@ -80,7 +80,7 @@ class JurisdictionRegistry {
 export const registry = new JurisdictionRegistry()
 
 // Order is irrelevant; duplicates throw at boot, which is the desired failure
-// mode — a misconfigured tax table should stop deployment, not ship silently.
+// mode, a misconfigured tax table should stop deployment, not ship silently.
 registry
   .register(ghanaRule)
   .register(unitedKingdomRule)
@@ -116,7 +116,7 @@ for (const member of EU_MEMBER_STATES) {
 /**
  * Assess using an organisation's own tax definition.
  *
- * Deliberately simple — a flat set of components on the taxable value, with
+ * Deliberately simple, a flat set of components on the taxable value, with
  * exports optionally zero-rated. That covers the overwhelming majority of
  * indirect tax systems worldwide. Anything more exotic (cascading bases,
  * banded rates) needs a real rule, which is a pull request rather than a
@@ -201,7 +201,7 @@ const OUT_OF_SCOPE: TaxAssessment = {
 /**
  * Assess indirect tax for a single taxable base.
  *
- * Never throws for an unknown country — an unsupported jurisdiction yields an
+ * Never throws for an unknown country, an unsupported jurisdiction yields an
  * OUT_OF_SCOPE assessment with an explanatory note. A billing product that
  * 500s because someone picked an unusual country is worse than one that says
  * "we can't compute this, enter it manually".
@@ -253,7 +253,7 @@ export function assessTax(ctx: TaxContext): TaxAssessment {
         supplier: { ...normalised.supplier, country: placeOfSupply },
       })
     }
-    // Destination has no rule — fall through to origin rather than dropping tax.
+    // Destination has no rule, fall through to origin rather than dropping tax.
   }
 
   return originRule.assess(normalised)

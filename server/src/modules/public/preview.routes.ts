@@ -13,7 +13,7 @@ import { TaxTreatment } from '../../services/tax/types'
  *
  * Powers the interactive invoice on the marketing page, so a visitor can see
  * the engine work before signing up. Safe to expose because it is a PURE
- * COMPUTATION — it touches no database, reads no tenant data, and returns only
+ * COMPUTATION, it touches no database, reads no tenant data, and returns only
  * what the caller supplied plus the tax that applies to it.
  *
  * Rate limited like any other public endpoint. Mounted before the authenticated

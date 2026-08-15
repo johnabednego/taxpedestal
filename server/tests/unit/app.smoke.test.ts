@@ -9,7 +9,7 @@ import { createApp } from '../../src/create-app'
  * reject or respond before any query is issued: routing, security headers,
  * CORS, validation, auth guards and webhook signature rejection.
  *
- * That makes them runnable everywhere — including CI before a database service
+ * That makes them runnable everywhere, including CI before a database service
  * is ready, and in sandboxes with no MongoDB at all. They catch the class of
  * mistake that is easy to make and expensive to find: a router mounted at the
  * wrong path, a guard omitted from a route, body parsing ordered incorrectly.
@@ -242,7 +242,7 @@ describe('webhook endpoints', () => {
       .set('stripe-signature', 't=1,v1=deadbeef')
       .send({ id: 'evt_2', type: 'payment_intent.succeeded' })
 
-    // Reaches signature verification and fails there — which proves the raw
+    // Reaches signature verification and fails there, which proves the raw
     // body arrived, since a parsed body would have thrown earlier.
     expect(res.status).toBe(400)
     expect(res.body.reason).toMatch(/[Ss]ignature/)
@@ -255,12 +255,12 @@ describe('idempotency middleware', () => {
       .post('/api/v1/clients')
       .set('Idempotency-Key', 'abc')
       .send({ name: 'Test' })
-    // 401 first (no auth) — the guard order is auth, then idempotency.
+    // 401 first (no auth), the guard order is auth, then idempotency.
     expect([401, 409]).toContain(res.status)
   })
 })
 
-describe('country coverage — operating vs automatic tax', () => {
+describe('country coverage, operating vs automatic tax', () => {
   it('lists every ISO 3166 country, not just the taxed ones', async () => {
     const res = await request(app).get('/api/v1/meta')
     expect(res.status).toBe(200)
@@ -289,7 +289,7 @@ describe('country coverage — operating vs automatic tax', () => {
     for (const code of ['ES', 'FR', 'NG', 'CN', 'IL']) {
       expect(byCode.get(code)).toBe(true)
     }
-    // Iraq has no general VAT, so no rule — and it says so rather than pretending.
+    // Iraq has no general VAT, so no rule, and it says so rather than pretending.
     expect(byCode.get('IQ')).toBe(false)
   })
 
@@ -350,7 +350,7 @@ describe('journeys that email links depend on', () => {
    * route returns a 404 whose message begins "Route GET ...", produced by
    * notFoundHandler before any handler runs.
    *
-   * So the assertion is not on the status code — it is that the response is not
+   * So the assertion is not on the status code, it is that the response is not
    * a route-level 404. That is precisely the bug being guarded against.
    */
   const isRouteMissing = (res: request.Response): boolean =>
@@ -394,7 +394,7 @@ describe('journeys that email links depend on', () => {
 
 describe('interface language preference', () => {
   it('rejects a malformed language tag', async () => {
-    // The value is later handed to Intl, which throws on garbage — so it must
+    // The value is later handed to Intl, which throws on garbage, so it must
     // never reach the database.
     const res = await request(app)
       .patch('/api/v1/auth/preferences')

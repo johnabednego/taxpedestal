@@ -7,7 +7,7 @@
  * The first version of coverage.ts hardcoded the set of countries where Stripe
  * onboards merchants. That set was accurate the day it was written and starts
  * decaying immediately: Stripe adds markets, Paystack expands, a provider
- * withdraws from a country. A stale table does not fail loudly — it quietly
+ * withdraws from a country. A stale table does not fail loudly, it quietly
  * tells a user in a newly supported country that they cannot accept cards, and
  * they leave.
  *
@@ -38,7 +38,7 @@ export interface ProviderHealth {
   reachable: boolean
   /** Whether this account can actually take money right now. */
   chargesEnabled: boolean | null
-  /** Country the provider has on file for this account — authoritative. */
+  /** Country the provider has on file for this account, authoritative. */
   accountCountry: string | null
   /** Currencies or methods the provider reports, where available. */
   capabilities: string[]
@@ -78,7 +78,7 @@ async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
  * Ask Stripe about this account.
  *
  * `GET /v1/account` returns the account's country and whether charges are
- * enabled — which is the real question, and one no static table can answer.
+ * enabled, which is the real question, and one no static table can answer.
  * An account can be in a supported country and still be unable to charge
  * because onboarding is incomplete.
  */
@@ -206,7 +206,7 @@ export async function probeProvider(
  * Probe every gateway.
  *
  * Returns a named object rather than an array so callers destructure by
- * meaning, not position — with `noUncheckedIndexedAccess` an array index is
+ * meaning, not position, with `noUncheckedIndexedAccess` an array index is
  * `T | undefined` and every call site would need a redundant guard.
  */
 export async function probeAll(

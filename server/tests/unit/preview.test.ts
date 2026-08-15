@@ -45,7 +45,7 @@ describe('public tax preview', () => {
   })
 })
 
-describe('public preview — sub-national tax', () => {
+describe('public preview, sub-national tax', () => {
   it('splits CGST and SGST for an intra-state Indian supply', async () => {
     const res = await request(app).post('/api/v1/invoices/preview-public').send({
       supplierCountry: 'IN',

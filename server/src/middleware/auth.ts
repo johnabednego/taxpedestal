@@ -93,7 +93,7 @@ export async function requireAuth(
  * Resolves the active organisation and the caller's role within it.
  *
  * THE TENANT BOUNDARY. The organisation id is taken from a header or param and
- * then verified against an ACTIVE membership — it is never trusted as supplied.
+ * then verified against an ACTIVE membership, it is never trusted as supplied.
  * Handlers downstream filter by `req.org.id`, so a caller cannot reach another
  * tenant's data by changing a header.
  */

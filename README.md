@@ -13,7 +13,7 @@ jurisdictions and get paid by card, wallet or mobile money.
 Cross-border invoicing breaks in two places that existing tools handle badly.
 
 **Tax.** The correct amount depends on where both parties are, what is being
-supplied, and whether the buyer is a registered business — not on a single rate.
+supplied, and whether the buyer is a registered business, rather than on a single rate.
 A Berlin studio billing a Paris agency reverse-charges and must print an
 Article 196 declaration; billing a Budapest consumer, the same studio owes
 Hungarian VAT at 27% rather than German VAT at 19%. Goods shipped to Texas are
@@ -42,13 +42,13 @@ server/  Node + Express + Mongoose      -> Render (or Vercel serverless)
 
 ### Two extension points carry the product
 
-**Tax engine** (`server/src/services/tax/`) — a registry of `JurisdictionRule`
+**Tax engine** (`server/src/services/tax/`) is a registry of `JurisdictionRule`
 implementations. Each rule answers two questions: where is this supply taxed,
 and what components apply. Adding a country means adding a rule and registering
 it; `engine.ts` never changes. Rules are pure functions of their inputs, so the
 entire tax surface is unit-testable without a database.
 
-**Payment providers** (`server/src/services/payments/`) — a common interface over
+**Payment providers** (`server/src/services/payments/`) is a common interface over
 Stripe, Paystack and manually recorded payments. The invoice domain never
 imports a provider SDK.
 
@@ -105,15 +105,15 @@ while glue code is held to a lower bar.
 
 ## Build progress
 
-- [x] Money primitives — minor units, ISO 4217 exponents, lossless allocation
-- [x] Tax engine — 53 jurisdictions, per-line assessment, reverse charge, OSS
+- [x] Money primitives: minor units, ISO 4217 exponents, lossless allocation
+- [x] Tax engine: 53 jurisdictions, per-line assessment, reverse charge, OSS
 - [x] Error taxonomy, structured logging, boot-time config validation
-- [x] Data models — tenancy, RBAC, invoices, payments, webhook ledger, audit log
-- [x] Auth — registration, login, refresh rotation, invitations
-- [x] Invoice service — build, issue, state machine, PDF
-- [x] Payments — Stripe + Paystack adapters, webhook handling
+- [x] Data models: tenancy, RBAC, invoices, payments, webhook ledger, audit log
+- [x] Auth: registration, login, refresh rotation, invitations
+- [x] Invoice service: build, issue, state machine, PDF
+- [x] Payments: Stripe + Paystack adapters, webhook handling
 - [x] Analytics, reminders, admin console
-- [x] Frontend — including team management and a fully translated interface
+- [x] Frontend: including team management and a fully translated interface
 - [x] Deployment configuration
 - [x] Examination documentation set
 

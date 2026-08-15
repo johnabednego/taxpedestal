@@ -57,7 +57,7 @@ router.get(
         Invoice.countDocuments({ org, status: InvoiceStatus.DRAFT }),
         Client.countDocuments({ org, archivedAt: null }),
 
-        // Aging buckets — the report every finance team asks for first.
+        // Aging buckets, the report every finance team asks for first.
         Invoice.aggregate<{ _id: string; total: number; count: number }>([
           {
             $match: {

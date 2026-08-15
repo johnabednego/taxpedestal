@@ -214,7 +214,7 @@ router.post(
  * table does not yet list.
  *
  * Coverage snapshots go stale between deploys. This closes the gap in minutes
- * rather than waiting for a release — the difference between a user in a newly
+ * rather than waiting for a release, the difference between a user in a newly
  * supported market signing up and giving up.
  *
  * In-memory, so it resets on restart; the durable fix is to update

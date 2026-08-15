@@ -10,11 +10,11 @@ import { auditInvoiceBalance } from './ledger.service'
  * Reconciliation.
  *
  * ============================================================================
- * WHY THIS EXISTS — the gap neither Stripe nor Paystack closes for you
+ * WHY THIS EXISTS, the gap neither Stripe nor Paystack closes for you
  * ============================================================================
  * Both providers position webhooks as the mechanism for granting value.
  * Paystack states it as a maxim: "don't call us, we will call you." Their
- * reasoning is sound — polling every transaction is wasteful and the callback
+ * reasoning is sound, polling every transaction is wasteful and the callback
  * URL is unreliable.
  *
  * But webhooks are a SINGLE POINT OF FAILURE, and the failure modes are mundane
@@ -23,7 +23,7 @@ import { auditInvoiceBalance } from './ledger.service'
  *   - The webhook URL was never configured, or was configured for test mode
  *     only. Live payments then produce no events at all.
  *   - A deploy window drops deliveries. Paystack retries for 72 hours, Stripe
- *     for up to 3 days — but only for endpoints that return non-2xx. A handler
+ *     for up to 3 days, but only for endpoints that return non-2xx. A handler
  *     that returns 200 while failing internally is marked delivered, forever.
  *   - A bug in the handler consumed the event and then threw.
  *   - The provider marked delivery successful against a stale endpoint after a
@@ -33,7 +33,7 @@ import { auditInvoiceBalance } from './ledger.service'
  * unpaid. This is the "paid but no value" problem, and the customer experiences
  * it as being charged twice when they retry.
  *
- * The fix is not to abandon webhooks — they remain the fast path. It is to add a
+ * The fix is not to abandon webhooks, they remain the fast path. It is to add a
  * SAFETY NET: periodically ask the provider about payments we believe are still
  * pending, and settle any that actually succeeded. Webhook-first, poll-to-verify.
  *
@@ -130,7 +130,7 @@ export async function reconcilePendingPayments(
     // missed, which is a defect worth investigating even though it self-healed.
     logger.warn(
       { settled: report.settled, scanned: report.scanned },
-      'Reconciliation settled payments that webhooks did not — investigate webhook delivery',
+      'Reconciliation settled payments that webhooks did not, investigate webhook delivery',
     )
   }
 
@@ -204,7 +204,7 @@ async function reconcileOne(payment: IPayment, abandonCutoff: Date): Promise<Out
         changes: {
           amountMinor: payment.amountMinor,
           invoiceNumber: invoice.number,
-          note: 'Settled by reconciliation — webhook was missed',
+          note: 'Settled by reconciliation, webhook was missed',
         },
       })
     }

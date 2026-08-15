@@ -14,7 +14,7 @@ import { useI18n } from '../i18n'
  * the order is fixed and deliberate:
  *
  *   1. An EXPLICIT choice in this browser wins. Someone who switched to French
- *      on the marketing page and then signed in should stay in French — and
+ *      on the marketing page and then signed in should stay in French, and
  *      their account is updated to match, because that click was a decision.
  *
  *   2. Otherwise the ACCOUNT preference is adopted. A user who set Arabic on
@@ -23,7 +23,7 @@ import { useI18n } from '../i18n'
  *
  *   3. Otherwise the browser's own language, then English.
  *
- * The alternative — letting the account always win — produces the worst
+ * The alternative, letting the account always win, produces the worst
  * moment in the flow: you pick your language, sign in, and the site silently
  * switches back. Users read that as the product ignoring them.
  *
@@ -66,7 +66,7 @@ export function LocaleSync() {
     if (user.preferredLocale && user.preferredLocale !== locale) {
       adopting.current = true
       // `false` so adopting a stored value is not itself recorded as a new
-      // decision — otherwise the next device would inherit it as explicit.
+      // decision, otherwise the next device would inherit it as explicit.
       setLocale(user.preferredLocale, false)
       lastSaved.current = user.preferredLocale
     }

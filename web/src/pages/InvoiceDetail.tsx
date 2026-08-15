@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  ArrowLeft,
   Ban,
   BellRing,
   Check,
@@ -24,6 +23,7 @@ import { LanguageSwitcher } from '../components/LanguageSwitcher'
 import { formatMoney, parseMoney } from '../lib/format'
 import {
   Badge,
+  BackLink,
   Button,
   Card,
   ErrorNotice,
@@ -153,7 +153,7 @@ export function InvoiceDetail() {
    * payment or called them. A customer could say "I've paid" and the invoice
    * would stay unpaid with no way to act on it.
    *
-   * Confirming is what credits the invoice — deliberately a human decision,
+   * Confirming is what credits the invoice, deliberately a human decision,
    * because an unauthenticated web page must never be able to clear a debt.
    */
   const confirmPayment = useMutation({
@@ -231,13 +231,7 @@ export function InvoiceDetail() {
 
   return (
     <div className="space-y-5">
-      <Link
-        to="/app/invoices"
-        className="inline-flex items-center gap-1.5 text-sm text-ink-500 hover:text-ink-900"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        {t('inv.allInvoices')}
-      </Link>
+      <BackLink to="/app/invoices" label={t('inv.allInvoices')} />
 
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -1008,7 +1002,7 @@ export function PublicInvoice() {
 }
 
 /**
- * Bank transfer — the rail that works in every country on earth.
+ * Bank transfer, the rail that works in every country on earth.
  *
  * Card gateways onboard merchants in roughly fifty countries. For everyone
  * else this IS the payment method, so it is presented as a first-class option
@@ -1016,7 +1010,7 @@ export function PublicInvoice() {
  * pre-filled, and the customer can tell the supplier the transfer is on its
  * way.
  *
- * Declaring a transfer does NOT mark the invoice paid — an unauthenticated
+ * Declaring a transfer does NOT mark the invoice paid, an unauthenticated
  * page must never be able to clear a debt. The supplier confirms once the
  * money lands.
  */

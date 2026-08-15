@@ -51,7 +51,7 @@ const settingsSchema = z.object({
   taxId: z.string().trim().max(60).nullish(),
   taxLabel: z.string().trim().max(40).nullish(),
   // The organisation's own tax definition. Rates are basis points so the input
-  // space stays integral — 1750 is 17.50%, with no float anywhere.
+  // space stays integral, 1750 is 17.50%, with no float anywhere.
   customTaxProfile: z
     .object({
       enabled: z.boolean(),
@@ -85,7 +85,7 @@ const settingsSchema = z.object({
       additionalDetails: z.string().trim().max(1000).nullish(),
     })
     .optional(),
-  // Presentation only. Legally required content is not configurable — see
+  // Presentation only. Legally required content is not configurable, see
   // services/documents/requirements.ts.
   invoiceTemplate: z
     .object({
@@ -244,7 +244,7 @@ router.post(
     }),
   ),
   asyncHandler(async (req, res) => {
-    // Nobody may grant a role above their own — otherwise an ADMIN could mint
+    // Nobody may grant a role above their own, otherwise an ADMIN could mint
     // an OWNER and escalate laterally.
     if (ROLE_RANK[req.body.role as OrgRole] > ROLE_RANK[req.org!.role]) {
       res.status(403).json({

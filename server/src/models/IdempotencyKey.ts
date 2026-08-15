@@ -4,7 +4,7 @@ import { Schema, model, Document, Types } from 'mongoose'
  * Idempotency keys for OUR OWN API.
  *
  * Stripe gives its callers idempotency keys. Almost no application built on top
- * of Stripe passes that guarantee on to its own clients — so a mobile client
+ * of Stripe passes that guarantee on to its own clients, so a mobile client
  * that retries a POST after a timeout creates two invoices, and the user is left
  * deleting duplicates. We close that gap.
  *

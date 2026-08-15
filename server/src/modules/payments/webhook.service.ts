@@ -24,7 +24,7 @@ import { applyPayment, publicInvoiceUrl, recordAudit } from '../invoices/invoice
  *  1. VERIFY THE SIGNATURE against raw bytes before parsing anything.
  *  2. RECORD THE EVENT with a unique index on (provider, eventId). A duplicate
  *     insert is a caught error, not a second credit. This is the idempotency
- *     guarantee — providers deliver at-least-once, and Paystack retries for 72
+ *     guarantee, providers deliver at-least-once, and Paystack retries for 72
  *     hours, so duplicates are certain, not hypothetical.
  *  3. RE-FETCH THE AUTHORITATIVE AMOUNT from the provider's API. The payload is
  *     never trusted for money. Paystack's signature has no timestamp, so a
@@ -201,7 +201,7 @@ async function processPaymentEvent(
         expected: { amount: payment.amountMinor, currency: payment.currency },
         received: { amount: snapshot.amountMinor, currency: snapshot.currency },
       },
-      'Payment amount or currency mismatch — invoice NOT credited',
+      'Payment amount or currency mismatch, invoice NOT credited',
     )
 
     payment.status = PaymentStatus.FAILED
@@ -301,7 +301,7 @@ async function handleRefund(
 
   logger.warn(
     { paymentId: payment._id.toString() },
-    'Refund recorded — invoice balance needs manual review',
+    'Refund recorded, invoice balance needs manual review',
   )
 
   return { status: 'processed', detail: 'Refund recorded for review' }
@@ -326,7 +326,7 @@ async function notifyPaymentReceived(
     const settled = invoice.amountDueMinor === 0
     await sendEmail({
       to: owner.email,
-      subject: `Payment received — ${formatMoney(payment.amountMinor, payment.currency)}`,
+      subject: `Payment received, ${formatMoney(payment.amountMinor, payment.currency)}`,
       template: 'payment-received',
       data: {
         recipientName: owner.fullName,

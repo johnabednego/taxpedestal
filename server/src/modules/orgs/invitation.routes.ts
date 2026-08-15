@@ -20,10 +20,10 @@ import { hashToken } from '../auth/token.service'
  * that made them a sequence.
  *
  * The flow:
- *   1. GET  /:token          — preview, unauthenticated. Shows who invited you
+ *   1. GET  /:token, preview, unauthenticated. Shows who invited you
  *                              and to what, so the invitee knows whether to
  *                              sign in or create an account.
- *   2. POST /:token/accept   — authenticated. Binds the pending membership to
+ *   2. POST /:token/accept, authenticated. Binds the pending membership to
  *                              the signed-in user.
  */
 const router = Router()
@@ -32,7 +32,7 @@ const router = Router()
  * Preview an invitation without signing in.
  *
  * Returns only what the invitee needs to decide: the workspace name, the role
- * and the address it was sent to. No member list, no financial data — the token
+ * and the address it was sent to. No member list, no financial data, the token
  * is in a URL and URLs leak.
  */
 router.get(
@@ -108,7 +108,7 @@ router.post(
      * The invitation must be claimed by the person it was addressed to.
      *
      * Without this check, anyone holding the link could join a workspace using
-     * their own account — and invitation links travel through email, get
+     * their own account, and invitation links travel through email, get
      * forwarded, and end up in logs. The token proves possession, not identity.
      */
     if (membership.invitedEmail && membership.invitedEmail !== user.email) {

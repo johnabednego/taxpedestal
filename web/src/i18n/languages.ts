@@ -9,7 +9,7 @@
  * TRANSLATION STATUS IS TRACKED HONESTLY. `coverage` says whether a language is
  * fully translated, partially translated, or listed but not yet done. A locale
  * with no translation file falls back to English PER KEY rather than showing
- * blanks or raw keys — a half-translated screen is usable, a screen full of
+ * blanks or raw keys, a half-translated screen is usable, a screen full of
  * `invoice.status.overdue` is not.
  *
  * Why not machine-translate the long tail and call it complete: this is a
@@ -38,7 +38,7 @@ export type Direction = 'ltr' | 'rtl'
 export interface Language {
   /** BCP 47 tag. */
   code: string
-  /** Name in the language itself — a picker in English helps nobody. */
+  /** Name in the language itself, a picker in English helps nobody. */
   endonym: string
   /** Name in English, for admin and support. */
   english: string

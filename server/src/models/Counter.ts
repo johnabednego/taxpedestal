@@ -4,8 +4,7 @@ import { Schema, model, Document, Types } from 'mongoose'
  * Atomic sequence generator for per-organisation invoice numbering.
  *
  * DESIGN DECISION: invoice numbers must be gapless and unique per org, and many
- * tax authorities require sequential numbering. The naive implementation —
- * count documents, add one — produces duplicates the moment two invoices are
+ * tax authorities require sequential numbering. The naive implementation, * count documents, add one, produces duplicates the moment two invoices are
  * created concurrently, and that is a compliance defect, not just a bug.
  *
  * findOneAndUpdate with $inc and upsert is a single atomic operation at the

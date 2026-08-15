@@ -7,7 +7,7 @@ import { Schema, model, Document, Types } from 'mongoose'
  * yields no usable sessions.
  *
  * `replacedBy` forms a chain. If a token that has already been rotated is
- * presented again, that means two parties hold the same token — the family is
+ * presented again, that means two parties hold the same token, the family is
  * compromised, so every descendant is revoked and the user's tokenVersion is
  * bumped. This is the standard defence against refresh token replay.
  */

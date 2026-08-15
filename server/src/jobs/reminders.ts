@@ -49,7 +49,7 @@ export async function sendReminder(
 
   const result = await sendEmail({
     to: client.email,
-    subject: `Reminder: invoice ${invoice.number} — ${formatMoney(invoice.amountDueMinor, invoice.currency)}`,
+    subject: `Reminder: invoice ${invoice.number}, ${formatMoney(invoice.amountDueMinor, invoice.currency)}`,
     template: 'invoice-reminder',
     data: {
       clientName: client.contactName ?? client.name,

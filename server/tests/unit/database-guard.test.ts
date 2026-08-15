@@ -49,7 +49,7 @@ describe('inspectUri', () => {
   })
 })
 
-describe('assertSafeTestDatabase — refuses to destroy real data', () => {
+describe('assertSafeTestDatabase, refuses to destroy real data', () => {
   it('REFUSES a production-looking Atlas database', () => {
     // This is the exact shape of a connection string a developer pastes in.
     // Teardown drops the database, so this must never be allowed through.

@@ -18,7 +18,7 @@ import type { IClient, IInvoice, IOrganisation } from '../../models'
  *
  * Server-side with pdfkit rather than headless Chrome. A Puppeteer render is
  * prettier but pulls a ~300MB Chromium download, needs 500MB+ of RAM and
- * exceeds the memory limit of every free hosting tier — including Render's,
+ * exceeds the memory limit of every free hosting tier, including Render's,
  * which this project targets. pdfkit draws vectors in-process in milliseconds.
  *
  * The trade-off is real and worth stating: layout is manual coordinate maths
@@ -27,7 +27,7 @@ import type { IClient, IInvoice, IOrganisation } from '../../models'
  * service later without touching anything that calls it.
  *
  * COMPLIANCE, NOT DECORATION. Tax components are itemised separately because
- * several authorities require it — Ghana's GRA mandates VAT, NHIL and GETFund
+ * several authorities require it. Ghana's GRA mandates VAT, NHIL and GETFund
  * appear as distinct lines even though they now share one base. Mandatory
  * statements (EU reverse-charge declarations) are printed verbatim from the
  * invoice's frozen tax snapshot, not recomputed.
@@ -71,7 +71,7 @@ export function renderInvoicePdf(input: InvoicePdfInput): Promise<Buffer> {
         margin: PAGE_MARGIN,
         info: {
           Title: `Invoice ${input.invoice.number}`,
-          // Author is the SUPPLIER, not us — the document is theirs.
+          // Author is the SUPPLIER, not us, the document is theirs.
           Author: input.organisation.name,
           Subject: `Invoice ${input.invoice.number} from ${input.organisation.name}`,
           // Creator names the software, which is the PDF convention and lets a
@@ -287,7 +287,7 @@ function draw(
     totalRow('Discount', `-${formatMoney(invoice.discountMinor, currency)}`)
   }
 
-  // Each tax component on its own line — a compliance requirement, not styling.
+  // Each tax component on its own line, a compliance requirement, not styling.
   for (const component of invoice.taxSnapshot?.components ?? []) {
     totalRow(component.label, formatMoney(component.amountMinor, currency))
   }
@@ -394,8 +394,8 @@ function draw(
   /* --- Mandatory statements ---------------------------------------------- */
   /**
    * Printed from the jurisdiction profile, not from the template. These are
-   * the sentences an invoice is legally required to carry — the EU's
-   * reverse-charge mention, for instance — so they are not something the
+   * the sentences an invoice is legally required to carry, the EU's
+   * reverse-charge mention, for instance, so they are not something the
    * presentation layer may switch off.
    */
   if (compliance.statements.length > 0) {
@@ -410,7 +410,7 @@ function draw(
   /* --- Pay online -------------------------------------------------------- */
   /**
    * The URL is written out in full rather than hidden behind anchor text.
-   * A PDF gets printed, forwarded and read on paper — link text that says
+   * A PDF gets printed, forwarded and read on paper, link text that says
    * "pay here" is a dead end in exactly the bank-transfer markets where paper
    * is still normal. Shown whenever money is outstanding, including when no
    * bank details are configured, since it may be the only way to pay.

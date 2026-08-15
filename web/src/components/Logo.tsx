@@ -10,7 +10,7 @@ import { BRAND } from '../brand'
  *
  * The tile is the invoice, and jade is the colour reserved throughout the
  * product for money that has arrived. So the mark says what the name says:
- * your billing rests on a base that holds — tax computed correctly underneath,
+ * your billing rests on a base that holds, tax computed correctly underneath,
  * the settled invoice on top.
  *
  * ==========================================================================
@@ -24,8 +24,8 @@ import { BRAND } from '../brand'
  *     problem worse: symmetrical horizontal bars around a stem is an I-beam,
  *     whatever the colours.
  *
- * Making the elevated element a TILE — a different shape, not merely a
- * different colour — is what keeps "object on a plinth" legible when the mark
+ * Making the elevated element a TILE, a different shape, not merely a
+ * different colour, is what keeps "object on a plinth" legible when the mark
  * is sixteen pixels wide in a browser tab. A logo that only works at
  * presentation size is not finished.
  */
@@ -58,7 +58,7 @@ export function Logo({
       {/* Cap of the plinth. */}
       <rect x="8.6" y="13.4" width="14.8" height="2.6" rx="1.3" fill={accent} />
 
-      {/* Column. Square-cornered on purpose — a plinth is not a rounded form. */}
+      {/* Column. Square-cornered on purpose, a plinth is not a rounded form. */}
       <rect x="13.4" y="16" width="5.2" height="5.8" fill={accent} />
 
       {/* Base: the widest element, so the mark reads bottom-heavy and stable. */}

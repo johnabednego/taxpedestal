@@ -111,7 +111,7 @@ beforeEach(async () => {
   await clearCollections()
 })
 
-describeIntegration('ledger — derived balances', () => {
+describeIntegration('ledger, derived balances', () => {
   it('starts at the full amount owed after the charge is posted', async () => {
     const invoice = await seedInvoice(120_000)
     await charge(invoice)
@@ -173,7 +173,7 @@ describeIntegration('ledger — derived balances', () => {
   })
 })
 
-describeIntegration('ledger — idempotency by database constraint', () => {
+describeIntegration('ledger, idempotency by database constraint', () => {
   it('applies the same payment key exactly once', async () => {
     const invoice = await seedInvoice(120_000)
     await charge(invoice)
@@ -190,7 +190,7 @@ describeIntegration('ledger — idempotency by database constraint', () => {
     expect(first.created).toBe(true)
     expect(second.created).toBe(false)
 
-    // 120,000 — not 240,000.
+    // 120,000, not 240,000.
     expect(await computePaid(invoice._id)).toBe(120_000)
     expect(await LedgerEntry.countDocuments({ invoice: invoice._id, type: LedgerEntryType.PAYMENT })).toBe(1)
   })
@@ -239,7 +239,7 @@ describeIntegration('ledger — idempotency by database constraint', () => {
   })
 })
 
-describeIntegration('ledger — immutability', () => {
+describeIntegration('ledger, immutability', () => {
   it('refuses to update an existing entry', async () => {
     const invoice = await seedInvoice(60_000)
     await charge(invoice)
@@ -297,7 +297,7 @@ describeIntegration('ledger — immutability', () => {
   })
 })
 
-describeIntegration('ledger — corrections preserve history', () => {
+describeIntegration('ledger, corrections preserve history', () => {
   it('reverses an erroneous entry without deleting it', async () => {
     const invoice = await seedInvoice(100_000)
     await charge(invoice)
@@ -346,7 +346,7 @@ describeIntegration('ledger — corrections preserve history', () => {
   })
 })
 
-describeIntegration('ledger — drift detection', () => {
+describeIntegration('ledger, drift detection', () => {
   it('detects a cached balance that disagrees with the ledger', async () => {
     const invoice = await seedInvoice(100_000)
     await charge(invoice)
@@ -397,7 +397,7 @@ describeIntegration('ledger — drift detection', () => {
   })
 })
 
-describeIntegration('ledger — void reverses the receivable', () => {
+describeIntegration('ledger, void reverses the receivable', () => {
   it('removes a voided invoice from the amount owed', async () => {
     const invoice = await seedInvoice(70_000)
     await charge(invoice)

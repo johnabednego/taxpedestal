@@ -12,7 +12,7 @@ import type {
 } from '../types'
 
 /**
- * Paystack adapter — African mobile money (MTN, Telecel, AirtelTigo, M-Pesa)
+ * Paystack adapter. African mobile money (MTN, Telecel, AirtelTigo, M-Pesa)
  * and cards.
  *
  * Paystack has no official Node SDK, so the HTTP calls and HMAC are written
@@ -27,7 +27,7 @@ import type {
  *    supports a recency window; Paystack signs the body alone. A captured
  *    delivery is therefore replayable forever. The only defences are
  *    deduplication on event id and re-fetching the authoritative amount before
- *    crediting anything — both implemented here and in webhook.service.ts.
+ *    crediting anything, both implemented here and in webhook.service.ts.
  *
  * Note also that Paystack's own documentation sample hashes
  * `JSON.stringify(req.body)`. That is fragile: any difference in key order or
@@ -262,8 +262,7 @@ export const paystackProvider: PaymentProvider = {
     const expectedBuffer = Buffer.from(expected, 'utf8')
     const providedBuffer = Buffer.from(provided, 'utf8')
 
-    // timingSafeEqual throws on length mismatch, so compare lengths first —
-    // and note that a length check is not a timing leak here because the digest
+    // timingSafeEqual throws on length mismatch, so compare lengths first, // and note that a length check is not a timing leak here because the digest
     // length is fixed and public.
     const valid =
       expectedBuffer.length === providedBuffer.length &&
@@ -282,7 +281,7 @@ export const paystackProvider: PaymentProvider = {
     }
 
     // Paystack sends no event id. Synthesise a stable one from the event type
-    // and transaction id so retries deduplicate — without this, the 72-hour
+    // and transaction id so retries deduplicate, without this, the 72-hour
     // retry schedule would credit an invoice repeatedly.
     const transactionId = payload.data?.id ?? payload.data?.reference ?? 'unknown'
     const eventId = `${payload.event ?? 'unknown'}:${transactionId}`

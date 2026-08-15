@@ -7,7 +7,7 @@ import { BRAND } from '../../core/brand'
  *
  * Every template ships a text alternative. HTML-only mail scores badly with
  * spam filters, and an invoice landing in spam is direct revenue loss for the
- * user — which makes deliverability a product concern, not a detail.
+ * user, which makes deliverability a product concern, not a detail.
  */
 
 export interface RenderedEmail {
@@ -92,7 +92,7 @@ ${button(url('url'), 'Confirm email address')}
           `<p>Hi ${d('fullName')},</p>
 <p>Use the link below to choose a new password. It expires in ${d('expiresInMinutes', '60')} minutes.</p>
 ${button(url('url'), 'Choose a new password')}
-<p style="color:#667085;font-size:13px;">If you didn't request this, no action is needed — your password hasn't changed.</p>`,
+<p style="color:#667085;font-size:13px;">If you didn't request this, no action is needed, your password hasn't changed.</p>`,
           'Reset your password',
         ),
         text: `Hi ${data.fullName},\n\nChoose a new password (expires in ${data.expiresInMinutes ?? 60} minutes):\n${url('url')}\n\nIf you didn't request this, no action is needed.\n`,
@@ -105,7 +105,7 @@ ${button(url('url'), 'Choose a new password')}
 <p>${d('orgName')} has sent you invoice <strong>${d('invoiceNumber')}</strong> for <strong>${d('amount')}</strong>, due ${d('dueDate')}.</p>
 ${button(url('url'), 'View and pay invoice')}
 ${data.notes ? `<p style="padding:14px 16px;background:#F6F7F9;border-radius:8px;color:#475467;font-size:14px;">${d('notes')}</p>` : ''}`,
-          `Invoice ${d('invoiceNumber')} from ${d('orgName')} — ${d('amount')}`,
+          `Invoice ${d('invoiceNumber')} from ${d('orgName')}, ${d('amount')}`,
         ),
         text: `Hi ${data.clientName},\n\n${data.orgName} has sent you invoice ${data.invoiceNumber} for ${data.amount}, due ${data.dueDate}.\n\nView and pay: ${url('url')}\n`,
       }
@@ -117,7 +117,7 @@ ${data.notes ? `<p style="padding:14px 16px;background:#F6F7F9;border-radius:8px
 <p>A reminder that invoice <strong>${d('invoiceNumber')}</strong> for <strong>${d('amount')}</strong> ${d('statusLine')}.</p>
 ${button(url('url'), 'View and pay invoice')}
 <p style="color:#667085;font-size:13px;">Already paid? Reply to this email and ${d('orgName')} will check.</p>`,
-          `Reminder: invoice ${d('invoiceNumber')} — ${d('amount')}`,
+          `Reminder: invoice ${d('invoiceNumber')}, ${d('amount')}`,
         ),
         text: `Hi ${data.clientName},\n\nA reminder that invoice ${data.invoiceNumber} for ${data.amount} ${data.statusLine}.\n\nView and pay: ${url('url')}\n`,
       }
@@ -129,7 +129,7 @@ ${button(url('url'), 'View and pay invoice')}
 <p><strong>${d('amount')}</strong> was received for invoice <strong>${d('invoiceNumber')}</strong>${data.clientName ? ` from ${d('clientName')}` : ''}.</p>
 <p style="color:#0E9F6E;font-weight:600;">${d('statusLine')}</p>
 ${button(url('url'), 'View invoice')}`,
-          `Payment received — ${d('amount')}`,
+          `Payment received, ${d('amount')}`,
         ),
         text: `Hi ${data.recipientName},\n\n${data.amount} was received for invoice ${data.invoiceNumber}.\n${data.statusLine}\n\n${url('url')}\n`,
       }

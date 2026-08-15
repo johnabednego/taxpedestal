@@ -56,7 +56,7 @@ export default function AppShell() {
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-2xs font-bold text-white"
             style={{ backgroundColor: org?.brandColor ?? '#2B59FF' }}
           >
-            {org ? initials(org.name) : '—'}
+            {org ? initials(org.name) : '-'}
           </div>
           <div className="min-w-0 flex-1 text-start">
             <p className="truncate text-sm font-semibold text-ink-900">{org?.name ?? t('nav.workspace')}</p>
@@ -143,7 +143,7 @@ export default function AppShell() {
             className="flex h-8 w-8 items-center justify-center rounded-full text-2xs font-bold text-white"
             style={{ backgroundColor: user?.avatarColor ?? '#2B59FF' }}
           >
-            {user ? initials(user.fullName) : '—'}
+            {user ? initials(user.fullName) : '-'}
           </div>
           <div className="min-w-0 flex-1 text-start">
             <p className="truncate text-sm font-medium text-ink-900">{user?.fullName}</p>
@@ -177,7 +177,7 @@ export default function AppShell() {
           className="flex h-8 w-8 items-center justify-center rounded-full text-2xs font-bold text-white"
           style={{ backgroundColor: user?.avatarColor ?? '#2B59FF' }}
         >
-          {user ? initials(user.fullName) : '—'}
+          {user ? initials(user.fullName) : '-'}
         </div>
       </div>
 
@@ -189,15 +189,26 @@ export default function AppShell() {
             onClick={() => setMobileOpen(false)}
             aria-hidden
           />
-          <div className="absolute start-0 top-0 h-full w-72 bg-white shadow-lift">
-            <button
-              onClick={() => setMobileOpen(false)}
-              aria-label={t('nav.closeMenu')}
-              className="absolute end-3 top-4 rounded-lg p-1.5 text-ink-400 hover:bg-ink-100"
-            >
-              <X className="h-4 w-4" />
-            </button>
-            {sidebar}
+          {/*
+            The close button lives in its own header row rather than floating
+            over the panel. Absolutely positioned, it landed on top of the
+            workspace switcher's chevron, and because the switcher renders
+            later in the DOM, the switcher won the click and the X did nothing
+            at all. A row of its own removes both the collision and the
+            ambiguity about what a tap in that corner means.
+          */}
+          <div className="absolute start-0 top-0 flex h-full w-72 flex-col bg-white shadow-lift">
+            <div className="flex h-14 shrink-0 items-center justify-between border-b border-ink-100 px-4">
+              <span className="font-display font-bold">{BRAND.shortName}</span>
+              <button
+                onClick={() => setMobileOpen(false)}
+                aria-label={t('nav.closeMenu')}
+                className="-me-2 rounded-lg p-2 text-ink-500 hover:bg-ink-100 hover:text-ink-900"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto">{sidebar}</div>
           </div>
         </div>
       )}

@@ -79,7 +79,7 @@ describe('automatic rails follow real provider coverage', () => {
   })
 
   it('distinguishes "not offered here" from "not connected yet"', () => {
-    // A German business CAN use Stripe but has not connected it — a completely
+    // A German business CAN use Stripe but has not connected it, a completely
     // different message from one that can never use it.
     const notConnected = paymentCapabilityFor('DE', NONE_CONFIGURED)
     expect(notConnected.rails.find((r) => r.id === 'STRIPE')?.reason).toMatch(
@@ -109,7 +109,7 @@ describe('automatic rails follow real provider coverage', () => {
     expect(automatic.length).toBe(
       new Set([...STRIPE_MERCHANT_COUNTRIES, ...PAYSTACK_MERCHANT_COUNTRIES]).size,
     )
-    // Roughly a fifth of the world — which is exactly why the universal rail
+    // Roughly a fifth of the world, which is exactly why the universal rail
     // has to exist.
     expect(automatic.length).toBeLessThan(60)
     expect(automatic.length).toBeGreaterThan(45)
@@ -119,7 +119,7 @@ describe('automatic rails follow real provider coverage', () => {
 describe('rail selection respects MERCHANT eligibility, not just the customer', () => {
   // These tests are about ELIGIBILITY, not configuration. The test environment
   // holds no live API keys, so `isConfigured` is stubbed true to isolate the
-  // logic under test — otherwise every rail would be absent for the trivial
+  // logic under test, otherwise every rail would be absent for the trivial
   // reason that no credentials are set, and the assertions would prove nothing.
   beforeEach(() => {
     jest.spyOn(stripeProvider, 'isConfigured').mockReturnValue(true)
@@ -166,7 +166,7 @@ describe('reference data must never be the final word', () => {
   it('lets a LIVE provider answer override a stale reference table', () => {
     // The scenario this whole mechanism exists for: Stripe has started
     // onboarding merchants in a country our snapshot predates. The live probe
-    // says charges are enabled, so the user gets card payments — no redeploy.
+    // says charges are enabled, so the user gets card payments, no redeploy.
     const capability = paymentCapabilityFor('BO', ALL_CONFIGURED, {
       stripe: { reachable: true, chargesEnabled: true, accountCountry: 'BO' },
     })

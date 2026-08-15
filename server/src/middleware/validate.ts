@@ -10,7 +10,7 @@ type Source = 'body' | 'query' | 'params'
  * Replacing rather than merely checking is the important part: downstream
  * handlers then receive coerced, stripped, correctly typed data, and any field
  * the schema does not declare is gone. That removes mass-assignment as a class
- * of bug — a client cannot set `platformRole` by adding it to a JSON body.
+ * of bug, a client cannot set `platformRole` by adding it to a JSON body.
  */
 export function validate(schema: ZodSchema, source: Source = 'body') {
   return (req: Request, _res: Response, next: NextFunction): void => {

@@ -2,7 +2,7 @@
   "name": "@taxpedestal/server",
   "version": "1.0.0",
   "private": true,
-  "description": "TaxPedestal API — global invoicing with correct tax in every jurisdiction",
+  "description": "TaxPedestal API: global invoicing with correct tax in every jurisdiction",
   "license": "MIT",
   "engines": {
     "node": "22.x"

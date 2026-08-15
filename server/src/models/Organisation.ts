@@ -11,7 +11,7 @@ export enum PlanTier {
 /**
  * An Organisation is the tenant boundary. Every business record carries an
  * `org` field, and scoping is applied in middleware rather than by convention
- * in controllers — a forgotten filter in one handler is a cross-tenant data
+ * in controllers, a forgotten filter in one handler is a cross-tenant data
  * leak, which is the failure mode that ends a billing company.
  */
 export interface IOrganisation extends Document {
@@ -69,18 +69,17 @@ export interface IOrganisation extends Document {
     accountName: string | null
     bankName: string | null
     accountNumber: string | null
-    /** IBAN, sort code, routing number, IFSC, CLABE — whatever applies. */
+    /** IBAN, sort code, routing number, IFSC, CLABE, whatever applies. */
     routingCode: string | null
     swiftBic: string | null
     /** Mobile money or wallet handle, where that is how the business is paid. */
     mobileMoneyNumber: string | null
     mobileMoneyProvider: string | null
-    /** Anything else the payer needs — intermediary bank, reference format. */
+    /** Anything else the payer needs, intermediary bank, reference format. */
     additionalDetails: string | null
   }
   /**
-   * Invoice presentation. Legally required content is NOT configurable here —
-   * see services/documents/requirements.ts for why.
+   * Invoice presentation. Legally required content is NOT configurable here, * see services/documents/requirements.ts for why.
    */
   invoiceTemplate: {
     preset: 'classic' | 'modern' | 'compact'
@@ -107,7 +106,7 @@ const orgSchema = new Schema<IOrganisation>(
     name: { type: String, required: true, trim: true, maxlength: 140 },
     slug: { type: String, required: true, unique: true, lowercase: true, index: true },
     legalName: { type: String, default: null, trim: true },
-    // Any ISO 3166 country. Tax automation is a separate capability — see
+    // Any ISO 3166 country. Tax automation is a separate capability, see
     // src/core/countries.ts for why these two lists must not be conflated.
     country: {
       type: String,

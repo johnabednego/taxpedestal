@@ -14,7 +14,7 @@ import { Button, Card, ErrorNotice, Input } from '../components/ui'
  *
  * Every email TaxPedestal sends points at one of these routes. They were missing
  * in an earlier build, which meant verification, password reset and team
- * invitations all bounced to the landing page — the emails worked perfectly and
+ * invitations all bounced to the landing page, the emails worked perfectly and
  * the journeys were dead ends.
  */
 
@@ -150,8 +150,7 @@ export function ForgotPassword() {
   if (sent) {
     return (
       <Shell title={t('flow.checkEmail')}>
-        {/* Deliberately the same message whether or not the account exists —
-            confirming it would turn this into a user-enumeration oracle. */}
+        {/* Deliberately the same message whether or not the account exists, confirming it would turn this into a user-enumeration oracle. */}
         <p className="text-sm text-ink-600">{t('flow.resetSentTo', { email })}</p>
         <Link to="/login">
           <Button variant="secondary" className="mt-5 w-full">

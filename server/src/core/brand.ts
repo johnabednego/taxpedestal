@@ -9,7 +9,7 @@ export const BRAND = {
   name: 'TaxPedestal',
   shortName: 'Pedestal',
   tagline: 'Invoice the world. Get the tax right.',
-  etymology: 'A pedestal — the base a thing stands on',
+  etymology: 'A pedestal, the base a thing stands on',
   domain: 'taxpedestal.app',
   colors: {
     ink: '#0B1B3A',

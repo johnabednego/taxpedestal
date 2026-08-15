@@ -12,7 +12,7 @@
  *   GETTING PAID side: NOT universal. Stripe onboards merchants in 46
  *                     countries. Paystack covers 5 African markets. A business
  *                     in Iraq, Bolivia or Nepal cannot open either account, and
- *                     no amount of code changes that — it is banking licences,
+ *                     no amount of code changes that, it is banking licences,
  *                     KYC and sanctions law.
  *
  * Some vendors paper over this by simply not listing unsupported countries,
@@ -21,8 +21,8 @@
  *
  *   1. Lets ANY business in ANY country register, invoice and compute tax.
  *   2. States plainly which automatic rails they can use.
- *   3. Ships a UNIVERSAL rail — bank transfer instructions printed on the
- *      invoice, reconciled through the same ledger — that works in every
+ *   3. Ships a UNIVERSAL rail, bank transfer instructions printed on the
+ *      invoice, reconciled through the same ledger, that works in every
  *      country on earth with no processor, no licence and no onboarding.
  *
  * That last point is what makes the product genuinely global. It is not a
@@ -35,7 +35,7 @@
  * REFERENCE DATA, NOT TRUTH
  * ============================================================================
  * What follows is a dated snapshot of published provider coverage. It exists
- * to give a useful answer BEFORE credentials are configured — nothing more.
+ * to give a useful answer BEFORE credentials are configured, nothing more.
  *
  * Once a workspace connects a provider, the provider's own API is asked
  * directly (see health.ts) and its answer overrides everything here.
@@ -48,7 +48,7 @@
  *
  * The failure mode being designed against is specific: a provider adds a
  * country, our snapshot does not, and we quietly tell a new user they cannot
- * be paid. That user does not file a bug — they leave.
+ * be paid. That user does not file a bug, they leave.
  */
 
 /** When the sets below were last checked against provider documentation. */
@@ -109,7 +109,7 @@ export const PAYSTACK_MERCHANT_COUNTRIES = new Set(['NG', 'GH', 'ZA', 'KE', 'CI'
  * Jurisdictions under comprehensive sanctions programmes.
  *
  * Listed so the product can WARN rather than silently fail. TaxPedestal does not
- * hard-block these — invoicing and bookkeeping are not restricted activities,
+ * hard-block these, invoicing and bookkeeping are not restricted activities,
  * and the operator of a deployment is responsible for their own compliance
  * posture. What the product must not do is imply that card processing will
  * work here, because no processor will serve it.
@@ -125,7 +125,7 @@ export type RailId = 'STRIPE' | 'PAYSTACK' | 'BANK_TRANSFER' | 'MANUAL'
 /**
  * Why a rail is unavailable, as a stable identifier.
  *
- * The prose in `reason` cannot be translated by the client — it would have to
+ * The prose in `reason` cannot be translated by the client, it would have to
  * string-match English. The code can, so the interface stays in the user's
  * language while `reason` remains the fallback for any consumer without a
  * catalogue.
@@ -194,7 +194,7 @@ export function paymentCapabilityFor(
   configured: { stripe: boolean; paystack: boolean },
   /**
    * Live provider health, where available. When a probe reports that charges
-   * are enabled, it overrides the reference table entirely — the provider is
+   * are enabled, it overrides the reference table entirely, the provider is
    * the authority on its own coverage.
    */
   live?: {
@@ -256,9 +256,9 @@ export function paymentCapabilityFor(
       reason: restricted
         ? 'Card processors do not operate in this jurisdiction.'
         : stripeLive && live!.stripe!.chargesEnabled !== true
-          ? 'Stripe reports this account cannot yet take charges — finish onboarding in your Stripe dashboard.'
+          ? 'Stripe reports this account cannot yet take charges, finish onboarding in your Stripe dashboard.'
           : !onboardsIn('STRIPE', code)
-            ? 'Our records say Stripe does not onboard businesses here. Coverage changes — connect a key to check directly.'
+            ? 'Our records say Stripe does not onboard businesses here. Coverage changes, connect a key to check directly.'
             : !configured.stripe
               ? 'Not yet connected by this workspace.'
               : undefined,
@@ -277,7 +277,7 @@ export function paymentCapabilityFor(
         : paystackLive && live!.paystack!.chargesEnabled !== true
           ? 'Paystack rejected the configured key.'
           : !onboardsIn('PAYSTACK', code)
-            ? 'Our records say Paystack does not onboard businesses here. Coverage changes — connect a key to check directly.'
+            ? 'Our records say Paystack does not onboard businesses here. Coverage changes, connect a key to check directly.'
             : !configured.paystack
               ? 'Not yet connected by this workspace.'
               : undefined,
@@ -317,7 +317,7 @@ export function paymentCapabilityFor(
   } else if (stripeEligible || paystackEligible) {
     summaryCode = 'eligibleNotConnected'
     summary =
-      'Online payments are available in your country — connect a provider in Settings to switch them on.'
+      'Online payments are available in your country, connect a provider in Settings to switch them on.'
   } else {
     summaryCode = 'bankTransferOnly'
     summary =

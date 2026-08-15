@@ -226,8 +226,7 @@ export default function Dashboard() {
                 <div className="space-y-3">
                   {data.aging.map((bucket) => {
                     const max = Math.max(...data.aging.map((b) => b.amountMinor), 1)
-                    // Compared against the stable id, not the English prose —
-                    // the label is translated and would never match.
+                    // Compared against the stable id, not the English prose, // the label is translated and would never match.
                     const isLate = bucket.bucketId !== 'notYetDue'
                     return (
                       <div key={bucket.bucketId}>

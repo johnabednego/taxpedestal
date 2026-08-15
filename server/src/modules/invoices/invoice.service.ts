@@ -43,7 +43,7 @@ export interface InvoiceDraftInput {
   purchaseOrderNumber?: string | null
 }
 
-/** 32 bytes base64url — 256 bits of entropy for the public payment URL. */
+/** 32 bytes base64url, 256 bits of entropy for the public payment URL. */
 function generatePublicToken(): string {
   return crypto.randomBytes(32).toString('base64url')
 }
@@ -55,7 +55,7 @@ function formatInvoiceNumber(org: IOrganisation, sequence: number): string {
 /**
  * Assemble the tax parties from the organisation and client records.
  *
- * Extracted because both creation and re-pricing need identical inputs — if
+ * Extracted because both creation and re-pricing need identical inputs, if
  * these diverged, an edit could silently change the tax on an invoice.
  */
 function buildTaxParties(org: IOrganisation, client: { country: string; region?: string | null; isBusiness: boolean; taxId?: string | null; taxRegistered: boolean }) {
@@ -117,7 +117,7 @@ export async function createDraft(
   })
 
   // Sequence is allocated at DRAFT creation so the number is stable and visible
-  // while editing. A gap therefore appears if a draft is deleted — which is
+  // while editing. A gap therefore appears if a draft is deleted, which is
   // acceptable and is why deletion is disallowed after issuing (see voidInvoice).
   const sequence = await nextSequence(orgId, 'invoice')
 
@@ -429,7 +429,7 @@ export async function voidInvoice(
   }
 
   // Reverse the receivable so a voided invoice stops counting as money owed.
-  // Only if it was ever issued — a voided draft never had a CHARGE entry.
+  // Only if it was ever issued, a voided draft never had a CHARGE entry.
   if (invoice.sentAt) {
     await postEntry({
       invoice,
@@ -486,11 +486,11 @@ export async function applyPayment(
   })
 
   if (!result.created) {
-    // Already credited. Not an error — this is the expected outcome of a
+    // Already credited. Not an error, this is the expected outcome of a
     // provider retry or of reconciliation catching up with a webhook.
     logger.info(
       { invoiceId: invoice._id.toString(), source: meta.source },
-      'Payment already applied — no double credit',
+      'Payment already applied, no double credit',
     )
     return { invoice, created: false }
   }
@@ -502,7 +502,7 @@ export async function applyPayment(
   if (canTransition(invoice.status, target)) {
     await transition(invoice, target, { actor: meta.actor ?? null })
   } else {
-    // The money is recorded in the ledger regardless — it must never vanish
+    // The money is recorded in the ledger regardless, it must never vanish
     // because a status edge was disallowed. Surface it for review instead.
     logger.warn(
       {
@@ -511,7 +511,7 @@ export async function applyPayment(
         target,
         source: meta.source,
       },
-      'Payment recorded in ledger but status transition is not permitted — needs review',
+      'Payment recorded in ledger but status transition is not permitted, needs review',
     )
     await recordAudit({
       org: invoice.org,
@@ -554,7 +554,7 @@ export interface AuditInput {
 /**
  * Write an audit record.
  *
- * Never throws. An audit write failure must not fail the user's action — but it
+ * Never throws. An audit write failure must not fail the user's action, but it
  * must be loud in the logs, because a silently missing audit trail is worse than
  * a visibly broken one.
  */

@@ -6,7 +6,7 @@
  * cookie the browser sends automatically.
  *
  * A 401 triggers ONE refresh attempt, and concurrent 401s share that single
- * attempt rather than each firing their own — otherwise a dashboard making six
+ * attempt rather than each firing their own, otherwise a dashboard making six
  * parallel requests would rotate the refresh token six times and trip the
  * server's reuse detection, logging the user out.
  */
@@ -30,7 +30,7 @@ export const setActiveOrg = (id: string | null): void => {
  * The interface language, sent with every request as `X-Locale`.
  *
  * The server localises what only it can: country names, and the language an
- * invoice document is rendered in. Accept-Language cannot carry this — it is a
+ * invoice document is rendered in. Accept-Language cannot carry this, it is a
  * forbidden header name that `fetch` refuses to set, and it describes the
  * browser rather than the choice the user just made in the switcher.
  */

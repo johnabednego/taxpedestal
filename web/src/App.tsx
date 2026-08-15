@@ -45,7 +45,7 @@ export default function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/accept-invite" element={<AcceptInvite />} />
-        {/* Public, unauthenticated — the customer paying an invoice. */}
+        {/* Public, unauthenticated, the customer paying an invoice. */}
         <Route path="/pay/:token" element={<PublicInvoice />} />
 
         {/* Reached from emails. These previously did not exist, so every

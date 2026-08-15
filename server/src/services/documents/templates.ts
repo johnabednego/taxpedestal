@@ -56,7 +56,7 @@ export const DEFAULT_TEMPLATE: TemplateSettings = {
  * legible but reads as foreign. Translating the dozen structural labels is
  * cheap and makes the document feel local.
  *
- * SCOPE, STATED HONESTLY: these are structural labels only — never the tax
+ * SCOPE, STATED HONESTLY: these are structural labels only, never the tax
  * component names, which come from the tax engine and are already
  * jurisdiction-correct ("TVA (20%)", "GST (18%)"). The set below covers the
  * languages of the largest invoicing markets. Anything missing falls back to
@@ -270,7 +270,7 @@ const LABELS: Record<string, Partial<LabelSet>> = {
  * Default document language for a country.
  *
  * Only where it is unambiguous. Multilingual countries are left to English so
- * the product does not guess wrong on a legal document — the user can override.
+ * the product does not guess wrong on a legal document, the user can override.
  */
 const COUNTRY_LANGUAGE: Record<string, string> = {
   FR: 'fr', BE: 'fr', MC: 'fr', SN: 'fr', CI: 'fr', ML: 'fr', BF: 'fr', NE: 'fr',

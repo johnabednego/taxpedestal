@@ -100,7 +100,7 @@ function preamble(ctx: TaxContext, jurisdiction: string): TaxAssessment | null {
 const GH_ACT_1151_START = new Date('2026-01-01T00:00:00Z')
 
 /**
- * Ghana — Value Added Tax Act, 2025 (Act 1151), effective 1 Jan 2026.
+ * Ghana. Value Added Tax Act, 2025 (Act 1151), effective 1 Jan 2026.
  *
  * Under Act 1151 the COVID-19 Health Recovery Levy is abolished and NHIL and
  * GETFund are re-coupled onto the SAME taxable value as VAT, giving a flat
@@ -146,7 +146,7 @@ export const ghanaRule: JurisdictionRule = {
     }
 
     // Legacy computation: NHIL + GETFund + COVID levy sit OUTSIDE the VAT base,
-    // so VAT is charged on (base + those levies) — the cascade Act 1151 removed.
+    // so VAT is charged on (base + those levies), the cascade Act 1151 removed.
     const nhil = applyBasisPoints(ctx.baseMinor, 250)
     const getfund = applyBasisPoints(ctx.baseMinor, 250)
     const covid = applyBasisPoints(ctx.baseMinor, 100)
@@ -175,7 +175,7 @@ export const ghanaRule: JurisdictionRule = {
 /* ------------------------------------------------------------------------- */
 
 /**
- * United Kingdom — VAT at 20% standard rate.
+ * United Kingdom. VAT at 20% standard rate.
  * Services supplied to an overseas business customer are outside the scope of
  * UK VAT under the general place-of-supply rule (VATA 1994 s.7A); the customer
  * accounts for it under reverse charge.
@@ -269,7 +269,7 @@ export function createEuRule(country: string): JurisdictionRule {
       // Intra-EU B2B: liability shifts to the customer.
       if (EU_MEMBER_STATES.has(cc) && isB2B) {
         return emptyAssessment(TaxTreatment.REVERSE_CHARGE, country, [
-          'Reverse charge — VAT to be accounted for by the recipient under Article 196, Council Directive 2006/112/EC.',
+          'Reverse charge. VAT to be accounted for by the recipient under Article 196, Council Directive 2006/112/EC.',
         ])
       }
 
@@ -285,7 +285,7 @@ export function createEuRule(country: string): JurisdictionRule {
 
       // Export outside the EU.
       return emptyAssessment(TaxTreatment.ZERO_RATED, country, [
-        'Supply outside the European Union — zero-rated.',
+        'Supply outside the European Union, zero-rated.',
       ])
     },
   }
@@ -304,7 +304,7 @@ export function createEuRule(country: string): JurisdictionRule {
  * treats professional services as non-taxable by default, which is right in
  * most states and wrong in a few.
  *
- * This is a KNOWN, DOCUMENTED limitation — logged as technical debt item
+ * This is a KNOWN, DOCUMENTED limitation, logged as technical debt item
  * TD-003 rather than pretended away, and the reason US tax is surfaced in the
  * UI with a "verify before filing" affordance.
  */
@@ -334,7 +334,7 @@ export const unitedStatesRule: JurisdictionRule = {
 
     if (ctx.customer.country !== 'US') {
       return emptyAssessment(TaxTreatment.OUT_OF_SCOPE, 'US', [
-        'Customer outside the United States — no US sales tax applied.',
+        'Customer outside the United States, no US sales tax applied.',
       ])
     }
 
@@ -351,7 +351,7 @@ export const unitedStatesRule: JurisdictionRule = {
 
     if (rate === undefined) {
       return emptyAssessment(TaxTreatment.OUT_OF_SCOPE, 'US', [
-        'No US state selected for the customer — sales tax not calculated.',
+        'No US state selected for the customer, sales tax not calculated.',
       ])
     }
     if (rate === 0) {
@@ -422,7 +422,7 @@ export const canadaRule: JurisdictionRule = {
     const specs = CA_PROVINCE_TAX[province]
     if (!specs) {
       return emptyAssessment(TaxTreatment.OUT_OF_SCOPE, 'CA', [
-        'No Canadian province selected for the customer — GST/HST not calculated.',
+        'No Canadian province selected for the customer. GST/HST not calculated.',
       ])
     }
     return build('CA', specs, ctx)
@@ -562,7 +562,7 @@ export const brazilRule = createSingleRateRule({
 /* ------------------------------------------------------------------------- */
 
 /**
- * China — VAT Law of the People's Republic of China, effective 1 January 2026.
+ * China. VAT Law of the People's Republic of China, effective 1 January 2026.
  *
  * The law codified the existing three-tier structure rather than changing it:
  *   13%  most goods, processing, repair, leasing of movable property
@@ -577,11 +577,11 @@ export const brazilRule = createSingleRateRule({
  * here rather than silently mis-charging.
  *
  * Small-scale taxpayers (turnover under CNY 5m) pay a levy of 3%, temporarily
- * reduced to 1% through 31 December 2027 — also a custom-profile case, since we
+ * reduced to 1% through 31 December 2027, also a custom-profile case, since we
  * cannot know a taxpayer's classification.
  *
  * Source: EY and Baker McKenzie summaries of the 2026 VAT Law; PwC Worldwide
- * Tax Summaries — China.
+ * Tax Summaries. China.
  */
 export const chinaRule: JurisdictionRule = {
   country: 'CN',
@@ -608,7 +608,7 @@ export const chinaRule: JurisdictionRule = {
       ctx,
       isGoods
         ? []
-        : ['General taxpayer rate for services. Transport and telecoms are 9% — set a custom rate if that applies to you.'],
+        : ['General taxpayer rate for services. Transport and telecoms are 9%, set a custom rate if that applies to you.'],
     )
   },
 }
@@ -618,7 +618,7 @@ export const chinaRule: JurisdictionRule = {
 /* ------------------------------------------------------------------------- */
 
 /**
- * Israel — VAT (Ma'am) at 18%, raised from 17% on 1 January 2025. A further
+ * Israel. VAT (Ma'am) at 18%, raised from 17% on 1 January 2025. A further
  * rise to 19% was proposed for 2026 and not adopted.
  *
  * Israel has no reduced positive rates: a supply is standard-rated, zero-rated
@@ -626,7 +626,7 @@ export const chinaRule: JurisdictionRule = {
  * Eilat operates as a VAT-free zone, which a business trading there should
  * handle with a custom profile.
  *
- * Source: PwC Worldwide Tax Summaries — Israel; Israeli Tax Authority.
+ * Source: PwC Worldwide Tax Summaries. Israel; Israeli Tax Authority.
  */
 const IL_RATE_CHANGE_2025 = new Date('2025-01-01T00:00:00Z')
 

@@ -9,7 +9,7 @@ import type { CheckoutRequest, CheckoutResult, PaymentProvider, TransactionSnaps
  * invoice service has exactly one code path for "money arrived" rather than a
  * special case that skips the audit trail.
  *
- * Always available — a business must be able to record a payment even with no
+ * Always available, a business must be able to record a payment even with no
  * gateway configured, and on the free plan that is the only option.
  */
 export const manualProvider: PaymentProvider = {

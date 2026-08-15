@@ -8,6 +8,7 @@ import { useAuth } from '../lib/auth'
 import { useI18n } from '../i18n'
 import { formatMoney, inputToQty, parseMoney, qtyToInput, toInputValue } from '../lib/format'
 import {
+  BackLink,
   Button,
   Card,
   ErrorNotice,
@@ -87,7 +88,7 @@ export default function InvoiceBuilder() {
    * server; nothing in the interface reached them, so a draft could be created
    * and sent but never corrected. Reusing this component rather than writing a
    * second form keeps one implementation of the line editor and the live tax
-   * preview — two places computing a total is how they end up disagreeing.
+   * preview, two places computing a total is how they end up disagreeing.
    */
   const { id: editingId } = useParams<{ id: string }>()
   const isEdit = Boolean(editingId)
@@ -116,7 +117,7 @@ export default function InvoiceBuilder() {
   /**
    * Load the draft being edited.
    *
-   * Only DRAFT invoices are editable — the server rejects anything else — so an
+   * Only DRAFT invoices are editable, the server rejects anything else, so an
    * issued invoice reached through a hand-typed URL is bounced back to its
    * detail page rather than presented in a form that cannot save.
    */
@@ -185,7 +186,7 @@ export default function InvoiceBuilder() {
    *
    * Debounced and always computed BY THE SERVER using the same pricing function
    * that will persist the invoice. Recomputing totals in the browser would
-   * eventually disagree with the saved figures — a class of bug that erodes
+   * eventually disagree with the saved figures, a class of bug that erodes
    * trust faster than almost anything else in a billing product.
    */
   useEffect(() => {
@@ -269,6 +270,12 @@ export default function InvoiceBuilder() {
 
   return (
     <div className="space-y-5">
+      {/* Editing returns to the invoice; creating returns to the list. */}
+      <BackLink
+        to={isEdit ? `/app/invoices/${editingId}` : '/app/invoices'}
+        label={isEdit ? t('inv.backToInvoice') : t('inv.allInvoices')}
+      />
+
       <div>
         <h1 className="text-2xl font-bold text-ink-900">
           {isEdit ? t('inv.editTitle') : t('inv.builderTitle')}
@@ -302,7 +309,7 @@ export default function InvoiceBuilder() {
               >
                 {(meta?.currencies ?? []).map((c) => (
                   <option key={c.code} value={c.code}>
-                    {c.code} — {c.name}
+                    {c.code}, {c.name}
                   </option>
                 ))}
               </Select>

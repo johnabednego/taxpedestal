@@ -30,7 +30,7 @@ function base(overrides: Partial<Options>): ReturnType<typeof rateLimit> {
   })
 }
 
-/** Applied to the whole API. Generous — a working session makes many calls. */
+/** Applied to the whole API. Generous, a working session makes many calls. */
 export const globalLimiter = base({})
 
 /**
@@ -47,7 +47,7 @@ export const authLimiter = base({
   },
 })
 
-/** Password reset and verification resends — expensive and abusable for spam. */
+/** Password reset and verification resends, expensive and abusable for spam. */
 export const sensitiveLimiter = base({ windowMs: 60 * 60_000, max: 5 })
 
 /**

@@ -4,13 +4,13 @@ import mongoose from 'mongoose'
  * Integration test harness.
  *
  * Uses a real MongoDB rather than mocking Mongoose. Mocked models cannot
- * exercise the mechanisms this codebase depends on for correctness — unique
+ * exercise the mechanisms this codebase depends on for correctness, unique
  * indexes, atomic $inc counters, partial filter expressions, the ledger's
  * immutability guards. Those are precisely what make double-crediting
  * impossible, so they must be tested against a real server.
  *
  * ==========================================================================
- * SAFETY GUARDS — READ BEFORE CHANGING
+ * SAFETY GUARDS. READ BEFORE CHANGING
  * ==========================================================================
  * This harness DROPS THE DATABASE in teardown. Pointing it at a real database
  * destroys that data. That is not hypothetical: the natural thing a developer
@@ -32,7 +32,7 @@ import mongoose from 'mongoose'
  * The database name must identify itself as disposable.
  *
  * The boundary characters matter. An earlier version used /test([-_]|$)/, which
- * matched "latest", "contest" and "greatest" — all of which END with the
+ * matched "latest", "contest" and "greatest", all of which END with the
  * literal string "test". A database called `latest` would have been silently
  * accepted and dropped. Caught by tests/unit/database-guard.test.ts.
  *
@@ -75,7 +75,7 @@ export function inspectUri(uri: string): UriFacts {
 
 /**
  * Throws unless it is safe to run destructive tests against this URI.
- * Exported so it can be unit-tested — a guard nobody tests is not a guard.
+ * Exported so it can be unit-tested, a guard nobody tests is not a guard.
  */
 export function assertSafeTestDatabase(uri: string): void {
   const { databaseName, hosts, isLocal } = inspectUri(uri)

@@ -34,13 +34,13 @@ import { CATALOGS, type TranslationKey } from './locales'
  *    reads as broken to the people it is meant to serve.
  *
  * 4. THE PREFERENCE IS THE USER'S. Detected from the browser on first visit,
- *    then persisted. It is never inferred from their country — plenty of people
+ *    then persisted. It is never inferred from their country, plenty of people
  *    live somewhere whose majority language is not theirs.
  */
 
 export interface LanguageOption {
   code: string
-  /** Name in the language itself — a French speaker looks for "Français". */
+  /** Name in the language itself, a French speaker looks for "Français". */
   endonym: string
   /** Name in the current interface language, for context. */
   exonym: string
@@ -56,7 +56,7 @@ const STORAGE_KEY = 'taxpedestal.locale'
  * The distinction decides who wins when a visitor picks a language on the
  * marketing site and then signs into an account saved with a different one.
  * A deliberate choice made minutes ago should beat a preference saved months
- * ago — and should update the account, not be overwritten by it.
+ * ago, and should update the account, not be overwritten by it.
  */
 const EXPLICIT_KEY = 'taxpedestal.localeExplicit'
 
@@ -73,8 +73,8 @@ interface I18nState {
    *
    * The server returns a stable code plus English prose (aging buckets,
    * payment rails, coverage summaries). When a catalogue covers the code we
-   * use it; when it does not — a code added server-side before the catalogue
-   * caught up — the caller still renders the server's words rather than a raw
+   * use it; when it does not, a code added server-side before the catalogue
+   * caught up, the caller still renders the server's words rather than a raw
    * key like "rail.FLUTTERWAVE".
    */
   tOr: (key: string, fallback: string, vars?: Record<string, string | number>) => string
@@ -164,7 +164,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   /**
    * Publish the choice to the API client.
    *
-   * Some strings can only be localised by the server — the 249 country names
+   * Some strings can only be localised by the server, the 249 country names
    * and the language an invoice PDF is rendered in. Without this the server
    * would answer in the browser's language while the interface showed another.
    */
@@ -262,7 +262,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
    *
    * Only those with a catalogue are listed. The registry in languages.ts knows
    * of 70, but listing 55 at 0% would be a worse product than listing 15
-   * honestly — per-key fallback means an untranslated language renders entirely
+   * honestly, per-key fallback means an untranslated language renders entirely
    * in English, which is not a language choice, it is a broken one.
    *
    * Coverage is COUNTED here rather than declared anywhere, so the figure the
@@ -312,7 +312,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     [locale],
   )
 
-  /** "in 3 days" / "il y a 3 jours" — Intl handles the plural rules. */
+  /** "in 3 days" / "il y a 3 jours". Intl handles the plural rules. */
   const formatRelativeDays = useCallback<I18nState['formatRelativeDays']>(
     (value) => {
       const days = Math.round((new Date(value).getTime() - Date.now()) / 86_400_000)
@@ -329,7 +329,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
    * Maps a country to a language we can actually render.
    *
    * The registry covers 206 countries, but falls back to English when the
-   * mapped language has no catalogue — offering someone Amharic and then
+   * mapped language has no catalogue, offering someone Amharic and then
    * showing them English is worse than showing English from the start.
    */
   const languageForCountry = useCallback((country: string): string => {
