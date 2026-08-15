@@ -67,6 +67,22 @@ const schema = z
       .default('true')
       .transform((v) => v === 'true'),
 
+    /**
+     * Shared secret for the HTTP cron endpoints.
+     *
+     * On serverless the in-process scheduler cannot run, so the same jobs are
+     * driven by the platform calling `/api/v1/cron/:job`. Those routes trigger
+     * real financial work, so they are refused outright unless this is set —
+     * an unauthenticated reconciliation endpoint is worse than no endpoint.
+     */
+    // Empty is treated as absent: `.env.example` ships the key with no value,
+    // and dotenv loads that as '' — which would otherwise fail the length rule
+    // and refuse to boot locally.
+    CRON_SECRET: z.preprocess(
+      (v) => (typeof v === 'string' && v.trim() === '' ? undefined : v),
+      z.string().min(16).optional(),
+    ),
+
     RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
     RATE_LIMIT_MAX: z.coerce.number().int().positive().default(300),
   })
@@ -121,6 +137,16 @@ export const env = parsed.data
 export const isProduction = env.NODE_ENV === 'production'
 export const isTest = env.NODE_ENV === 'test'
 export const isDevelopment = env.NODE_ENV === 'development'
+
+/**
+ * Running as a serverless function rather than a long-lived process.
+ *
+ * `VERCEL` is set by the platform on every build and invocation. It changes
+ * three behaviours: no signal handlers, no in-process cron, and a smaller
+ * connection pool, because many short-lived instances each holding a large
+ * pool is how a serverless deployment exhausts an Atlas connection limit.
+ */
+export const isServerless = process.env.VERCEL === '1' || Boolean(process.env.VERCEL_ENV)
 
 export const corsOrigins = env.CORS_ORIGINS.split(',')
   .map((o) => o.trim())

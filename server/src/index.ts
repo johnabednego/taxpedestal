@@ -1,32 +1,65 @@
 import { createApp } from './app'
 import { connectDatabase, disconnectDatabase } from './config/db'
-import { env } from './config/env'
+import { env, isServerless } from './config/env'
 import { logger } from './core/logger'
 import { startScheduler } from './jobs/scheduler'
 
 /**
  * Process entry point.
  *
- * The database connects BEFORE the port is bound, so the platform's health
- * check cannot mark an instance healthy while it is still unable to serve.
+ * ============================================================================
+ * THIS FILE RUNS ON BOTH A LONG-LIVED SERVER AND ON VERCEL
+ * ============================================================================
+ * Vercel's Express support detects an entry point at `src/index.ts` and
+ * captures the server created by `app.listen()` — the port is never exposed
+ * publicly, it is how the platform finds the app. The detection happens during
+ * MODULE STARTUP, which drives the two differences from a conventional server:
+ *
+ *   1. The listener is bound synchronously. The previous version awaited the
+ *      database first, so on a cold start nothing was listening until Atlas
+ *      answered. Mongoose buffers commands until it connects, so binding first
+ *      and connecting alongside loses nothing: an early request waits for the
+ *      connection instead of being refused by a server that does not yet exist.
+ *
+ *   2. Signal handlers and `process.exit` are installed only off-serverless.
+ *      A function instance is shared between invocations; tearing the process
+ *      down from inside one request would abort the others in flight.
+ *
+ * `/health` deliberately does not touch the database, and `/ready` reports 503
+ * until the connection is up, so the window before the database is ready is
+ * visible rather than silent.
  */
-async function bootstrap(): Promise<void> {
-  await connectDatabase()
+const app = createApp()
 
-  const app = createApp()
-  const server = app.listen(env.PORT, () => {
-    logger.info(
-      { port: env.PORT, env: env.NODE_ENV, appUrl: env.APP_URL },
-      'TaxPedestal API listening',
-    )
-  })
+// Not awaited: see (1) above. A failure is logged and left to `/ready` to
+// report — throwing here would take down an instance that can still serve the
+// health endpoints and return honest 503s.
+void connectDatabase().catch((error: unknown) => {
+  logger.error(
+    { err: error instanceof Error ? error.message : String(error) },
+    'Database connection failed at startup',
+  )
+})
 
-  startScheduler()
+const server = app.listen(env.PORT, () => {
+  logger.info(
+    { port: env.PORT, env: env.NODE_ENV, appUrl: env.APP_URL, serverless: isServerless },
+    'TaxPedestal API listening',
+  )
+})
 
+/**
+ * In-process cron. Disabled on serverless, where a schedule registered inside a
+ * function instance either never fires or fires once per cold start. Vercel
+ * drives the same jobs through HTTP instead — see `cron.routes.ts`.
+ */
+startScheduler()
+
+if (!isServerless) {
   /**
-   * Graceful shutdown. Render sends SIGTERM before replacing an instance; without
-   * this, in-flight requests are severed mid-response and a payment write can be
-   * interrupted between the ledger insert and the status transition.
+   * Graceful shutdown. A platform that replaces instances sends SIGTERM first;
+   * without this, in-flight requests are severed mid-response and a payment
+   * write can be interrupted between the ledger insert and the status change.
    */
   const shutdown = (signal: string) => {
     logger.info({ signal }, 'Shutting down')
@@ -43,19 +76,21 @@ async function bootstrap(): Promise<void> {
   process.on('SIGTERM', () => shutdown('SIGTERM'))
   process.on('SIGINT', () => shutdown('SIGINT'))
 
-  process.on('unhandledRejection', (reason) => {
-    logger.error({ reason }, 'Unhandled promise rejection')
-  })
   process.on('uncaughtException', (error) => {
     logger.fatal({ err: error.message, stack: error.stack }, 'Uncaught exception — exiting')
     process.exit(1)
   })
 }
 
-void bootstrap().catch((error: unknown) => {
-  logger.fatal(
-    { err: error instanceof Error ? error.message : String(error) },
-    'Failed to start',
-  )
-  process.exit(1)
+// Logged on every platform: an unhandled rejection is a defect wherever it
+// happens, but it must not exit a shared serverless instance.
+process.on('unhandledRejection', (reason) => {
+  logger.error({ reason }, 'Unhandled promise rejection')
 })
+
+/**
+ * Also exported as a default, which is the other shape Vercel accepts. Harmless
+ * on a conventional server, and it keeps the entry point working if the
+ * platform ever prefers the export over the listener.
+ */
+export default app

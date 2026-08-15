@@ -16,6 +16,7 @@ import { supportedTaxCountries } from './services/tax/engine'
 
 import adminRoutes from './modules/admin/admin.routes'
 import analyticsRoutes from './modules/analytics/analytics.routes'
+import cronRoutes from './modules/cron/cron.routes'
 import authRoutes from './modules/auth/auth.routes'
 import clientRoutes from './modules/clients/client.routes'
 import invoiceRoutes from './modules/invoices/invoice.routes'
@@ -177,6 +178,8 @@ export function createApp(): Express {
   app.use('/api/v1/invoices', invoiceRoutes)
   app.use('/api/v1/analytics', analyticsRoutes)
   app.use('/api/v1/admin', adminRoutes)
+  // Platform-scheduled jobs. Guarded by CRON_SECRET, not by a user session.
+  app.use('/api/v1/cron', cronRoutes)
   // Unauthenticated customer-facing pages.
   app.use('/api/v1/public/invoices', publicRoutes)
 

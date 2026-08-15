@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { env, isProduction, isTest } from './env'
+import { env, isProduction, isServerless, isTest } from './env'
 import { logger } from '../core/logger'
 
 /**
@@ -33,11 +33,23 @@ export async function connectDatabase(uri = env.MONGODB_URI): Promise<typeof mon
   // built. Ids are cast explicitly and search terms are regex-escaped.
 
   connectionPromise = mongoose.connect(uri, {
-    // Keep the pool small: Atlas free tier caps at 500 connections and
-    // Render may run several instances.
-    maxPoolSize: isProduction ? 10 : 5,
+    /**
+     * Pool size is per PROCESS, and serverless multiplies processes.
+     *
+     * A long-lived server keeps one pool, so ten is comfortable. A serverless
+     * deployment can hold dozens of concurrent instances, each with its own
+     * pool — at ten apiece that exhausts an Atlas free-tier connection limit
+     * under very ordinary traffic. Instances there are also short-lived and
+     * handle few simultaneous requests, so a small pool costs nothing.
+     */
+    maxPoolSize: isServerless ? 3 : isProduction ? 10 : 5,
     minPoolSize: 0,
-    serverSelectionTimeoutMS: 10_000,
+    /**
+     * Must stay well inside the function's invocation timeout, or a cold start
+     * against an unreachable database burns the whole budget and the caller
+     * gets a platform timeout instead of the API's own 503.
+     */
+    serverSelectionTimeoutMS: isServerless ? 5_000 : 10_000,
     socketTimeoutMS: 45_000,
     // Retry a transient write once before surfacing an error.
     retryWrites: true,
