@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  * {
+    @apply border-ink-100;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-ink-50 text-ink-900 font-sans antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* Tabular figures everywhere money appears. Without this, a column of
+     amounts jitters because glyph widths differ, which reads as sloppy to
+     exactly the audience that cares most. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+
+  h1, h2, h3 {
+    @apply font-display tracking-tightest;
+  }
+
+  /* Visible focus for keyboard users, suppressed for mouse clicks. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-cobalt ring-offset-2 ring-offset-white;
+  }
+
+  ::selection {
+    @apply bg-cobalt-100 text-ink-900;
+  }
+}
+
+@layer components {
+  .money {
+    @apply font-mono tnum;
+  }
+
+  /* Subtle ruled paper texture for invoice surfaces. Reinforces the
+     "this is a document" register without a background image request. */
+  .ruled {
+    background-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent calc(100% - 1px),
+      rgba(11, 27, 58, 0.06) calc(100% - 1px)
+    );
+    background-size: 100% 2.5rem;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden bg-ink-100 rounded;
+  }
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full animate-shimmer;
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.6),
+      transparent
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,407 @@
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
+import { Loader2, Plus, ScrollText, Trash2 } from 'lucide-react'
+import dayjs from 'dayjs'
+import { ApiError, api, newIdempotencyKey } from '../lib/api'
+import { useAuth } from '../lib/auth'
+import { formatMoney, inputToQty, parseMoney } from '../lib/format'
+import {
+  Button,
+  Card,
+  ErrorNotice,
+  Input,
+  Select,
+  Textarea,
+  useToast,
+} from '../components/ui'
+
+interface ClientOption {
+  _id: string
+  name: string
+  country: string
+  defaultCurrency: string
+  isBusiness: boolean
+  taxId: string | null
+}
+
+interface Preview {
+  subtotalMinor: number
+  discountMinor: number
+  taxMinor: number
+  totalMinor: number
+  taxComponents: Array<{ code: string; label: string; amountMinor: number }>
+  taxNotes: string[]
+  treatmentLabel: string | null
+}
+
+interface LineDraft {
+  key: string
+  description: string
+  quantity: string
+  unitAmount: string
+  supplyType: 'goods' | 'services' | 'digital_services'
+}
+
+const emptyLine = (): LineDraft => ({
+  key: Math.random().toString(36).slice(2),
+  description: '',
+  quantity: '1',
+  unitAmount: '',
+  supplyType: 'services',
+})
+
+export default function InvoiceBuilder() {
+  const { org } = useAuth()
+  const navigate = useNavigate()
+  const toast = useToast()
+
+  const [clientId, setClientId] = useState('')
+  const [currency, setCurrency] = useState(org?.baseCurrency ?? 'USD')
+  const [issueDate, setIssueDate] = useState(dayjs().format('YYYY-MM-DD'))
+  const [dueDate, setDueDate] = useState(dayjs().add(14, 'day').format('YYYY-MM-DD'))
+  const [lines, setLines] = useState<LineDraft[]>([emptyLine()])
+  const [discountPercent, setDiscountPercent] = useState('0')
+  const [reference, setReference] = useState('')
+  const [notes, setNotes] = useState('')
+  const [preview, setPreview] = useState<Preview | null>(null)
+  const [previewing, setPreviewing] = useState(false)
+  const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  const { data: clients } = useQuery({
+    queryKey: ['clients', org?.id, 'picker'],
+    queryFn: () => api<{ data: ClientOption[] }>('/api/v1/clients?limit=100'),
+    enabled: Boolean(org),
+  })
+
+  const selectedClient = clients?.data.find((c) => c._id === clientId)
+
+  // Adopt the client's preferred currency when one is chosen.
+  useEffect(() => {
+    if (selectedClient) setCurrency(selectedClient.defaultCurrency)
+  }, [selectedClient])
+
+  const payloadLines = useMemo(
+    () =>
+      lines
+        .filter((line) => line.description.trim() && line.unitAmount.trim())
+        .map((line) => ({
+          description: line.description.trim(),
+          quantityMilli: inputToQty(line.quantity),
+          unitAmountMinor: parseMoney(line.unitAmount, currency),
+          supplyType: line.supplyType,
+        })),
+    [lines, currency],
+  )
+
+  /**
+   * Live preview.
+   *
+   * Debounced and always computed BY THE SERVER using the same pricing function
+   * that will persist the invoice. Recomputing totals in the browser would
+   * eventually disagree with the saved figures — a class of bug that erodes
+   * trust faster than almost anything else in a billing product.
+   */
+  useEffect(() => {
+    if (!clientId || payloadLines.length === 0) {
+      setPreview(null)
+      return
+    }
+
+    const timer = setTimeout(() => {
+      setPreviewing(true)
+      void api<Preview>('/api/v1/invoices/preview', {
+        method: 'POST',
+        body: {
+          clientId,
+          currency,
+          issueDate: dayjs(issueDate).toISOString(),
+          lines: payloadLines,
+          discountBasisPoints: Math.round((Number(discountPercent) || 0) * 100),
+        },
+      })
+        .then(setPreview)
+        .catch(() => setPreview(null))
+        .finally(() => setPreviewing(false))
+    }, 350)
+
+    return () => clearTimeout(timer)
+  }, [clientId, currency, issueDate, payloadLines, discountPercent])
+
+  const updateLine = (key: string, patch: Partial<LineDraft>) =>
+    setLines((current) => current.map((l) => (l.key === key ? { ...l, ...patch } : l)))
+
+  const save = async (send: boolean) => {
+    setSaving(true)
+    setError('')
+    try {
+      const invoice = await api<{ _id: string }>('/api/v1/invoices', {
+        method: 'POST',
+        idempotencyKey: newIdempotencyKey(),
+        body: {
+          clientId,
+          currency,
+          issueDate: dayjs(issueDate).toISOString(),
+          dueDate: dayjs(dueDate).toISOString(),
+          lines: payloadLines,
+          discountBasisPoints: Math.round((Number(discountPercent) || 0) * 100),
+          reference: reference || null,
+          notes: notes || null,
+        },
+      })
+
+      if (send) {
+        await api(`/api/v1/invoices/${invoice._id}/send`, {
+          method: 'POST',
+          idempotencyKey: newIdempotencyKey(),
+          body: { sendEmail: true },
+        })
+        toast.push('Invoice sent', 'success')
+      } else {
+        toast.push('Draft saved', 'success')
+      }
+
+      navigate(`/app/invoices/${invoice._id}`)
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Could not save the invoice')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const canSave = Boolean(clientId) && payloadLines.length > 0
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-2xl font-bold text-ink-900">New invoice</h1>
+        <p className="text-sm text-ink-500">
+          Tax is calculated from your country and your client&rsquo;s.
+        </p>
+      </div>
+
+      {error && <ErrorNotice message={error} />}
+
+      <div className="grid gap-5 lg:grid-cols-[1.6fr_1fr]">
+        <div className="space-y-5">
+          <Card>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Select
+                label="Client"
+                required
+                value={clientId}
+                onChange={(e) => setClientId(e.target.value)}
+              >
+                <option value="">Choose a client…</option>
+                {clients?.data.map((client) => (
+                  <option key={client._id} value={client._id}>
+                    {client.name} ({client.country})
+                  </option>
+                ))}
+              </Select>
+              <Select
+                label="Currency"
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+              >
+                {(useAuth().meta?.currencies ?? []).map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.code} — {c.name}
+                  </option>
+                ))}
+              </Select>
+              <Input
+                label="Issue date"
+                type="date"
+                value={issueDate}
+                onChange={(e) => setIssueDate(e.target.value)}
+              />
+              <Input
+                label="Due date"
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+              />
+            </div>
+          </Card>
+
+          <Card>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-ink-900">Lines</h2>
+              <Button
+                size="sm"
+                variant="secondary"
+                icon={<Plus className="h-3.5 w-3.5" />}
+                onClick={() => setLines((c) => [...c, emptyLine()])}
+              >
+                Add line
+              </Button>
+            </div>
+
+            <div className="space-y-3">
+              {lines.map((line, index) => (
+                <div
+                  key={line.key}
+                  className="grid grid-cols-12 items-end gap-2 rounded-lg border border-ink-100 p-3"
+                >
+                  <div className="col-span-12 sm:col-span-5">
+                    <Input
+                      label={index === 0 ? 'Description' : undefined}
+                      value={line.description}
+                      onChange={(e) => updateLine(line.key, { description: e.target.value })}
+                      placeholder="What are you billing for?"
+                    />
+                  </div>
+                  <div className="col-span-4 sm:col-span-2">
+                    <Input
+                      label={index === 0 ? 'Qty' : undefined}
+                      value={line.quantity}
+                      mono
+                      inputMode="decimal"
+                      onChange={(e) => updateLine(line.key, { quantity: e.target.value })}
+                    />
+                  </div>
+                  <div className="col-span-6 sm:col-span-3">
+                    <Input
+                      label={index === 0 ? `Unit price (${currency})` : undefined}
+                      value={line.unitAmount}
+                      mono
+                      inputMode="decimal"
+                      placeholder="0.00"
+                      onChange={(e) => updateLine(line.key, { unitAmount: e.target.value })}
+                    />
+                  </div>
+                  <div className="col-span-2 flex justify-end pb-1">
+                    <button
+                      onClick={() =>
+                        setLines((c) =>
+                          c.length === 1 ? [emptyLine()] : c.filter((l) => l.key !== line.key),
+                        )
+                      }
+                      aria-label="Remove line"
+                      className="rounded-lg p-2 text-ink-400 hover:bg-rose-50 hover:text-rose"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <Card>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Input
+                label="Discount %"
+                value={discountPercent}
+                mono
+                inputMode="decimal"
+                hint="Applied before tax"
+                onChange={(e) => setDiscountPercent(e.target.value)}
+              />
+              <Input
+                label="Reference"
+                value={reference}
+                onChange={(e) => setReference(e.target.value)}
+                placeholder="PO number or project"
+              />
+            </div>
+            <div className="mt-3">
+              <Textarea
+                label="Notes"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Payment terms, thanks, anything the client should see"
+              />
+            </div>
+          </Card>
+        </div>
+
+        {/* Live totals */}
+        <div className="lg:sticky lg:top-6 lg:self-start">
+          <Card>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-ink-900">Totals</h2>
+              {previewing && <Loader2 className="h-4 w-4 animate-spin text-ink-400" />}
+            </div>
+
+            {!preview ? (
+              <p className="py-8 text-center text-sm text-ink-500">
+                Choose a client and add a line to see the tax.
+              </p>
+            ) : (
+              <div className="space-y-1.5">
+                <Row label="Subtotal" value={formatMoney(preview.subtotalMinor, currency)} />
+                {preview.discountMinor > 0 && (
+                  <Row
+                    label="Discount"
+                    value={`−${formatMoney(preview.discountMinor, currency)}`}
+                  />
+                )}
+
+                {preview.taxComponents.length > 0 ? (
+                  preview.taxComponents.map((component) => (
+                    <Row
+                      key={component.code}
+                      label={component.label}
+                      value={formatMoney(component.amountMinor, currency)}
+                    />
+                  ))
+                ) : (
+                  <Row label="Tax" value={formatMoney(0, currency)} />
+                )}
+
+                <div className="flex items-baseline justify-between border-t border-ink-200 pt-3">
+                  <span className="text-sm font-semibold text-ink-900">Total</span>
+                  <span className="money text-xl font-bold text-ink-900">
+                    {formatMoney(preview.totalMinor, currency)}
+                  </span>
+                </div>
+
+                {preview.taxNotes.length > 0 && (
+                  <div className="mt-3 rounded-lg bg-cobalt-50 px-3 py-2">
+                    {preview.taxNotes.map((note) => (
+                      <p key={note} className="text-xs leading-relaxed text-cobalt-700">
+                        <ScrollText className="mr-1 inline h-3 w-3" />
+                        {note}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="mt-5 space-y-2">
+              <Button
+                className="w-full"
+                disabled={!canSave}
+                loading={saving}
+                onClick={() => save(true)}
+              >
+                Send invoice
+              </Button>
+              <Button
+                variant="secondary"
+                className="w-full"
+                disabled={!canSave}
+                onClick={() => save(false)}
+              >
+                Save as draft
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between text-sm">
+      <span className="text-ink-500">{label}</span>
+      <span className="money text-ink-800">{value}</span>
+    </div>
+  )
+}
